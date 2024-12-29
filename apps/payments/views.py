@@ -19,13 +19,16 @@ def water_bills(request):
 
 def new_bill(request):
     if request.method == "POST":
-        unit = request.POST.get("unit")
+        unit_id = request.POST.get("unit")
         year = request.POST.get("year")
         units = request.POST.get("units")
         month = request.POST.get("month")
+
+        unit = PropertyUnit.objects.get(id=unit_id)
     
         WaterBill.objects.create(
-            unit_id=unit, 
+            unit=unit,
+            tenant=unit.tenant, 
             month=month, 
             year=year, 
             units=units
@@ -37,13 +40,16 @@ def new_bill(request):
 def edit_bill(request):
     if request.method == "POST":
         bill_id = request.POST.get("bill_id")
-        unit = request.POST.get("unit")
+        unit_id = request.POST.get("unit")
         month = request.POST.get("month")
         year = request.POST.get("year")
         units = request.POST.get("units")
+
+        unit = PropertyUnit.objects.get(id=unit_id)
     
         WaterBill.objects.filter(id=bill_id).update(
-            unit_id=unit, 
+            unit=unit, 
+            tenant=unit.tenant,
             month=month, 
             year=year, 
             units=units

@@ -101,21 +101,27 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
+                            <th>#</th>
+                            <th>Property</th>
                             <th>Unit No.</th>
                             <th>Type</th>
                             <th>Floor</th>
                             <th>Monthly Rent</th>
-                            <th>Status</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
+                        {% for unit in units %}
                         <tr>
-                            <td>A-101</td>
-                            <td>2 BHK</td>
-                            <td>1st Floor</td>
-                            <td>$1,200</td>
-                            <td><span class="badge bg-success">Occupied</span></td>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{unit.property.name}}</td>
+                            <td>{{unit.name}}</td>
+                            <td>{{unit.unit_type}}</td>
+                            <td>{{unit.floor}}</td>
+                            <td>{{unit.rent}}</td>
+                            
                         </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -128,28 +134,24 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
+                            <th>#</th>
+                            <th>Unit</th>
                             <th>Month</th>
-                            <th>Usage (Gallons)</th>
+                            <th>Units</th>
                             <th>Amount</th>
-                            <th>Due Date</th>
-                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% for bill in water_bills %}
                         <tr>
-                            <td>June 2023</td>
-                            <td>2,500</td>
-                            <td>$45</td>
-                            <td>July 15, 2023</td>
-                            <td><span class="badge bg-success">Paid</span></td>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{bill.unit.name}}</td>
+                            <td>{{ bill.month }}(<b>{{bill.year}}</b>)</td>
+                            <td>{{bill.units}}</td>
+                            <td>{{bill.amount}}</td>
+                            
                         </tr>
-                        <tr>
-                            <td>May 2023</td>
-                            <td>2,300</td>
-                            <td>$42</td>
-                            <td>June 15, 2023</td>
-                            <td><span class="badge bg-success">Paid</span></td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -162,35 +164,25 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Amount</th>
+                            <th>#</th>
+                            <th>Date Expected</th>
+                            <th>Amount Expected</th>
+                            <th>Amount Paid</th>
                             <th>Status</th>
                             <th>Reference</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% for payment in payments %}
                         <tr>
-                            <td>July 1, 2023</td>
-                            <td>Rent</td>
-                            <td>$1,200</td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td>PAY-2023070101</td>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ payment.date_expected }}</td>
+                            <td>{{ payment.amount_exptected }}</td>
+                            <td>{{ payment.amount_paid }}</td>
+                            <td><span class="badge bg-success">{{payment.status}}</span></td>
+                            <td>{{ payment.reference }}</td>
                         </tr>
-                        <tr>
-                            <td>June 15, 2023</td>
-                            <td>Water Bill</td>
-                            <td>$45</td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td>PAY-2023061501</td>
-                        </tr>
-                        <tr>
-                            <td>June 1, 2023</td>
-                            <td>Rent</td>
-                            <td>$1,200</td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td>PAY-2023060101</td>
-                        </tr>
+                       {% endfor %}
                     </tbody>
                 </table>
             </div>

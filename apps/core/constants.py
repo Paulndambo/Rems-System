@@ -99,3 +99,22 @@ UNIT_STATUSES = [
     'Occupied',
     'Under Maintenance'
 ]
+
+PAYMENT_STATUSES = [
+    'Future',
+    'Pending',
+    'Paid',
+    'Overdue',
+    'Partially Paid'
+]
+
+class PaymentStatuses(Enum):
+    FUTURE = 'Future'
+    PENDING = 'Pending'
+    PAID = 'Paid'
+    OVERDUE = 'Overdue'
+    PARTIALLY_PAID = 'Partially Paid'
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
