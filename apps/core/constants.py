@@ -118,3 +118,14 @@ class PaymentStatuses(Enum):
     @classmethod
     def choices(cls):
         return [(key.value, key.name) for key in cls]
+
+
+class MaintenanceStatuses(Enum):
+    IN_PROGRESS = 'In Progress'
+    COMPLETED = 'Completed'
+    OVERDUE = 'Overdue'
+    PENDING = 'Pending'
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]

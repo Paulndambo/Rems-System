@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="col">
+            <h5 class="mb-0">Maintenance Requests</h5>
+        </div>
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Search..." 
+                id="searchInput" value="{{ search_query }}">
+            </div>
+            <div class="col text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal">
+                <i class="fas fa-plus me-2"></i>Add New Request
+            </button>
+        </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tenantsTable" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Property</th>
+                    <th>Unit</th>
+                    <th>Tenant</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in maintenance_requests %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{request.title}}</td>
+                    <td>{{request.property}}</td>
+                    <td>{{request.unit}}</td>
+                    <td>{{request.unit.tenant.user.name}}</td>
+                    <td><span class="tenant-status status-active">{{request.status}}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editRequestModal{{request.id}}"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteRequestModal{{request.id}}"><i class="fas fa-trash"></i></button>
+                    </td>
+                    {% include "properties/maintenance_requests/edit_maintenance_request.html" %}
+                    {% include "properties/maintenance_requests/delete_maintenance_request.html" %}
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

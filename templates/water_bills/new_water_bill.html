@@ -14,7 +14,7 @@
                         <select class="form-select" id="unit" name="unit">
                             <option value="" selected>Choose...</option>
                             {% for unit in units %}
-                                <option value="{{unit.id}}">{{unit.name}}</option>
+                                <option value="{{unit.id}}">{{unit.name}}({{unit.property}})</option>
                             {% endfor %}
                         </select>
                     </div>

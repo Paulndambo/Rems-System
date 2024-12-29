@@ -1,6 +1,7 @@
 from django.db import models
 
 from apps.core.models import AbstractBaseModel
+from apps.core.constants import MaintenanceStatuses
 # Create your models here.
 class Property(AbstractBaseModel):
     owner = models.ForeignKey('users.User', on_delete=models.CASCADE)
@@ -31,6 +32,10 @@ class Property(AbstractBaseModel):
     def occupancy_rate(self):
         occupancy = (self.occupied_units() / self.total_units()) * 100 if self.total_units() > 0 else 0
         return round(occupancy, 2)
+
+    
+    def monthly_revenue(self):
+        return sum(list(self.propertyunits.filter(is_occupied=True).values_list('rent', flat=True)))
     
 
 class PropertyUnit(AbstractBaseModel):
@@ -48,4 +53,13 @@ class PropertyUnit(AbstractBaseModel):
     def __str__(self):
         return self.name
     
-    
+
+class MaintenanceRequest(AbstractBaseModel):
+    title = models.CharField(max_length=255)
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE)
+    description = models.TextField()
+    status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
+    image = models.ImageField(upload_to='maintenance/', blank=True, null=True)
+    def __str__(self):
+        return self.name
