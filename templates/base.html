@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REMS</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            --topbar-height: 60px;
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        #sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary-color);
+            color: #fff;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+        }
+
+        #sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: var(--secondary-color);
+            height: var(--topbar-height);
+        }
+
+        #sidebar ul.components {
+            padding: 20px 0;
+            border-bottom: 1px solid #47748b;
+        }
+
+        #sidebar ul li a {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        #sidebar ul li a:hover {
+            background: #34495e;
+        }
+
+        #sidebar ul li a i {
+            margin-right: 10px;
+            width: 30px;
+            text-align: center;
+        }
+
+        #sidebar.collapsed .nav-label,
+        #sidebar.collapsed .submenu {
+            display: none;
+        }
+
+        #sidebar .submenu {
+            padding-left: 50px;
+            background: var(--secondary-color);
+        }
+
+        #content {
+            width: calc(100% - var(--sidebar-width));
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        #content.expanded {
+            width: calc(100% - var(--sidebar-collapsed-width));
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        .topbar {
+            height: var(--topbar-height);
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .card-stats {
+            transition: transform 0.3s;
+        }
+
+        .card-stats:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: calc(-1 * var(--sidebar-width));
+            }
+
+            #sidebar.collapsed {
+                margin-left: 0;
+            }
+
+            #content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            #content.expanded {
+                width: calc(100% - var(--sidebar-collapsed-width));
+                margin-left: var(--sidebar-collapsed-width);
+            }
+        }
+    </style>
+    {% block additional_styles %} {% endblock additional_styles %}
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        {% include "includes/sidebar.html" %}
+
+        <!-- Page Content -->
+        <div id="content">
+            <div class="topbar">
+                <button type="button" id="sidebarCollapse" class="btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="ms-auto d-flex align-items-center">
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-4">
+                {% include "properties/new_property.html" %}
+                {% include "tenants/new_tenant.html" %}
+                {% include "water_bills/new_water_bill.html" %}
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    {% block additional_scripts %} {% endblock additional_scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const sidebarCollapse = document.getElementById('sidebarCollapse');
+
+            sidebarCollapse.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('expanded');
+            });
+
+            // Handle submenu toggles
+            const submenuToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
+            submenuToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('collapsed')) {
+                        e.preventDefault();
+                        sidebar.classList.remove('collapsed');
+                        content.classList.remove('expanded');
+                    }
+                });
+            });
+
+            // Collapse sidebar on mobile by default
+            function checkWidth() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('collapsed');
+                    content.classList.add('expanded');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    content.classList.remove('expanded');
+                }
+            }
+
+            window.addEventListener('resize', checkWidth);
+            checkWidth();
+        });
+    </script>
+</body>
+</html>

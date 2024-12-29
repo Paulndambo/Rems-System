@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="col">
+            <h5 class="mb-0">Properties</h5>
+        </div>
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Search..." 
+                id="searchInput" value="{{ search_query }}">
+            </div>
+            <div class="col text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPropertyModal">
+                <i class="fas fa-plus me-2"></i>Add New Property
+            </button>
+        </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tenantsTable" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Units</th>
+                    <th>City</th>
+                    <th>Country</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for property in properties %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{property.name}}</td>
+                    <td>{{property.units}}</td>
+                    <td>{{property.city}}</td>
+                    <td>{{property.country}}</td>
+                    
+                    <td><span class="tenant-status status-active">Active</span></td>
+                    <td>
+                        <a href="{% url 'property-detail' property.id %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editPropertyModal{{property.id}}"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deletePropertyModal{{property.id}}"><i class="fas fa-trash"></i></button>
+                    </td>
+                    {% include "properties/edit_property.html" %}
+                    {% include "properties/delete_property.html" %}
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

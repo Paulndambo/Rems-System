@@ -1,0 +1,56 @@
+<nav id="sidebar">
+    <div class="sidebar-header d-flex align-items-center">
+        <span class="nav-label">REMS</span>
+    </div>
+
+    <ul class="list-unstyled components">
+        <li>
+            <a href="{% url 'home' %}" class="active">
+                <i class="fas fa-home"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="#propertiesSubmenu" data-bs-toggle="collapse">
+                <i class="fas fa-building"></i>
+                <span class="nav-label">Properties</span>
+                <i class="fas fa-chevron-down ms-auto"></i>
+            </a>
+            <ul class="collapse list-unstyled submenu" id="propertiesSubmenu">
+                <li><a href="{% url 'properties' %}"><span class="nav-label">List</span></a></li>
+                <li><a href="{% url 'units' %}"><span class="nav-label">Units</span></a></li>
+                <li><a href="#"><span class="nav-label">Maintenance</span></a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'tenants' %}">
+                <i class="fas fa-users"></i>
+                <span class="nav-label">Tenants</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fas fa-money-bill-wave"></i>
+                <span class="nav-label">Payments</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'water-bills' %}">
+                <i class="fas fa-faucet"></i>
+                <span class="nav-label">Water Bills</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fas fa-chart-bar"></i>
+                <span class="nav-label">Reports</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fas fa-cog"></i>
+                <span class="nav-label">Settings</span>
+            </a>
+        </li>
+    </ul>
+</nav>

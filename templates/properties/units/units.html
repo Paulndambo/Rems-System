@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block additional_styles %}
+    <style>
+        .property-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .property-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .unit-vacant {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .unit-occupied {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .unit-maintenance {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .info-card {
+            height: 100%;
+            transition: transform 0.2s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .detail-icon {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .units-table th {
+            background-color: #f8f9fa;
+        }
+    </style>
+{% endblock additional_styles %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="col">
+            <h5 class="mb-0">Property Units</h5>
+        </div>
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Search..." 
+                id="searchInput" value="{{ search_query }}">
+            </div>
+          
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tenantsTable" class="table" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Property</th>
+                    <th>Unit No.</th>
+                    <th>Type</th>
+                    <th>Rent</th>
+                    <th>Status</th>
+                    <th>Tenant</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in units %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{unit.property}}</td>
+                    <td>{{unit.name}}</td>
+                    <td>{{unit.unit_type}}</td>
+                    <td>{{unit.rent}}</td>
+                    <td>
+                        {% if unit.status == 'Vacant' %}
+                            <span class="badge unit-vacant">Vacant</span>
+                        {% elif unit.status == 'Occupied' %}
+                            <span class="badge unit-occupied">Occupied</span>
+                        {% else %}
+                            <span class="badge unit-maintenance">Maintenance</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if unit.tenant %}
+                            <a href="{% url 'tenant-detail' unit.tenant.id %}" style="text-decoration: none;">{{ unit.tenant.user.name }}</a>
+                        {% else %}
+                        <button class="btn btn-sm btn-primary"><i class="fas fa-user-plus"></i></button>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'unit-detail' unit.id %}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUnitModal{{unit.id}}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUnitModal{{unit.id}}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                    {% include "properties/units/edit_unit.html" %}
+                    {% include "properties/units/delete_unit.html" %}
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

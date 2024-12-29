@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block additional_styles %}
+<style>
+    .tenant-photo {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    .stats-card {
+        transition: transform 0.3s;
+    }
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock additional_styles %}
+
+{% block content %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <img src="/api/placeholder/150/150" alt="Tenant Photo" class="tenant-photo mb-3">
+                            </div>
+                            <div class="col-md-9">
+                                <h2 class="mb-3">{{tenant.user.name}}</h2>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Email:</strong> {{tenant.user.email}}</p>
+                                        <p><strong>Phone:</strong> {{tenant.user.phone}}</p>
+                                        <p><strong>Occupation:</strong> {{tenant.occupation}}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Move-in Date:</strong> {{tenant.move_in_date}}</p>
+                                        <p><strong>Lease End Date:</strong> {{tenant.lease_end_date}}</p>
+                                        <p><strong>Status:</strong> <span class="badge bg-success">{{tenant.status}}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Rent Paid</h6>
+                        <h3 class="card-text">$24,000</h3>
+                        <p class="mb-0"><small>Last payment: July 1, 2023</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Payment Reliability</h6>
+                        <h3 class="card-text">98%</h3>
+                        <p class="mb-0"><small>On-time payments</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card bg-info text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Water Bill Average</h6>
+                        <h3 class="card-text">$45</h3>
+                        <p class="mb-0"><small>Monthly average</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card bg-warning text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Lease Duration</h6>
+                        <h3 class="card-text">{{tenant.lease_duration}}</h3>
+                        <p class="mb-0"><small>Renews in {{tenant.lease_duration}}</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rented Units Table -->
+        <div class="table-container">
+            <h4 class="mb-3">Rented Units</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Unit No.</th>
+                            <th>Type</th>
+                            <th>Floor</th>
+                            <th>Monthly Rent</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>A-101</td>
+                            <td>2 BHK</td>
+                            <td>1st Floor</td>
+                            <td>$1,200</td>
+                            <td><span class="badge bg-success">Occupied</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Water Bills Table -->
+        <div class="table-container">
+            <h4 class="mb-3">Water Bills</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Month</th>
+                            <th>Usage (Gallons)</th>
+                            <th>Amount</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>June 2023</td>
+                            <td>2,500</td>
+                            <td>$45</td>
+                            <td>July 15, 2023</td>
+                            <td><span class="badge bg-success">Paid</span></td>
+                        </tr>
+                        <tr>
+                            <td>May 2023</td>
+                            <td>2,300</td>
+                            <td>$42</td>
+                            <td>June 15, 2023</td>
+                            <td><span class="badge bg-success">Paid</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Payments Table -->
+        <div class="table-container">
+            <h4 class="mb-3">Payment History</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>July 1, 2023</td>
+                            <td>Rent</td>
+                            <td>$1,200</td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                            <td>PAY-2023070101</td>
+                        </tr>
+                        <tr>
+                            <td>June 15, 2023</td>
+                            <td>Water Bill</td>
+                            <td>$45</td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                            <td>PAY-2023061501</td>
+                        </tr>
+                        <tr>
+                            <td>June 1, 2023</td>
+                            <td>Rent</td>
+                            <td>$1,200</td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                            <td>PAY-2023060101</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+{% block additional_scripts %} 
+    
+    <script>
+        // Add any interactive functionality here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Example: Add tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+{% endblock additional_scripts %}

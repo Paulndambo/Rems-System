@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="col">
+            <h5 class="mb-0">Water Bills</h5>
+        </div>
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Search..." 
+                id="searchInput" value="{{ search_query }}">
+            </div>
+            <div class="col text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newWaterBillModal">
+                <i class="fas fa-plus me-2"></i>Add New Water Bill
+            </button>
+        </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tenantsTable" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tenant</th>
+                    <th>House No.</th>
+                    <th>Month</th>
+                    <th>Units</th>
+                    <th>Amount</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in bills %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{bill.unit.tenant.user.name}}</td>
+                    <td>{{bill.unit.name}}</td>
+                    <td>{{bill.month}}(<b>{{bill.year}}</b>)</td>
+                    <td>{{bill.units}}</td>
+                    <td>{{bill.amount}}</td>
+                    <td>
+                       
+                        <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editWaterBillModal{{bill.id}}"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteWaterBillModal{{bill.id}}"><i class="fas fa-trash"></i></button>
+                    </td>
+                    {% include "water_bills/edit_bill.html" %}
+                    {% include "water_bills/delete_bill.html" %}
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

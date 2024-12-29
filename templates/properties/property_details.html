@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block additional_styles %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .property-image {
+        height: 300px;
+        object-fit: cover;
+        width: 100%;
+    }
+    .stats-card {
+        border-left: 4px solid;
+    }
+    .search-form {
+        max-width: 300px;
+    }
+</style>
+{% endblock additional_styles %}
+{% block content %}
+        <!-- Property Header -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2>{{property.name}}</h2>
+                        <p class="text-muted">{{property.address}}, {{property.city}}, {{property.country}}</p>
+                        <p><strong>Property Manager:</strong> Jane Smith</p>
+                        <p><strong>Contact:</strong> (555) 123-4567</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <button class="btn btn-primary me-2">
+                            <i class="fas fa-edit"></i> Edit Property
+                        </button>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card h-100" style="border-left-color: #28a745;">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Units</h6>
+                        <h3>{{property.units}}</h3>
+                        <p class="mb-0 text-success">All Units</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card h-100" style="border-left-color: #17a2b8;">
+                    <div class="card-body">
+                        <h6 class="text-muted">Occupancy Rate</h6>
+                        <h3>{{property.occupancy_rate}}%</h3>
+                        <p class="mb-0 text-info">21 Occupied Units</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card h-100" style="border-left-color: #dc3545;">
+                    <div class="card-body">
+                        <h6 class="text-muted">Monthly Revenue</h6>
+                        <h3>$32,500</h3>
+                        <p class="mb-0 text-danger">Current Month</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card h-100" style="border-left-color: #ffc107;">
+                    <div class="card-body">
+                        <h6 class="text-muted">Maintenance Requests</h6>
+                        <h3>5</h3>
+                        <p class="mb-0 text-warning">Pending</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Units Table -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Rental Units</h5>
+                    <div class="d-flex gap-3">
+                        <form class="search-form">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search units...">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUnitModal{{property.id}}">
+                            <i class="fas fa-plus"></i> Add Unit
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Number.</th>
+                                <th>Type</th>
+                                <th>Floor</th>
+                                <th>Size (sq ft)</th>
+                                <th>Rent</th>
+                                <th>Status</th>
+                                <th>Tenant</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for unit in units %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{unit.name}}</td>
+                                <td>{{unit.unit_type}}</td>
+                                <td>{{unit.floor}}</td>
+                                <td>{{unit.size}}</td>
+                                <td>{{unit.rent}}</td>
+                                <td><span class="badge bg-success">{{unit.status}}</span></td>
+                                <td>{{unit.tenant.user.name}}</td>
+                                <td>
+                                    <a href="{% url 'unit-detail' unit.id %}" class="btn btn-sm btn-outline-info" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    
+                                </td>
+                                
+                            </tr>
+                            {% endfor %}
+                           
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    
+
+    <!-- New Unit Modal -->
+  {% include "properties/units/new_unit.html" %}
+{% endblock %}
