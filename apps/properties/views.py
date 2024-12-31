@@ -1,13 +1,19 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.db.models import Avg
 
 from apps.properties.models import Property, PropertyUnit, MaintenanceRequest
-from apps.core.constants import UNIT_TYPES, UNIT_STATUSES
+from apps.tenants.models import Tenant
+from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST
 # Create your views here.
 @login_required
 def properties(request):
     properties = Property.objects.all()
-    return render(request, 'properties/properties.html', {'properties': properties})
+    context = {
+        "properties": properties,
+        "gender_choices": GENDER_LIST
+    }
+    return render(request, 'properties/properties.html', context)
 
 
 @login_required
@@ -15,12 +21,13 @@ def property_detail(request, id):
     property = Property.objects.get(id=id)
     units = PropertyUnit.objects.filter(property=property)
 
-
+    maintenance_requests = MaintenanceRequest.objects.filter(unit__property=property, status="Pending").count()
     context = {
         'property': property,
         'units': units,
         "unit_types": UNIT_TYPES,
-        "unit_statuses": UNIT_STATUSES
+        "unit_statuses": UNIT_STATUSES,
+        "maintenance_requests": maintenance_requests
     }
     return render(request, 'properties/property_details.html', context)
 
@@ -30,21 +37,28 @@ def new_property(request):
     if request.method == "POST":
         owner = request.user
         name = request.POST.get('name')
-        description = request.POST.get('description')
         address = request.POST.get('address')
         city = request.POST.get('city')
         
         country = request.POST.get('country')
         units = request.POST.get('units')
+
+        manager_name = request.POST.get('manager_name')
+        manager_email = request.POST.get('manager_email')
+        manager_phone = request.POST.get('manager_phone')
+        manager_gender = request.POST.get('manager_gender')
         
         Property.objects.create(
             owner=owner, 
             name=name, 
-            description=description, 
             address=address, 
             city=city, 
             country=country, 
-            units=units
+            units=units,
+            manager_name=manager_name,
+            manager_email=manager_email,
+            manager_gender=manager_gender,
+            manager_phone_number=manager_phone
         )
         return redirect("properties")
     return render(request, 'properties/new_property.html')
@@ -55,22 +69,29 @@ def edit_property(request):
     if request.method == "POST":
         property_id = request.POST.get('property_id')
         name = request.POST.get('name')
-        description = request.POST.get('description')
         address = request.POST.get('address')
         city = request.POST.get('city')
         country = request.POST.get('country')
         units = request.POST.get('units')
+
+        manager_name = request.POST.get('manager_name')
+        manager_email = request.POST.get('manager_email')
+        manager_phone = request.POST.get('manager_phone')
+        manager_gender = request.POST.get('manager_gender')
        
         
         Property.objects.filter(id=property_id).update(
             name=name, 
-            description=description, 
             address=address, 
             city=city, 
             country=country, 
-            units=units
+            units=units,
+            manager_name=manager_name,
+            manager_email=manager_email,
+            manager_phone_number=manager_phone,
+            manager_gender=manager_gender
         )
-        return redirect("properties")
+        return redirect(f"/properties/{property_id}")
     return render(request, 'properties/edi_property.html')
 
 
@@ -86,15 +107,32 @@ def delete_property(request):
 @login_required
 def property_units(request):
     units = PropertyUnit.objects.all().order_by("-created_at")
-    return render(request, 'properties/units/units.html', {'units': units})
+    tenants = Tenant.objects.all()
+
+    context = {
+        "units": units,
+        "tenants": tenants
+    }
+
+    return render(request, 'properties/units/units.html', context)
 
 
 @login_required
 def property_unit_detail(request, id):
     unit = PropertyUnit.objects.get(id=id)
 
+    maintenance_requests = MaintenanceRequest.objects.filter(unit=unit)
+    water_bills = unit.unitwaterbills.all().order_by('-created_at')
+
+    average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
+    maintenance_cost = sum(list(maintenance_requests.values_list('cost', flat=True)))
+
     context = {
-        'unit': unit
+        'unit': unit,
+        'maintenance_requests': maintenance_requests,
+        'water_bills': water_bills,
+        "average_water_bill": average_water_bill if average_water_bill else 0,
+        "maintenance_cost": maintenance_cost 
     }
     return render(request, 'properties/units/unit_details.html', context)
 
@@ -111,6 +149,7 @@ def new_property_unit(request):
         unit_type = request.POST.get('unit_type')
         status = request.POST.get('status')
         floor = request.POST.get('floor')
+        security_deposit = request.POST.get('security_deposit')
         
         PropertyUnit.objects.create(
             property=property, 
@@ -119,7 +158,8 @@ def new_property_unit(request):
             size=size,
             unit_type=unit_type,
             status=status,
-            floor=floor
+            floor=floor,
+            security_deposit=security_deposit
         )
         return redirect("property-detail", id=property_id)
     return render(request, 'properties/units/new_unit.html')
@@ -135,6 +175,7 @@ def edit_property_unit(request):
         unit_type = request.POST.get('unit_type')
         status = request.POST.get('status')
         floor = request.POST.get('floor')
+        security_deposit = request.POST.get('security_deposit')
 
         unit=PropertyUnit.objects.get(id=unit_id)
         unit.name=name 
@@ -143,6 +184,7 @@ def edit_property_unit(request):
         unit.unit_type=unit_type
         unit.status=status
         unit.floor=floor
+        unit.security_deposit=security_deposit
         unit.save()
         
         return redirect("property-detail", id=unit.property.id)
@@ -159,6 +201,19 @@ def delete_property_unit(request):
     return render(request, 'properties/units/delete_unit.html')
 
 
+@login_required
+def assign_tenant(request):
+    if request.method == "POST":
+        unit_id = request.POST.get('unit_id')
+        tenant_id = request.POST.get('tenant')
+        unit = PropertyUnit.objects.get(id=unit_id)
+        tenant = Tenant.objects.get(id=tenant_id)
+        unit.tenant = tenant
+        unit.is_occupied = True
+        unit.status = "Occupied"
+        unit.save()
+        return redirect("unit-detail", id=unit.id)
+    return render(request, 'properties/units/assign_tenant.html')
 
 """Maintenance Requests"""
 @login_required
@@ -166,9 +221,14 @@ def maintenance_requests(request):
     maintenance_requests = MaintenanceRequest.objects.all().order_by("-created_at")
     units = PropertyUnit.objects.all().order_by("-created_at")
 
+    priority_levels = ["High", "Medium", "Low"]
+    maintenance_statuses = ["Pending", "In Progress", "Completed"]
+
     context = {
         "maintenance_requests": maintenance_requests,
-        "units": units
+        "units": units,
+        "priority_levels": priority_levels,
+        "maintenance_statuses": maintenance_statuses
     }
     return render(request, 'properties/maintenance_requests/maintenance_requests.html', context)
 
@@ -180,15 +240,17 @@ def new_maintenance_request(request):
         unit = PropertyUnit.objects.get(id=unit_id)
 
         title = request.POST.get('title')
+        priority = request.POST.get('priority')
         description = request.POST.get('description')
 
         MaintenanceRequest.objects.create(
             title=title,
             property=unit.property, 
             unit=unit, 
-            description=description
+            description=description,
+            priority=priority
         )
-        return redirect("maintenance-requests")
+        return redirect("unit-detail", id=unit_id)
     return render(request, 'properties/maintenance_requests/new_maintenance_request.html')
 
 
@@ -200,11 +262,15 @@ def edit_maintenance_request(request):
         description = request.POST.get('description')
         status = request.POST.get('status')
         unit = request.POST.get('unit')
+        priority = request.POST.get('priority')
+        cost = request.POST.get('cost')
 
         maintenance_request = MaintenanceRequest.objects.get(id=maintenance_request_id)
         maintenance_request.title = title
         maintenance_request.description = description
         maintenance_request.status = status
+        maintenance_request.priority = priority
+        maintenance_request.cost = cost
         maintenance_request.unit = PropertyUnit.objects.get(id=unit)
         maintenance_request.save()
         return redirect("maintenance-requests")

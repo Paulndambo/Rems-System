@@ -44,10 +44,10 @@
                         <a href="{% url 'property-detail' property.id %}" class="btn btn-sm btn-info">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editPropertyModal{{property.id}}"><i class="fas fa-edit"></i></button>
+                        
                         <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deletePropertyModal{{property.id}}"><i class="fas fa-trash"></i></button>
                     </td>
-                    {% include "properties/edit_property.html" %}
+                    
                     {% include "properties/delete_property.html" %}
                 </tr>
                 {% endfor %}

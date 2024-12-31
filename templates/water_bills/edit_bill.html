@@ -1,6 +1,6 @@
 <!-- Add this modal HTML after the table in your template -->
 <div class="modal fade" id="editWaterBillModal{{bill.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="tenantModalLabel">Edit Water Bill</h5>
@@ -46,10 +46,16 @@
                     </div>
                 </div>
 
-                    <div class="mb-2">
-                        <label for="unit" class="form-label fw-bold">Units</label>
-                        <input type="number" class="form-control" id="units" name="units" value="{{bill.units}}" required />
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="unit" class="form-label fw-bold">Previous Reading</label>
+                        <input type="number" class="form-control" id="previous_reading" name="previous_reading" value="{{bill.previous_reading}}" required/>
                     </div>
+                    <div class="col">
+                        <label for="unit" class="form-label fw-bold">Units</label>
+                        <input type="number" class="form-control" id="units" name="units" value="{{bill.units}}" required/>
+                    </div>
+                </div>
                 </div>
                 <div class="text-center mb-3">
                     <button type="submit" class="btn btn-primary">Save Water Bill</button>

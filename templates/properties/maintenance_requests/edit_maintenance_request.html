@@ -1,6 +1,6 @@
 <!-- Add this modal HTML after the table in your template -->
 <div class="modal fade" id="editRequestModal{{request.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="tenantModalLabel">Edit Maintenance Request</h5>
@@ -15,8 +15,9 @@
                         <input type="text" class="form-control" id="title" name="title" value="{{request.title}}" required>
                     </div>
                     
-                <div class="mb-3">
-                    <label for="move_in_date" class="form-label fw-bold">Unit</label>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="move_in_date" class="form-label fw-bold">Unit</label>
                     <select class="form-select" id="unit" name="unit" required>
                         <option value="{{request.unit.id}}" selected>{{request.unit.name}}</option>
                         {% for unit in units %}
@@ -25,6 +26,12 @@
                             {% endif %}
                         {% endfor %}
                     </select>
+                    </div>
+                    <div class="col">
+                        <label for="move_in_date" class="form-label fw-bold">Repair Cost</label>
+                        <input type="number" class="form-control" id="cost" name="cost" value="{{request.cost}}" min="0">
+                    </div>
+                    
                 </div>
                     
                     <div class="mb-2">
@@ -32,25 +39,30 @@
                         <textarea class="form-control" id="description" name="description" rows="2" required>{{request.description}}</textarea>
                     </div>
 
-                <div class="mb-3">
-                    <label for="move_in_date" class="form-label fw-bold">Status</label>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="move_in_date" class="form-label fw-bold">Status</label>
                     <select class="form-select" id="status" name="status" required>
                         <option value="{{request.status}}" selected>{{request.status}}</option>
-                        {% if request.status == "Pending" %}
-                            <option value="In Progress">In Progress</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Overdue">Overdue</option>
-                        {% elif request.status == "In Progress" %}
-                            <option value="Completed">Completed</option>
-                            <option value="Overdue">Overdue</option>
-                        {% elif request.status == "Completed" %}
-                            <option value="Overdue">Overdue</option>
-                        {% elif request.status == "Overdue" %}
-                            <option value="Pending">Pending</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Completed">Completed</option>
-                        {% endif %}
+                        {% for status in maintenance_statuses %}
+                            {% if status != request.status %}
+                                <option value="{{status}}">{{status}}</option>
+                            {% endif %}
+                        {% endfor %}
                     </select>
+                    </div>
+                    <div class="col">
+                        <label for="move_in_date" class="form-label fw-bold">Priority</label>
+                        <select class="form-select" id="priority" name="priority" required>
+                            <option value="{{request.priority}}">{{request.priority}}</option>
+                            {% for priority in priority_levels %}
+                                {% if priority != request.priority %}
+                                    <option value="{{priority}}">{{priority}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
                 </div>
                 </div>
                 <div class="text-center mb-3">

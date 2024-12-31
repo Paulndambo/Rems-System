@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db.models import Avg
 
 from apps.tenants.models import Tenant, TenantNextOfKin
 from apps.properties.models import PropertyUnit
@@ -25,12 +26,15 @@ def tenant_detail(request, pk):
     water_bills = tenant.waterbills.all().order_by('-created_at')
     payments = TenantPayment.objects.filter(tenant=tenant).order_by('-created_at')
 
+    average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
+
     context = {
         'tenant': tenant,
         'next_of_kin': next_of_kin,
         'units': units,
         'water_bills': water_bills,
-        'payments': payments
+        'payments': payments,
+        'average_water_bill': average_water_bill
     }
     return render(request, 'tenants/tenant_details.html', context)
 

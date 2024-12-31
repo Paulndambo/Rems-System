@@ -23,6 +23,7 @@ def new_bill(request):
         year = request.POST.get("year")
         units = request.POST.get("units")
         month = request.POST.get("month")
+        previous_reading = request.POST.get("previous_reading")
 
         unit = PropertyUnit.objects.get(id=unit_id)
     
@@ -31,7 +32,8 @@ def new_bill(request):
             tenant=unit.tenant, 
             month=month, 
             year=year, 
-            units=units
+            units=units,
+            previous_reading=previous_reading
         )
         return redirect("water-bills")
     return render(request, 'water_bills/new_water_bill.html')
@@ -44,6 +46,7 @@ def edit_bill(request):
         month = request.POST.get("month")
         year = request.POST.get("year")
         units = request.POST.get("units")
+        previous_reading = request.POST.get("previous_reading")
 
         unit = PropertyUnit.objects.get(id=unit_id)
     
@@ -52,7 +55,8 @@ def edit_bill(request):
             tenant=unit.tenant,
             month=month, 
             year=year, 
-            units=units
+            units=units,
+            previous_reading=previous_reading
         )
         return redirect("water-bills")
     return render(request, 'water_bills/edit_bill.html')

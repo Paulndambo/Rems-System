@@ -129,3 +129,20 @@ class MaintenanceStatuses(Enum):
     @classmethod
     def choices(cls):
         return [(key.value, key.name) for key in cls]
+
+
+class PriorityLevels(Enum):
+    HIGH = 'High'
+    MEDIUM = 'Medium'
+    LOW = 'Low'
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+GENDER_LIST = [
+    'Male',
+    'Female',
+    'Other'
+]

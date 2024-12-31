@@ -28,11 +28,11 @@
                     <div class="col-md-8">
                         <h2>{{property.name}}</h2>
                         <p class="text-muted">{{property.address}}, {{property.city}}, {{property.country}}</p>
-                        <p><strong>Property Manager:</strong> Jane Smith</p>
-                        <p><strong>Contact:</strong> (555) 123-4567</p>
+                        <p><strong>Property Manager:</strong> {{property.manager_name}}</p>
+                        <p><strong>Contact:</strong> {{property.manager_phone_number}}</p>
                     </div>
                     <div class="col-md-4 text-md-end">
-                        <button class="btn btn-primary me-2">
+                        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#editPropertyModal{{property.id}}">
                             <i class="fas fa-edit"></i> Edit Property
                         </button>
                         
@@ -74,7 +74,7 @@
                 <div class="card stats-card h-100" style="border-left-color: #ffc107;">
                     <div class="card-body">
                         <h6 class="text-muted">Maintenance Requests</h6>
-                        <h3>5</h3>
+                        <h3>{{maintenance_requests}}</h3>
                         <p class="mb-0 text-warning">Pending</p>
                     </div>
                 </div>
@@ -145,4 +145,5 @@
 
     <!-- New Unit Modal -->
   {% include "properties/units/new_unit.html" %}
+  {% include "properties/edit_property.html" %}
 {% endblock %}

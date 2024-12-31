@@ -36,10 +36,26 @@
                             <input type="text" class="form-control" id="country" name="country" value="{{property.country}}" required>
                         </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="description" class="form-label fw-bold">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" required>{{property.description}}</textarea>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="name" class="form-label fw-bold">Manager Name</label>
+                            <input type="text" class="form-control" id="manager_name" name="manager_name" value="{{property.manager_name}}">
+                        </div>
+                        <div class="col">
+                            <label for="contact" class="form-label fw-bold">Manager Contact</label>
+                            <input type="tel" class="form-control" id="manager_phone" name="manager_phone" value="{{property.manager_phone_number}}">
+                        </div>
+                        <div class="col">
+                            <label for="gender" class="form-label fw-bold">Gender</label>
+                            <select class="form-select" id="manager_gender" name="manager_gender">
+                                <option value="{{property.manager_gender}}" selected>{{property.manager_gender}}</option>
+                                {% for gender in gender_choices %}
+                                    {% if gender != property.manager_gender %}
+                                        <option value="{{gender}}">{{gender}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                     
                 </div>
