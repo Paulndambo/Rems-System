@@ -14,7 +14,8 @@ from apps.properties.views import (
     maintenance_requests,
     new_maintenance_request,
     edit_maintenance_request,
-    delete_maintenance_request
+    delete_maintenance_request,
+    assign_tenant,
 )
 
 urlpatterns = [
@@ -28,6 +29,7 @@ urlpatterns = [
     path('new-unit/', new_property_unit, name='new-unit'),
     path('edit-unit/', edit_property_unit, name='edit-unit'),
     path('delete-unit/', delete_property_unit, name='delete-unit'),
+    path('assign-tenant/', assign_tenant, name='assign-tenant'),
 
     path('maintenance-requests/', maintenance_requests, name='maintenance-requests'),
     path('new-maintenance-request/', new_maintenance_request, name='new-maintenance-request'),

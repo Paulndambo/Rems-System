@@ -1,5 +1,5 @@
 <!-- Add this modal HTML after the table in your template -->
-<div class="modal fade" id="newRequestModal" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
+<div class="modal fade" id="newRequestModal{{unit.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
@@ -9,25 +9,23 @@
             <form id="tenantForm" method="POST" action="{% url 'new-maintenance-request' %}">
                 <div class="modal-body">
                     {% csrf_token %}
-                
+                    <input type="number" name="unit" id="unit" value="{{unit.id}}" readonly hidden>
                     <div class="mb-3">
                         <label for="name" class="form-label fw-bold">Request Title</label>
                         <input type="text" class="form-control" id="title" name="title" required>
-                    </div>
-                    
-                <div class="mb-3">
-                    <label for="move_in_date" class="form-label fw-bold">Unit</label>
-                    <select class="form-select" id="unit" name="unit" required>
-                        <option value="" disabled selected>Select Unit</option>
-                        {% for unit in units %}
-                            <option value="{{unit.id}}">{{unit.name}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                    
+                    </div>    
                     <div class="mb-2">
                         <label for="description" class="form-label fw-bold">Description</label>
                         <textarea class="form-control" id="description" name="description" rows="2" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="move_in_date" class="form-label fw-bold">Priority</label>
+                        <select class="form-select" id="priority" name="priority" required>
+                            <option value="" disabled selected>Select Priority</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
                     </div>
                 </div>
                 <div class="text-center mb-3">

@@ -35,11 +35,26 @@
                             <input type="text" class="form-control" id="country" name="country" required>
                         </div>
                     </div>
-
-                    <div class="mb-2">
-                        <label for="description" class="form-label fw-bold">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="2" required></textarea>
+                    
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="name" class="form-label fw-bold">Manager Name</label>
+                            <input type="text" class="form-control" id="manager_name" name="manager_name">
+                        </div>
+                        <div class="col">
+                            <label for="contact" class="form-label fw-bold">Manager Contact</label>
+                            <input type="tel" class="form-control" id="manager_phone" name="manager_phone">
+                        </div>
+                        <div class="col">
+                            <label for="gender" class="form-label fw-bold">Gender</label>
+                            <select class="form-select" id="manager_gender" name="manager_gender">
+                                <option value="" selected>Choose...</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
                     </div>
+                    
                 </div>
                 <div class="text-center mb-3">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
