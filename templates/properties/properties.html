@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="card-body">
-        <table id="tenantsTable" class="table table-striped" style="width:100%">
+        <table id="tenantsTable" class="table" style="width:100%">
             <thead>
                 <tr>
                     <th>#</th>
@@ -39,7 +39,7 @@
                     <td>{{property.city}}</td>
                     <td>{{property.country}}</td>
                     
-                    <td><span class="tenant-status status-active">Active</span></td>
+                    <td><span class="tenant-status status-active">{{property.status}}</span></td>
                     <td>
                         <a href="{% url 'property-detail' property.id %}" class="btn btn-sm btn-info">
                             <i class="fas fa-eye"></i>

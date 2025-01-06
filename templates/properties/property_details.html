@@ -25,9 +25,13 @@
         <div class="card mb-4">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-4">
                         <h2>{{property.name}}</h2>
                         <p class="text-muted">{{property.address}}, {{property.city}}, {{property.country}}</p>
+                        
+                        <p><strong>Total Units:</strong> {{property.units}}</p>
+                    </div>
+                    <div class="col-md-4">
                         <p><strong>Property Manager:</strong> {{property.manager_name}}</p>
                         <p><strong>Contact:</strong> {{property.manager_phone_number}}</p>
                     </div>
@@ -43,16 +47,8 @@
 
         <!-- Analytics Cards -->
         <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card stats-card h-100" style="border-left-color: #28a745;">
-                    <div class="card-body">
-                        <h6 class="text-muted">Total Units</h6>
-                        <h3>{{property.units}}</h3>
-                        <p class="mb-0 text-success">All Units</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
+
+            <div class="col-md-4 mb-3">
                 <div class="card stats-card h-100" style="border-left-color: #17a2b8;">
                     <div class="card-body">
                         <h6 class="text-muted">Occupancy Rate</h6>
@@ -61,7 +57,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <div class="card stats-card h-100" style="border-left-color: #dc3545;">
                     <div class="card-body">
                         <h6 class="text-muted">Monthly Revenue</h6>
@@ -70,7 +66,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <div class="card stats-card h-100" style="border-left-color: #ffc107;">
                     <div class="card-body">
                         <h6 class="text-muted">Maintenance Requests</h6>

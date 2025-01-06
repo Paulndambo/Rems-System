@@ -30,11 +30,9 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-3 text-center">
-                                <img src="/api/placeholder/150/150" alt="Tenant Photo" class="tenant-photo mb-3">
-                            </div>
-                            <div class="col-md-9">
-                                <h2 class="mb-3">{{tenant.user.name}}</h2>
+                            <h2 class="mb-3 text-center">{{tenant.user.name}}</h2>
+                            <hr>
+                            <div class="col-md-12">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <p><strong>Email:</strong> {{tenant.user.email}}</p>
@@ -76,11 +74,11 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card stats-card bg-warning text-white">
+                <div class="card stats-card bg-danger text-white">
                     <div class="card-body">
-                        <h6 class="card-title">Lease Duration</h6>
-                        <h3 class="card-text">{{tenant.lease_duration}}</h3>
-                        <p class="mb-0"><small>Renews in {{tenant.lease_duration}}</small></p>
+                        <h6 class="card-title">Total Debt</h6>
+                        <h3 class="card-text">7800</h3>
+                        <p class="mb-0"><small>Rent & Water Bills</small></p>
                     </div>
                 </div>
             </div>

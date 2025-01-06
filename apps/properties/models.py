@@ -24,6 +24,9 @@ class Property(AbstractBaseModel):
 
     def __str__(self):
         return self.name
+
+    def status(self):
+        return "Active" if self.is_active else "Inactive"
     
     def total_units(self):
         return self.propertyunits.count()
@@ -40,7 +43,6 @@ class Property(AbstractBaseModel):
     def occupancy_rate(self):
         occupancy = (self.occupied_units() / self.total_units()) * 100 if self.total_units() > 0 else 0
         return round(occupancy, 2)
-
     
     def monthly_revenue(self):
         return sum(list(self.propertyunits.filter(is_occupied=True).values_list('rent', flat=True)))

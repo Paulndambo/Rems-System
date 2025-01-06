@@ -51,16 +51,17 @@
                         </div>
                     </div>
                     <div class="col-md-4 text-md-end">
-                        <button class="btn btn-primary me-2">
+                        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#editUnitModal{{unit.id}}">
                             <i class="fas fa-edit"></i> Edit Unit
                         </button>
-                        <button class="btn btn-danger">
+                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUnitModal{{unit.id}}">
                             <i class="fas fa-trash"></i> Delete Unit
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+        
         <!-- Quick Stats -->
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
@@ -224,4 +225,8 @@
                 </div>
             </div>
         </div>
+
+        {% include "properties/units/edit_unit.html" %}
+        {% include "properties/units/edit_unit_copy.html" %}
+        {% include "properties/units/delete_unit.html" %}
 {% endblock content %}

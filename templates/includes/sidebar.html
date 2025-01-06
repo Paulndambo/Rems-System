@@ -28,14 +28,22 @@
                 <span class="nav-label">Tenants</span>
             </a>
         </li>
+        
         <li>
-            <a href="#">
+            <a href="#paymentsSubmenu" data-bs-toggle="collapse">
                 <i class="fas fa-money-bill-wave"></i>
                 <span class="nav-label">Payments</span>
+                <i class="fas fa-chevron-down ms-auto"></i>
             </a>
+            <ul class="collapse list-unstyled submenu" id="paymentsSubmenu">
+                <li><a href="#"><span class="nav-label">Rent Payments</span></a></li>
+                <li><a href="#"><span class="nav-label">Water Payments</span></a></li>
+                <li><a href="#"><span class="nav-label">Monthly Bills</span></a></li>
+                <li><a href="#"><span class="nav-label">All Payments</span></a></li>
+            </ul>
         </li>
         <li>
-            <a href="{% url 'water-bills' %}">
+            <a href="#">
                 <i class="fas fa-faucet"></i>
                 <span class="nav-label">Water Bills</span>
             </a>
@@ -46,11 +54,19 @@
                 <span class="nav-label">Reports</span>
             </a>
         </li>
+        
+
         <li>
-            <a href="#">
+            <a href="#settingsSubmenu" data-bs-toggle="collapse">
                 <i class="fas fa-cog"></i>
-                <span class="nav-label">Settings</span>
+                <span class="nav-label">Configurations</span>
+                <i class="fas fa-chevron-down ms-auto"></i>
             </a>
+            <ul class="collapse list-unstyled submenu" id="settingsSubmenu">
+                <li><a href="{% url 'water-prices' %}"><span class="nav-label">Water Prices</span></a></li>
+                <li><a href="{% url 'years' %}"><span class="nav-label">Years</span></a></li>
+                <li><a href="{% url 'months' %}"><span class="nav-label">Months</span></a></li>
+            </ul>
         </li>
     </ul>
 </nav>

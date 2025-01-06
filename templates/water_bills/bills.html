@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="card-body">
-        <table id="tenantsTable" class="table table-striped" style="width:100%">
+        <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
             <thead>
                 <tr>
                     <th>#</th>
@@ -28,6 +28,7 @@
                     <th>Month</th>
                     <th>Units</th>
                     <th>Amount</th>
+                    <th>Status</th>
                     <th></th>
                 </tr>
             </thead>
@@ -41,9 +42,17 @@
                     <td>{{bill.units}}</td>
                     <td>{{bill.amount}}</td>
                     <td>
+                        {% if bill.status == 'Paid' %}
+                        <span class="badge bg-success">{{bill.status}}</span>
+                        {% elif bill.status == 'Pending' %}
+                        <span class="badge bg-danger">{{bill.status}}</span>
+                        {% endif %}
+                    </td>
+                    <td>
                        
                         <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editWaterBillModal{{bill.id}}"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteWaterBillModal{{bill.id}}"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="##"><i class="fas fa-dollar-sign"></i></button>
                     </td>
                     {% include "water_bills/edit_bill.html" %}
                     {% include "water_bills/delete_bill.html" %}

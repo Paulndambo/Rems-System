@@ -54,9 +54,9 @@
 <div class="card">
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Tenants</h5>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTenantModal">
-                <i class="fas fa-plus me-2"></i>Add New Tenant
+            <h5 class="mb-0">Years List</h5>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newYearModal">
+                <i class="fas fa-plus me-2"></i>Add New Year
             </button>
         </div>
     </div>
@@ -64,33 +64,30 @@
         <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Property</th>
-                    <th>Contact</th>
-                    <th>Move-in Date</th>
-                    <th>Rent</th>
+                    <th>#</th>
+                    <th>Year</th>
                     <th>Status</th>
+                    <th>Added On</th>
+                    <th>Last Modified</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                {% for tenant in tenants %}
+                {% for year in years %}
                 <tr>
                     <td>{{forloop.counter}}</td>
-                    <td>{{tenant.user.name}}</td>
-                    <td>{{tenant.unit.property}}</td>
-                    <td>{{tenant.user.phone}}</td>
-                    <td>{{tenant.move_in_date}}</td>
-                    <td>{{tenant.unit.rent}}</td>
-                    <td><span class="tenant-status status-active">{{tenant.status}}</span></td>
+                    <td>{{year.name}}</td>
+                    <td>{% if year.is_active %}Active{% else %}Inactive{% endif %}</td>
+                    <td>{{year.created_at}}</td>
+                    <td>{{year.updated_at}}</td>
                     <td>
-                        <a href="{% url 'tenant-detail' tenant.id %}" class="btn btn-sm btn-info me-1"><i class="fas fa-eye"></i></a>
-                        <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editTenantModal{{tenant.id}}"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteTenantModal{{tenant.id}}"><i class="fas fa-trash"></i></button>
+                        {%  if year.is_active %}
+                        <a href="{% url 'deactivate-year' year.id %}" class="btn btn-sm btn-danger">Deactivate</a>
+                        {% else %}
+                        <a href="{% url 'activate-year' year.id %}" class="btn btn-sm btn-primary me-1">Activate</a>
+                        {% endif %}
                     </td>
-                    {% include "tenants/edit_tenant.html" %}
-                    {% include "tenants/delete_tenant.html" %}
+                   
                 </tr>
                 {% endfor %}
             </tbody>

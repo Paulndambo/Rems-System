@@ -1,12 +1,12 @@
 <!-- Add this modal HTML after the table in your template -->
 <div class="modal fade" id="editWaterBillModal{{bill.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="tenantModalLabel">Edit Water Bill</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="tenantForm" method="POST" action="{% url 'edit-water-bill' %}">
+            <form id="tenantForm" method="POST" action="#">
                 <div class="modal-body">
                     {% csrf_token %}
                     <input type="number" name="bill_id" id="bill_id" value="{{bill.id}}" readonly hidden>
@@ -48,12 +48,16 @@
 
                 <div class="row mb-3">
                     <div class="col">
-                        <label for="unit" class="form-label fw-bold">Previous Reading</label>
-                        <input type="number" class="form-control" id="previous_reading" name="previous_reading" value="{{bill.previous_reading}}" required/>
+                        <label for="unit" class="form-label fw-bold">Unpaid Balanaces</label>
+                        <input type="number" class="form-control" id="previous_balances" name="previous_balances" value="{{bill.previous_balances}}" step="0.01" />
                     </div>
                     <div class="col">
-                        <label for="unit" class="form-label fw-bold">Units</label>
-                        <input type="number" class="form-control" id="units" name="units" value="{{bill.units}}" required/>
+                        <label for="unit" class="form-label fw-bold">Previous Reading</label>
+                        <input type="number" class="form-control" id="previous_reading" name="previous_reading" value="{{bill.previous_reading}}" step="0.01" required/>
+                    </div>
+                    <div class="col">
+                        <label for="unit" class="form-label fw-bold">Current Reading</label>
+                        <input type="number" class="form-control" id="units" name="units" value="{{bill.units}}" step="0.01" required/>
                     </div>
                 </div>
                 </div>

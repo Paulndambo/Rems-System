@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.tenants",
     "apps.properties",
-    "apps.payments",
+    #"apps.payments",
     
 ]
 

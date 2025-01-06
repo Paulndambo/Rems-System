@@ -5,7 +5,7 @@ from apps.tenants.models import Tenant, TenantNextOfKin
 from apps.properties.models import PropertyUnit
 from apps.users.models import User
 from apps.core.constants import LEASE_DURATIONS 
-from apps.payments.models import WaterBill, TenantPayment
+#from apps.payments.models import WaterBill, TenantMonthlyBill
 # Create your views here.
 def tenants(request):
     tenants = Tenant.objects.all().order_by('-created_at')
@@ -23,18 +23,18 @@ def tenant_detail(request, pk):
     next_of_kin = TenantNextOfKin.objects.filter(tenant=tenant)
 
     units = PropertyUnit.objects.filter(tenant=tenant)
-    water_bills = tenant.waterbills.all().order_by('-created_at')
-    payments = TenantPayment.objects.filter(tenant=tenant).order_by('-created_at')
+    #water_bills = tenant.waterbills.all().order_by('-created_at')
+    #payments = TenantMonthlyBill.objects.filter(tenant=tenant).order_by('-created_at')
 
-    average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
+    #average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
 
     context = {
         'tenant': tenant,
         'next_of_kin': next_of_kin,
         'units': units,
-        'water_bills': water_bills,
-        'payments': payments,
-        'average_water_bill': average_water_bill
+        #'water_bills': water_bills,
+        #'payments': payments,
+        #'average_water_bill': average_water_bill
     }
     return render(request, 'tenants/tenant_details.html', context)
 

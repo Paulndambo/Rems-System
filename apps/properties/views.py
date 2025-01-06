@@ -122,17 +122,18 @@ def property_unit_detail(request, id):
     unit = PropertyUnit.objects.get(id=id)
 
     maintenance_requests = MaintenanceRequest.objects.filter(unit=unit)
-    water_bills = unit.unitwaterbills.all().order_by('-created_at')
+    #water_bills = unit.unitwaterbills.all().order_by('-created_at')
 
-    average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
+    #average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
     maintenance_cost = sum(list(maintenance_requests.values_list('cost', flat=True)))
 
     context = {
         'unit': unit,
         'maintenance_requests': maintenance_requests,
-        'water_bills': water_bills,
-        "average_water_bill": average_water_bill if average_water_bill else 0,
-        "maintenance_cost": maintenance_cost 
+        #'water_bills': water_bills,
+        #"average_water_bill": average_water_bill if average_water_bill else 0,
+        "maintenance_cost": maintenance_cost,
+        "unit_statuses": UNIT_STATUSES
     }
     return render(request, 'properties/units/unit_details.html', context)
 
@@ -158,6 +159,7 @@ def new_property_unit(request):
             size=size,
             unit_type=unit_type,
             status=status,
+            is_occupied=True if status == "Occupied" else False,
             floor=floor,
             security_deposit=security_deposit
         )
@@ -184,10 +186,11 @@ def edit_property_unit(request):
         unit.unit_type=unit_type
         unit.status=status
         unit.floor=floor
+        unit.is_occupied=True if status == "Occupied" else False
         unit.security_deposit=security_deposit
         unit.save()
         
-        return redirect("property-detail", id=unit.property.id)
+        return redirect("unit-detail", id=unit.id)
     return render(request, 'properties/units/edit_unit.html')
 
 
@@ -197,7 +200,7 @@ def delete_property_unit(request):
         unit_id = request.POST.get('unit_id')
         unit = PropertyUnit.objects.get(id=unit_id)
         unit.delete()
-        return redirect("property-detail", id=unit.property.id)
+        return redirect("units")
     return render(request, 'properties/units/delete_unit.html')
 
 

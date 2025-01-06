@@ -24,5 +24,5 @@ urlpatterns = [
     path("properties/", include("apps.properties.urls")),
     path("users/", include("apps.users.urls")),
     path("tenants/", include("apps.tenants.urls")),
-    path("payments/", include("apps.payments.urls")),
+    #path("payments/", include("apps.payments.urls")),
 ]

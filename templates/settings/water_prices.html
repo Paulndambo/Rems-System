@@ -54,43 +54,33 @@
 <div class="card">
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Tenants</h5>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTenantModal">
-                <i class="fas fa-plus me-2"></i>Add New Tenant
-            </button>
+            <h5 class="mb-0">Water Prices</h5>
         </div>
     </div>
     <div class="card-body">
         <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Property</th>
-                    <th>Contact</th>
-                    <th>Move-in Date</th>
-                    <th>Rent</th>
+                    <th>#</th>
+                    <th>Unit Price</th>
                     <th>Status</th>
+                    <th>Added On</th>
+                    <th>Last Modified</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                {% for tenant in tenants %}
+                {% for water_price in water_prices %}
                 <tr>
                     <td>{{forloop.counter}}</td>
-                    <td>{{tenant.user.name}}</td>
-                    <td>{{tenant.unit.property}}</td>
-                    <td>{{tenant.user.phone}}</td>
-                    <td>{{tenant.move_in_date}}</td>
-                    <td>{{tenant.unit.rent}}</td>
-                    <td><span class="tenant-status status-active">{{tenant.status}}</span></td>
+                    <td>{{water_price.unit_price}}</td>
+                    <td>{% if water_price.is_active %}Active{% else %}Inactive{% endif %}</td>
+                    <td>{{water_price.created_at}}</td>
+                    <td>{{water_price.updated_at}}</td>
                     <td>
-                        <a href="{% url 'tenant-detail' tenant.id %}" class="btn btn-sm btn-info me-1"><i class="fas fa-eye"></i></a>
-                        <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editTenantModal{{tenant.id}}"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteTenantModal{{tenant.id}}"><i class="fas fa-trash"></i></button>
+                        <a href="#" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editWaterPriceModal{{water_price.id}}"><i class="fas fa-edit"></i></a>
                     </td>
-                    {% include "tenants/edit_tenant.html" %}
-                    {% include "tenants/delete_tenant.html" %}
+                    {% include "settings/edit_water_price.html" %}
                 </tr>
                 {% endfor %}
             </tbody>
