@@ -2,6 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 
+from django.views.generic import ListView
+from django.http import JsonResponse
+from django.db.models import Q
+
 from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
 from apps.core.models import Month, Year
 from apps.tenants.models import Tenant
@@ -293,6 +297,36 @@ def delete_maintenance_request(request):
 
 
 """Water Bills"""
+class WaterBillListView(ListView):
+    model = WaterBill
+    template_name = "water_bills/bills.html"
+    context_object_name = "water_bills"
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+
+        print(f"You are searching for {search_query}")
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query)
+                | Q(unit__name__icontains=search_query)
+                | Q(month__name__icontains=search_query)
+                | Q(year__name__icontains=search_query)
+            )
+
+        return queryset.order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = self.request.GET.get("search", "")
+        context["months"] = MONTHS_LIST
+        context["years"] = years
+        context["units"] = PropertyUnit.objects.filter(is_occupied=True).order_by("-created_at")
+        return context
+
 @login_required
 def water_bills(request):
     water_bills = WaterBill.objects.all().order_by("-created_at")
