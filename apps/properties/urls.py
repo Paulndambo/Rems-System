@@ -16,6 +16,10 @@ from apps.properties.views import (
     edit_maintenance_request,
     delete_maintenance_request,
     assign_tenant,
+    water_bills,
+    new_water_bill,
+    edit_water_bill,
+    delete_water_bill,
 )
 
 urlpatterns = [
@@ -30,6 +34,11 @@ urlpatterns = [
     path('edit-unit/', edit_property_unit, name='edit-unit'),
     path('delete-unit/', delete_property_unit, name='delete-unit'),
     path('assign-tenant/', assign_tenant, name='assign-tenant'),
+
+    path('water-bills/', water_bills, name='water-bills'),
+    path('new-water-bill/', new_water_bill, name='new-water-bill'),
+    path('edit-water-bill/', edit_water_bill, name='edit-water-bill'),
+    path('delete-water-bill/', delete_water_bill, name='delete-water-bill'),
 
     path('maintenance-requests/', maintenance_requests, name='maintenance-requests'),
     path('new-maintenance-request/', new_maintenance_request, name='new-maintenance-request'),

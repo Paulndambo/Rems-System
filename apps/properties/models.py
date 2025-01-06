@@ -1,7 +1,10 @@
+from decimal import Decimal
 from django.db import models
 
-from apps.core.models import AbstractBaseModel
+
+from apps.core.models import AbstractBaseModel, WaterPrice
 from apps.core.constants import MaintenanceStatuses, PriorityLevels
+
 # Create your models here.
 class Property(AbstractBaseModel):
     owner = models.ForeignKey('users.User', on_delete=models.CASCADE)
@@ -59,6 +62,8 @@ class PropertyUnit(AbstractBaseModel):
     status = models.CharField(max_length=255, null=True, blank=True)
     size = models.FloatField(default=0)
     security_deposit = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    water_meter_number = models.CharField(max_length=255, null=True, blank=True)
+    electricity_meter_number = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -74,3 +79,28 @@ class MaintenanceRequest(AbstractBaseModel):
     cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     def __str__(self):
         return self.name
+    
+
+class WaterBill(AbstractBaseModel):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE)
+    month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
+    year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
+    meter_number = models.CharField(max_length=255, null=True, blank=True)
+    previous_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    previous_reading = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    current_reading = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
+
+    def __str__(self):
+        return self.unit.name
+    
+
+    def total_amount(self):
+        water_price = WaterPrice.objects.filter(is_active=True).first()
+        return (Decimal(water_price.unit_price) * Decimal(self.current_reading)) + Decimal(self.previous_balance)
+
+    def save(self, *args, **kwargs):
+        self.amount = self.total_amount()
+        super().save(*args, **kwargs)

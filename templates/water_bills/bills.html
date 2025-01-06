@@ -33,13 +33,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for bill in bills %}
+                {% for bill in water_bills %}
                 <tr>
                     <td>{{forloop.counter}}</td>
                     <td>{{bill.unit.tenant.user.name}}</td>
                     <td>{{bill.unit.name}}</td>
                     <td>{{bill.month}}(<b>{{bill.year}}</b>)</td>
-                    <td>{{bill.units}}</td>
+                    <td>{{bill.current_reading}}</td>
                     <td>{{bill.amount}}</td>
                     <td>
                         {% if bill.status == 'Paid' %}

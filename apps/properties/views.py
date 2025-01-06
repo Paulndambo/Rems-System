@@ -2,10 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 
-from apps.properties.models import Property, PropertyUnit, MaintenanceRequest
+from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
+from apps.core.models import Month, Year
 from apps.tenants.models import Tenant
-from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST
+from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST, MONTHS_LIST
 # Create your views here.
+
+years = Year.objects.filter(is_active=True)
 @login_required
 def properties(request):
     properties = Property.objects.all()
@@ -287,3 +290,89 @@ def delete_maintenance_request(request):
         MaintenanceRequest.objects.get(id=maintenance_request_id).delete()
         return redirect("maintenance-requests")
     return render(request, 'properties/maintenance_requests/delete_maintenance_request.html')
+
+
+"""Water Bills"""
+@login_required
+def water_bills(request):
+    water_bills = WaterBill.objects.all().order_by("-created_at")
+
+    units = PropertyUnit.objects.filter(is_occupied=True).order_by("-created_at")
+
+    context = {
+        "water_bills": water_bills,
+        "months": MONTHS_LIST,
+        "years": years,
+        "units": units
+    }
+    return render(request, 'water_bills/bills.html', context)
+
+
+@login_required
+def new_water_bill(request):
+    if request.method == "POST":
+        unit_id = request.POST.get('unit')
+        
+        year_id = request.POST.get('year')
+        month_name = request.POST.get('month')
+        previous_balance = request.POST.get('previous_balance')
+        previous_reading = request.POST.get('previous_reading')
+        current_reading = request.POST.get('current_reading')
+
+        unit = PropertyUnit.objects.get(id=unit_id)
+        year = Year.objects.get(id=year_id)
+        month = Month.objects.get(name=month_name, year=year)
+
+        print(previous_balance, previous_reading, current_reading)
+
+        WaterBill.objects.create(
+            unit=unit,
+            property=unit.property,
+            year=year,
+            month=month,
+            previous_balance=previous_balance,
+            previous_reading=previous_reading,
+            current_reading=current_reading,
+            meter_number=unit.water_meter_number
+        )
+        return redirect("water-bills")
+    return render(request, 'water_bills/new_water_bill.html')
+
+
+@login_required
+def edit_water_bill(request):
+    if request.method == "POST":
+        water_bill_id = request.POST.get('water_bill_id')
+    
+        previous_balance = request.POST.get('previous_balance')
+        previous_reading = request.POST.get('previous_reading')
+        current_reading = request.POST.get('current_reading')
+
+        month_name = request.POST.get('month')
+        year_id = request.POST.get('year')
+
+        year = Year.objects.get(id=year_id)
+        month = Month.objects.get(name=month_name, year=year)
+
+        water_bill = WaterBill.objects.get(id=water_bill_id)
+        water_bill.previous_balance = previous_balance
+        water_bill.previous_reading = previous_reading
+        water_bill.current_reading = current_reading
+        water_bill.month = month
+        water_bill.year = year
+        water_bill.save()
+
+        water_bill.amount = water_bill.total_amount()
+        water_bill.save()
+
+        return redirect("water-bills")
+    return render(request, 'water_bills/edit_bill.html')
+
+
+@login_required
+def delete_water_bill(request):
+    if request.method == "POST":
+        water_bill_id = request.POST.get('water_bill_id')
+        WaterBill.objects.get(id=water_bill_id).delete()
+        return redirect("water-bills")
+    return render(request, 'water_bills/delete_bill.html')

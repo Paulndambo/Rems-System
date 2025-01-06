@@ -6,10 +6,10 @@
                 <h5 class="modal-title" id="tenantModalLabel">Edit Water Bill</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="tenantForm" method="POST" action="#">
+            <form id="tenantForm" method="POST" action="{% url 'edit-water-bill' %}">
                 <div class="modal-body">
                     {% csrf_token %}
-                    <input type="number" name="bill_id" id="bill_id" value="{{bill.id}}" readonly hidden>
+                    <input type="number" name="water_bill_id" id="water_bill_id" value="{{bill.id}}" readonly hidden>
                     <div class="mb-3">
                         <label for="name" class="form-label fw-bold">Unit</label>
                         <select class="form-select" id="unit" name="unit">
@@ -25,9 +25,9 @@
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Month</label>
                         <select class="form-select" id="month" name="month">
-                            <option value="{{bill.month}}" selected>{{bill.month}}</option>
+                            <option value="{{bill.month.name}}" selected>{{bill.month.name}}</option>
                             {% for month in months %}
-                                {% if month != bill.month %}
+                                {% if month != bill.month.name %}
                                     <option value="{{month}}">{{month}}</option>
                                 {% endif %}
                             {% endfor %}
@@ -36,10 +36,10 @@
                     <div class="col-md-6">
                         <label for="rent" class="form-label fw-bold">Year</label>
                         <select class="form-select" id="year" name="year">
-                            <option value="{{bill.year}}" selected>{{bill.year}}</option>
+                            <option value="{{bill.year.id}}" selected>{{bill.year.name}}</option>
                             {% for year in years %}
-                                {% if year != bill.year %}
-                                    <option value="{{year}}">{{year}}</option>
+                                {% if year.id != bill.year.id %}
+                                    <option value="{{year.id}}">{{year.name}}</option>
                                 {% endif %}
                             {% endfor %}
                         </select>
@@ -49,7 +49,7 @@
                 <div class="row mb-3">
                     <div class="col">
                         <label for="unit" class="form-label fw-bold">Unpaid Balanaces</label>
-                        <input type="number" class="form-control" id="previous_balances" name="previous_balances" value="{{bill.previous_balances}}" step="0.01" />
+                        <input type="number" class="form-control" id="previous_balance" name="previous_balance" value="{{bill.previous_balance}}" step="0.01" />
                     </div>
                     <div class="col">
                         <label for="unit" class="form-label fw-bold">Previous Reading</label>
@@ -57,7 +57,7 @@
                     </div>
                     <div class="col">
                         <label for="unit" class="form-label fw-bold">Current Reading</label>
-                        <input type="number" class="form-control" id="units" name="units" value="{{bill.units}}" step="0.01" required/>
+                        <input type="number" class="form-control" id="current_reading" name="current_reading" value="{{bill.current_reading}}" step="0.01" required/>
                     </div>
                 </div>
                 </div>

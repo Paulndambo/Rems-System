@@ -6,10 +6,10 @@
                 <h5 class="modal-title" id="tenantModalLabel">Delete Water Bill</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="tenantForm" method="POST" action="#">
+            <form id="tenantForm" method="POST" action="{% url 'delete-water-bill' %}">
                 <div class="modal-body">
                     {% csrf_token %}
-                    <input type="number" name="bill_id" id="bill_id" value="{{bill.id}}" readonly hidden>
+                    <input type="number" name="water_bill_id" id="water_bill_id" value="{{bill.id}}" readonly hidden>
                     <div class="row mb-2">
                         <p>Are you sure you want to delete water bill for unit: <b>{{bill.unit.name}}</b>?</p>
                    </div>
