@@ -83,7 +83,8 @@ class MaintenanceRequest(AbstractBaseModel):
 
 class WaterBill(AbstractBaseModel):
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
-    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE)
+    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE, related_name="unitwaterbills")
+    tenant = models.ForeignKey('tenants.Tenant', on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantwaterbills")
     month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
     year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
     meter_number = models.CharField(max_length=255, null=True, blank=True)
@@ -91,6 +92,7 @@ class WaterBill(AbstractBaseModel):
     previous_reading = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     current_reading = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
 
     def __str__(self):
@@ -102,5 +104,12 @@ class WaterBill(AbstractBaseModel):
         return (Decimal(water_price.unit_price) * Decimal(self.current_reading)) + Decimal(self.previous_balance)
 
     def save(self, *args, **kwargs):
+        
+        if not self.tenant and self.unit:
+            self.tenant = self.unit.tenant
         self.amount = self.total_amount()
         super().save(*args, **kwargs)
+
+    def balance(self):
+        return self.amount - self.amount_paid
+

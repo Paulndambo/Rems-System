@@ -30,6 +30,7 @@
                     <th>Month</th>
                     <th>Units</th>
                     <th>Amount</th>
+                    <th>Amount Paid</th>
                     <th>Status</th>
                     <th></th>
                 </tr>
@@ -43,21 +44,28 @@
                     <td>{{bill.month}}(<b>{{bill.year}}</b>)</td>
                     <td>{{bill.current_reading}}</td>
                     <td>{{bill.amount}}</td>
+                    <td>{{bill.amount_paid}}</td>
                     <td>
                         {% if bill.status == 'Paid' %}
                         <span class="badge bg-success">{{bill.status}}</span>
                         {% elif bill.status == 'Pending' %}
                         <span class="badge bg-danger">{{bill.status}}</span>
+                        {% elif bill.status == 'Partially Paid' %}
+                        <span class="badge bg-warning">{{bill.status}}</span>
+                        {% elif bill.status == 'Overdue' %}
+                        <span class="badge bg-danger">{{bill.status}}</span>
                         {% endif %}
                     </td>
                     <td>
-                       
                         <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editWaterBillModal{{bill.id}}"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteWaterBillModal{{bill.id}}"><i class="fas fa-trash"></i></button>
-                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="##"><i class="fas fa-dollar-sign"></i></button>
+                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#payWaterBillModal{{bill.id}}"><i class="fas fa-dollar-sign"></i></button>
+                        <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#"><i class="fas fa-print"></i></button>
                     </td>
                     {% include "water_bills/edit_bill.html" %}
+                    {% include "water_bills/pay_water_bill.html" %}
                     {% include "water_bills/delete_bill.html" %}
+
                 </tr>
                 {% endfor %}
                 

@@ -1,0 +1,24 @@
+<!-- Add this modal HTML after the table in your template -->
+<div class="modal fade" id="deleteExpenseModal{{expense.id}}" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="expenseModalLabel">Delete Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="expenseForm" method="POST" action="{% url 'delete-expense' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="number" name="expense_id" id="expense_id" value="{{expense.id}}" readonly hidden>
+                    <div class="row mb-2">
+                        <p>Are you sure you want to delete expense named: <b>{{expense.title}}</b>?</p>
+                   </div>
+                    
+                <div class="text-center mb-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

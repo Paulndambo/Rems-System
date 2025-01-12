@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="col">
+            <h5 class="mb-0">Expenses</h5>
+        </div>
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Search..." 
+                id="searchInput" value="{{ search_query }}">
+            </div>
+            
+            <div class="col text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newExpenseModal">
+                <i class="fas fa-plus me-2"></i>Add New Expense
+            </button>   
+        </div>
+    </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="loader" id="loader"></div>
+        <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Amount</th>
+                    <th>Expense Type</th>
+                    <th>Spend On</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{expense.title}}</td>
+                    <td>{{expense.amount}}</td>
+                    <td>{{expense.expense_type}}</td>
+                    <td>{{expense.spend_on}}</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editExpenseModal{{expense.id}}"> <i class="fas fa-edit"></i></a>
+                        <a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteExpenseModal{{expense.id}}"> <i class="fas fa-trash"></i></a>
+                    </td>
+                    {% include "expenses/edit_expense.html" %}
+                    {% include "expenses/delete_expense.html" %}
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}
+{% block additional_scripts %}
+
+{% endblock additional_scripts %}

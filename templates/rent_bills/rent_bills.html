@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="col-3">
+                <h5 class="mb-0 text-primary">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>Monthly Rent Bills
+                </h5>
+            </div>
+            <div class="col-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" 
+                        placeholder="Search bills..." 
+                        id="searchInput" 
+                        value="{{ search_query }}">
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="loader" id="loader"></div>
+        <div class="table-responsive">
+            <table id="tenantsTable" class="table table-hover align-middle" style="width:100%">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>Tenant</th>
+                        <th>Unit</th>
+                        <th>Month</th>
+                        <th class="">Amount Expected</th>
+                        <th class="">Amount Paid</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    {% for rent_bill in rent_bills %}
+                    <tr>
+                        <td class="text-center">{{forloop.counter}}</td>
+                        <td>{{rent_bill.tenant.user.name}}</td>
+                        <td>{{rent_bill.unit.name}}</td>
+                        <td>{{rent_bill.month.name}} ({{rent_bill.year.name}})</td>
+                        <td class="text-end">{{rent_bill.amount_expected}}</td>
+                        <td class="text-end">{{rent_bill.amount_paid}}</td>
+                        <td>{{rent_bill.due_date}}</td>
+                        <td>
+                            {% if rent_bill.status == 'Pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif rent_bill.status == 'Paid' %}
+                                <span class="badge bg-success">Paid</span>
+                            {% elif rent_bill.status == 'Partially Paid' %}
+                                <span class="badge bg-warning">Partially Paid</span>
+                            
+                            {% elif rent_bill.status == 'Overdue' %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="text-center">
+                            {% if rent_bill.fully_paid %}
+                               
+                            {% else %}
+                            <button class="btn btn-primary btn-sm" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#payRentBillModal{{rent_bill.id}}"
+                                    {% if rent_bill.fully_paid %}disabled{% endif %}>
+                                <i class="fas fa-dollar-sign"></i> Pay
+                            </button>
+                            {% endif %}
+                            <a href="{% url 'rent-receipt' rent_bill.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-print"></i> Print
+                        </a>
+                        </td>
+                    </tr>
+                    {% include "rent_bills/pay_rent_bill.html" %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block additional_scripts %}
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable
+        $('#tenantsTable').DataTable({
+            "pageLength": 10,
+            "ordering": true,
+            "info": true,
+            "responsive": true,
+            "language": {
+                "search": "",
+                "searchPlaceholder": "Search bills..."
+            }
+        });
+
+        // Style the DataTable search input
+        $('.dataTables_filter input').addClass('form-control');
+        $('.dataTables_length select').addClass('form-select');
+    });
+</script>
+{% endblock additional_scripts %}

@@ -23,18 +23,35 @@ def tenant_detail(request, pk):
     next_of_kin = TenantNextOfKin.objects.filter(tenant=tenant)
 
     units = PropertyUnit.objects.filter(tenant=tenant)
-    #water_bills = tenant.waterbills.all().order_by('-created_at')
+    water_bills = tenant.tenantwaterbills.all().order_by('-created_at')
     #payments = TenantMonthlyBill.objects.filter(tenant=tenant).order_by('-created_at')
+    print(water_bills)
+    payments = tenant.tenantpayments.all().order_by('-created_at')
 
-    #average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
+    average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
+
+    total_expected_rent = tenant.tenantrentpayments.aggregate(total_expected=Avg('amount_expected'))['total_expected']
+    total_water_bill = water_bills.aggregate(total_amount=Avg('amount'))['total_amount']
+
+
+    total_water_paid = water_bills.aggregate(total_amount=Avg('amount_paid'))['total_amount']
+    total_rent_paid = tenant.tenantrentpayments.aggregate(total_amount=Avg('amount_paid'))['total_amount']
+
+    total_bill = total_expected_rent + total_water_bill
+    total_paid = total_rent_paid + total_water_paid
+    total_debt = total_bill - total_paid
 
     context = {
         'tenant': tenant,
         'next_of_kin': next_of_kin,
         'units': units,
-        #'water_bills': water_bills,
-        #'payments': payments,
-        #'average_water_bill': average_water_bill
+        'water_bills': water_bills,
+        'payments': payments,
+        'average_water_bill': average_water_bill,
+        'total_rent_paid': total_rent_paid,
+        'total_bill': total_bill,
+        'total_paid': total_paid,
+        'total_debt': total_debt
     }
     return render(request, 'tenants/tenant_details.html', context)
 

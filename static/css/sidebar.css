@@ -1,0 +1,53 @@
+#sidebar {
+    background: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    min-width: 250px;
+    max-width: 250px;
+}
+
+#sidebar .sidebar-header {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1;
+}
+
+#sidebar .sidebar-logo {
+    filter: brightness(0) invert(1);
+}
+
+#sidebar .components a {
+    color: #495057;
+    transition: all 0.3s ease;
+}
+
+#sidebar .components a:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+#sidebar .components a.active {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+#sidebar .submenu a {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+#sidebar .fa-chevron-down {
+    transition: transform 0.3s ease;
+}
+
+#sidebar .collapse.show + a .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: -250px;
+    }
+    
+    #sidebar.active {
+        margin-left: 0;
+    }
+} 

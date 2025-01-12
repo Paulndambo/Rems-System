@@ -11,10 +11,10 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="name" class="form-label fw-bold">Unit</label>
-                        <select class="form-select" id="unit" name="unit">
+                        <select class="form-select select2" id="unit" name="unit">
                             <option value="" selected>Choose...</option>
                             {% for unit in units %}
-                                <option value="{{unit.id}}">{{unit.name}}({{unit.property}})</option>
+                                <option value="{{unit.id}}">{{unit.name}} ({{unit.property}})</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -61,3 +61,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#unit').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            dropdownParent: $('#newWaterBillModal'),
+            placeholder: 'Choose...',
+            allowClear: true
+        });
+    });
+</script>

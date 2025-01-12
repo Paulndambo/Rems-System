@@ -114,6 +114,8 @@ class PaymentStatuses(Enum):
     PAID = 'Paid'
     OVERDUE = 'Overdue'
     PARTIALLY_PAID = 'Partially Paid'
+    CANCELLED = 'Cancelled'
+    COMPLETED = 'Completed'
 
     @classmethod
     def choices(cls):
@@ -125,10 +127,36 @@ class MaintenanceStatuses(Enum):
     COMPLETED = 'Completed'
     OVERDUE = 'Overdue'
     PENDING = 'Pending'
+    PAID = 'Paid'
+    PARTIALLY_PAID = 'Partially Paid'
 
     @classmethod
     def choices(cls):
         return [(key.value, key.name) for key in cls]
+    
+
+class ExpenseTypes(Enum):
+    WATER = 'Water'
+    ELECTRICITY = 'Electricity'
+    GAS = 'Gas'
+    INTERNET = 'Internet'
+    SECURITY = 'Security'
+    MAINTENANCE = 'Maintenance'
+    OTHER = 'Other'
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+EXPENSE_TYPES_LIST = [
+    'Water',
+    'Electricity',
+    'Gas',
+    'Internet',
+    'Security',
+    'Maintenance',
+    'Other'
+]
 
 
 class PriorityLevels(Enum):
@@ -146,3 +174,20 @@ GENDER_LIST = [
     'Female',
     'Other'
 ]
+
+PAYMENT_METHODS = [
+    'Cash',
+    'M-Pesa',
+    'Bank Transfer',
+    'Bank Deposit'
+]
+
+class PaymentMethods(Enum):
+    CASH = 'Cash'
+    MPESA = 'M-Pesa'
+    BANK_TRANSFER = 'Bank Transfer'
+    BANK_DEPOSIT = 'Bank Deposit'
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]

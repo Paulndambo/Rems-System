@@ -9,6 +9,7 @@ from django.db.models import Q
 from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
 from apps.core.models import Month, Year
 from apps.tenants.models import Tenant
+from apps.payments.models import TenantPayment, RentPayment
 from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST, MONTHS_LIST
 # Create your views here.
 
@@ -65,7 +66,8 @@ def new_property(request):
             manager_name=manager_name,
             manager_email=manager_email,
             manager_gender=manager_gender,
-            manager_phone_number=manager_phone
+            manager_phone_number=manager_phone,
+            is_active=True
         )
         return redirect("properties")
     return render(request, 'properties/new_property.html')
@@ -129,18 +131,23 @@ def property_unit_detail(request, id):
     unit = PropertyUnit.objects.get(id=id)
 
     maintenance_requests = MaintenanceRequest.objects.filter(unit=unit)
-    #water_bills = unit.unitwaterbills.all().order_by('-created_at')
+    water_bills = unit.unitwaterbills.all().order_by('-created_at')
 
-    #average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
+    average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
     maintenance_cost = sum(list(maintenance_requests.values_list('cost', flat=True)))
+
+    payments = RentPayment.objects.filter(rent_bill__unit=unit)
+    total_rent = RentPayment.objects.filter(rent_bill__unit=unit).aggregate(total_amount=Avg('amount_paid'))['total_amount']
 
     context = {
         'unit': unit,
         'maintenance_requests': maintenance_requests,
-        #'water_bills': water_bills,
-        #"average_water_bill": average_water_bill if average_water_bill else 0,
+        'water_bills': water_bills,
+        "average_water_bill": average_water_bill if average_water_bill else 0,
         "maintenance_cost": maintenance_cost,
-        "unit_statuses": UNIT_STATUSES
+        "unit_statuses": UNIT_STATUSES,
+        "payments": payments,
+        "total_rent": round(total_rent, 0) if total_rent else 0
     }
     return render(request, 'properties/units/unit_details.html', context)
 
@@ -362,6 +369,7 @@ def new_water_bill(request):
         WaterBill.objects.create(
             unit=unit,
             property=unit.property,
+            tenant=unit.tenant,
             year=year,
             month=month,
             previous_balance=previous_balance,
