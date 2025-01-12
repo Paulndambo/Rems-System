@@ -9,4 +9,5 @@ urlpatterns = [
     path('tenant-payments-report/', views.tenant_payments_report, name='tenant-payments-report'),
     path('water-bills-report/', views.water_bills_report, name='water-bills-report'),
     path('water-bills-payments-report/', views.water_bills_payments_report, name='water-bills-payments-report'),
+    path('rent-payments-report/', views.rent_payments_report, name='rent-payments-report'),
 ]

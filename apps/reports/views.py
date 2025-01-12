@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Sum
 
-from apps.payments.models import RentBill, WaterBillPayment, Expense, TenantPayment
+from apps.payments.models import RentBill, WaterBillPayment, Expense, TenantPayment, RentPayment
 from apps.properties.models import WaterBill
 from apps.core.models import Month, Year
 from apps.tenants.models import Tenant
@@ -310,3 +310,63 @@ def tenant_payments_report(request):
     }
     return render(request, 'reports/tenant_payments_report.html', context)
 
+
+def rent_payments_report(request):
+    # Get filter parameters
+    year = request.GET.get('year')
+    month = request.GET.get('month')
+    tenant = request.GET.get('tenant')
+    export = request.GET.get('export')
+
+    rent_payments = RentPayment.objects.all()
+
+    if year and month and tenant:
+        rent_payments = rent_payments.filter(rent_bill__year_id=year, rent_bill__month__name=month, rent_bill__tenant_id=tenant)
+    
+    elif year and month:
+        rent_payments = rent_payments.filter(rent_bill__year_id=year, rent_bill__month__name=month)
+    
+    elif month and tenant:
+        rent_payments = rent_payments.filter(rent_bill__month__name=month, rent_bill__tenant_id=tenant)
+
+    elif tenant:
+        rent_payments = rent_payments.filter(rent_bill__tenant_id=tenant)
+
+    elif year:
+        rent_payments = rent_payments.filter(rent_bill__year_id=year)
+
+    elif month:
+        rent_payments = rent_payments.filter(rent_bill__month__name=month)
+
+    if export == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="rent_payments.csv"'  
+
+        writer = csv.writer(response)
+        writer.writerow(['Recorded On', 'Tenant', 'House No.', 'Amount Paid', 'Payment Method', 'Payment Date', 'Month', 'Year'])
+
+        for rent_payment in rent_payments:
+            writer.writerow([
+                rent_payment.created_at.strftime('%Y-%m-%d'),
+                f"{rent_payment.rent_bill.tenant.user.first_name} {rent_payment.rent_bill.tenant.user.last_name}",
+                f"{rent_payment.rent_bill.unit.name} ({rent_payment.rent_bill.unit.property.name})",
+                rent_payment.amount_paid,
+                rent_payment.payment_method,
+                rent_payment.payment_date.strftime('%Y-%m-%d'),
+                rent_payment.rent_bill.month.name,
+                rent_payment.rent_bill.year.name
+            ])
+
+        return response
+    
+
+    context = {
+        'rent_payments': rent_payments,
+        'years': Year.objects.all(),
+        'months': MONTHS_LIST,
+        'tenants': Tenant.objects.all(),
+        'selected_year': year,
+        'selected_month': month,
+        'selected_tenant': tenant,
+    }
+    return render(request, 'reports/rent_payments_report.html', context)
