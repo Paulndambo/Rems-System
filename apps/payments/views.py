@@ -49,13 +49,18 @@ def pay_water_bill(request):
     if request.method == "POST":
         water_bill_id = request.POST.get("water_bill_id")
         amount_paid = Decimal(request.POST.get("amount_paying"))
+        payment_method = request.POST.get("payment_method")
 
         bill = WaterBill.objects.get(id=water_bill_id)
 
         payment = WaterBillPayment.objects.create(
-            water_bill_id=water_bill_id, 
+            tenant=bill.unit.tenant,
+            water_bill=bill,
             amount_paid=amount_paid, 
-            payment_date=date_today
+            payment_date=date_today,
+            month=bill.month,
+            year=bill.year,
+            payment_method=payment_method
         )
 
         bill.amount_paid += payment.amount_paid
@@ -70,6 +75,7 @@ def pay_water_bill(request):
             water_bill_payment=payment,
             month=bill.month,
             year=bill.year,
+            payment_method=payment_method
         )
 
         if bill.amount_paid == bill.amount:

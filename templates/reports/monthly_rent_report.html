@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="col-3">
+                <h5 class="mb-0 text-primary">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>Monthly Rent Bills
+                </h5>
+            </div>
+            <div class="col-9">
+                <form method="GET" class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <select name="month" class="form-select">
+                            <option value="">Select Month</option>
+                            {% for month in months %}
+                                <option value="{{ month }}" {% if selected_month == month %}selected{% endif %}>
+                                    {{ month }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <select name="year" class="form-select">
+                            <option value="">Select Year</option>
+                            {% for year in years %}
+                                <option value="{{ year.id }}" {% if selected_year == year.id %}selected{% endif %}>
+                                    {{ year.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-2"></i>Filter
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <a href="?{{ request.GET.urlencode }}&export=csv" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>Download CSV
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="loader" id="loader"></div>
+        <div class="table-responsive">
+            <table id="tenantsTable" class="table table-hover align-middle" style="width:100%">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>Tenant</th>
+                        <th>Unit</th>
+                        <th>Month</th>
+                        <th class="">Amount Expected</th>
+                        <th class="">Amount Paid</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    {% for rent_bill in rent_bills %}
+                    <tr>
+                        <td class="text-center">{{forloop.counter}}</td>
+                        <td>{{rent_bill.tenant.user.name}}</td>
+                        <td>{{rent_bill.unit.name}}</td>
+                        <td>{{rent_bill.month.name}} ({{rent_bill.year.name}})</td>
+                        <td class="text-end">{{rent_bill.amount_expected}}</td>
+                        <td class="text-end">{{rent_bill.amount_paid}}</td>
+                        <td>{{rent_bill.due_date}}</td>
+                        <td>
+                            {% if rent_bill.status == 'Pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif rent_bill.status == 'Paid' %}
+                                <span class="badge bg-success">Paid</span>
+                            {% elif rent_bill.status == 'Partially Paid' %}
+                                <span class="badge bg-warning">Partially Paid</span>
+                            
+                            {% elif rent_bill.status == 'Overdue' %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% endif %}
+                        </td>
+                        
+                    </tr>
+                
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block additional_scripts %}
+
+{% endblock additional_scripts %}

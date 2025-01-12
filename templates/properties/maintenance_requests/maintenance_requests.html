@@ -15,7 +15,7 @@
         </div>
     </div>
     <div class="card-body">
-        <table id="tenantsTable" class="table table-striped" style="width:100%">
+        <table id="tenantsTable" class="table table-hover table-small table-responsive" style="width:100%">
             <thead>
                 <tr>
                     <th>#</th>
@@ -23,6 +23,7 @@
                     <th>Property</th>
                     <th>Unit</th>
                     <th>Tenant</th>
+                    <th>Priority</th>
                     <th>Status</th>
                     <th></th>
                 </tr>
@@ -35,6 +36,7 @@
                     <td>{{request.property}}</td>
                     <td>{{request.unit}}</td>
                     <td>{{request.unit.tenant.user.name}}</td>
+                    <td><span class="tenant-status status-active">{{request.priority}}</span></td>
                     <td><span class="tenant-status status-active">{{request.status}}</span></td>
                     <td>
                         <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editRequestModal{{request.id}}"><i class="fas fa-edit"></i></button>

@@ -11,8 +11,7 @@ class WaterBillPayment(AbstractBaseModel):
     month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
     year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.tenant.user.name}"
+   
 
 
 class Expense(AbstractBaseModel):
@@ -52,7 +51,6 @@ class RentPayment(AbstractBaseModel):
 
     def __str__(self):
         return f"{self.rent_bill.tenant.user.name}"
-
 
 
 class TenantPayment(AbstractBaseModel):

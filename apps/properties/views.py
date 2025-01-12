@@ -10,7 +10,7 @@ from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, W
 from apps.core.models import Month, Year
 from apps.tenants.models import Tenant
 from apps.payments.models import TenantPayment, RentPayment
-from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST, MONTHS_LIST
+from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST, MONTHS_LIST, PAYMENT_METHODS
 # Create your views here.
 
 years = Year.objects.filter(is_active=True)
@@ -278,7 +278,7 @@ def edit_maintenance_request(request):
         title = request.POST.get('title')
         description = request.POST.get('description')
         status = request.POST.get('status')
-        unit = request.POST.get('unit')
+       
         priority = request.POST.get('priority')
         cost = request.POST.get('cost')
 
@@ -288,7 +288,6 @@ def edit_maintenance_request(request):
         maintenance_request.status = status
         maintenance_request.priority = priority
         maintenance_request.cost = cost
-        maintenance_request.unit = PropertyUnit.objects.get(id=unit)
         maintenance_request.save()
         return redirect("maintenance-requests")
     return render(request, 'properties/maintenance_requests/edit_maintenance_request.html')
@@ -331,6 +330,7 @@ class WaterBillListView(ListView):
         context["search_query"] = self.request.GET.get("search", "")
         context["months"] = MONTHS_LIST
         context["years"] = years
+        context["payment_methods"] = PAYMENT_METHODS
         context["units"] = PropertyUnit.objects.filter(is_occupied=True).order_by("-created_at")
         return context
 

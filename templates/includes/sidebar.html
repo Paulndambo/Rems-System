@@ -70,6 +70,27 @@
                 <li class="mb-2"><a href="{% url 'water-bill-payments' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Bill Payments</span></a></li>
             </ul>
         </li>
+        
+
+        <li class="mb-2">
+            <a href="#reportsSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+                <div>
+                    <i class="fas fa-chart-pie me-3"></i>
+                    <span class="nav-label">Reports</span>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </a>
+            <ul class="collapse list-unstyled submenu ps-4 mt-1" id="reportsSubmenu">
+                <li class="mb-2"><a href="{% url 'reports:monthly-rent-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Rent Bills</span></a></li>
+                <li class="mb-2"><a href="{% url 'reports:water-bills-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Bills</span></a></li>
+                <li class="mb-2"><a href="{% url 'reports:expenses-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Expenses</span></a></li>
+                <hr/>
+                <li class="mb-2"><a href="{% url 'reports:water-bills-payments-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Payments</span></a></li>
+                <li class="mb-2"><a href="{% url 'reports:tenant-payments-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Tenant Payments</span></a></li>
+            </ul>
+        </li>
+
+        <hr>
 
         <li class="mb-2">
             <a href="#settingsSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
