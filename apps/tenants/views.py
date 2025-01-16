@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.db.models import Avg
+from django.views.generic import ListView
+from django.db.models import Q
 
 from apps.tenants.models import Tenant, TenantNextOfKin
 from apps.properties.models import PropertyUnit
@@ -16,6 +18,37 @@ def tenants(request):
         'lease_durations': LEASE_DURATIONS
     }
     return render(request, 'tenants/tenants.html', context)
+
+
+class TenantListView(ListView):
+    model = Tenant
+    template_name = "tenants/tenants.html"
+    context_object_name = "tenants"
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+
+        print(f"You are searching for {search_query}")
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query)
+                | Q(user__first_name__icontains=search_query)
+                | Q(user__last_name__icontains=search_query)
+                | Q(user__phone__icontains=search_query)
+                | Q(user__email__icontains=search_query)
+                | Q(user__id_number__icontains=search_query)
+            
+                | Q(move_in_date__icontains=search_query)
+                | Q(lease_duration__icontains=search_query)
+                | Q(lease_date__icontains=search_query)
+                | Q(occupation__icontains=search_query)
+                | Q(status__icontains=search_query)
+            )
+
+        return queryset.order_by("-created_at")
 
 
 def tenant_detail(request, pk):
@@ -37,9 +70,9 @@ def tenant_detail(request, pk):
     total_water_paid = water_bills.aggregate(total_amount=Avg('amount_paid'))['total_amount']
     total_rent_paid = tenant.tenantrentpayments.aggregate(total_amount=Avg('amount_paid'))['total_amount']
 
-    total_bill = total_expected_rent + total_water_bill
-    total_paid = total_rent_paid + total_water_paid
-    total_debt = total_bill - total_paid
+    total_bill = total_expected_rent + total_water_bill if (total_expected_rent and total_expected_rent ) else 0
+    total_paid = total_rent_paid + total_water_paid if (total_rent_paid and total_water_paid) else 0
+    total_debt = total_bill - total_paid if (total_bill and total_paid) else 0
 
     context = {
         'tenant': tenant,
@@ -47,11 +80,11 @@ def tenant_detail(request, pk):
         'units': units,
         'water_bills': water_bills,
         'payments': payments,
-        'average_water_bill': average_water_bill,
-        'total_rent_paid': total_rent_paid,
-        'total_bill': total_bill,
-        'total_paid': total_paid,
-        'total_debt': total_debt
+        'average_water_bill': average_water_bill if average_water_bill else 0,
+        'total_rent_paid': total_rent_paid if total_rent_paid else 0,
+        'total_bill': round(total_bill, 2) if total_bill else 0,
+        'total_paid': round(total_paid, 2) if total_paid else 0,
+        'total_debt': round(total_debt, 2) if total_debt else 0
     }
     return render(request, 'tenants/tenant_details.html', context)
 

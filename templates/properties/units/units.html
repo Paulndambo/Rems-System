@@ -1,132 +1,201 @@
 {% extends "base.html" %}
 {% block additional_styles %}
     <style>
-        .property-header {
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-            padding: 1.5rem 0;
+        /* Improved styling */
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
             margin-bottom: 2rem;
         }
 
-        .property-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 8px;
+        .card-header {
+            background: linear-gradient(to right, #f8f9fa, #ffffff);
+            border-bottom: 1px solid #edf2f7;
+            padding: 1.25rem;
         }
 
-        .status-badge {
+        .search-wrapper {
+            position: relative;
+            max-width: 300px;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        #searchInput {
+            padding-left: 35px;
+            border-radius: 20px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        #searchInput:focus {
+            box-shadow: 0 0 0 0.2rem rgba(44, 123, 229, 0.15);
+            border-color: #2c7be5;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            color: #495057;
+            font-weight: 600;
+            padding: 1rem;
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        /* Status badges */
+        .badge {
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-weight: 500;
-        }
-
-        .status-active {
-            background-color: #d4edda;
-            color: #155724;
+            font-size: 0.875rem;
         }
 
         .unit-vacant {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #def7ec;
+            color: #03543f;
         }
 
         .unit-occupied {
-            background-color: #cce5ff;
-            color: #004085;
+            background-color: #e1effe;
+            color: #1e429f;
         }
 
         .unit-maintenance {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: #fef3c7;
+            color: #92400e;
         }
 
-        .info-card {
-            height: 100%;
-            transition: transform 0.2s;
+        /* Buttons */
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
         }
 
-        .info-card:hover {
-            transform: translateY(-5px);
+        .btn-sm:hover {
+            transform: translateY(-1px);
         }
 
-        .detail-icon {
-            font-size: 1.5rem;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
+        /* Responsive table */
+        @media (max-width: 992px) {
+            .table-responsive-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 -1rem;
+            }
+
+            .table {
+                min-width: 800px;
+            }
         }
 
-        .units-table th {
-            background-color: #f8f9fa;
+        /* Mobile optimizations */
+        @media (max-width: 576px) {
+            .card-header .d-flex {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-wrapper {
+                width: 100%;
+                max-width: 100%;
+            }
         }
     </style>
 {% endblock additional_styles %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="col">
-            <h5 class="mb-0">Property Units</h5>
-        </div>
-            <div class="col">
-                <input type="text" class="form-control" placeholder="Search..." 
-                id="searchInput" value="{{ search_query }}">
+<div class="container-fluid py-4">
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="col-auto">
+                    <h5 class="mb-0 text-primary">Property Units</h5>
+                </div>
+                <div class="col-md-4">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" placeholder="Search units..." 
+                        id="searchInput" value="{{ search_query }}">
+                    </div>
+                </div>
             </div>
-          
         </div>
-    </div>
-    <div class="card-body">
-        <table id="tenantsTable" class="table" style="width:100%">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Property</th>
-                    <th>Unit No.</th>
-                    <th>Type</th>
-                    <th>Rent</th>
-                    <th>Deposit</th>
-                    <th>Status</th>
-                    <th>Tenant</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for unit in units %}
-                <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td>{{unit.property}}</td>
-                    <td>{{unit.name}}</td>
-                    <td>{{unit.unit_type}}</td>
-                    <td>{{unit.rent}}</td>
-                    <td>{{unit.security_deposit}}</td>
-                    <td>
-                        {% if unit.status == 'Vacant' %}
-                            <span class="badge unit-vacant">Vacant</span>
-                        {% elif unit.status == 'Occupied' %}
-                            <span class="badge unit-occupied">Occupied</span>
-                        {% else %}
-                            <span class="badge unit-maintenance">Maintenance</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if unit.tenant %}
-                            <a href="{% url 'tenant-detail' unit.tenant.id %}" style="text-decoration: none;">{{ unit.tenant.user.name }}</a>
-                        {% else %}
-                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignTenantModal{{unit.id}}"><i class="fas fa-user-plus"></i></button>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{% url 'unit-detail' unit.id %}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
-                      
-                            {% include "properties/units/edit_unit_copy.html" %}
-        
-                    </td>
-                   
-                </tr>
-                {% endfor %}
-                
-            </tbody>
-        </table>
+        <div class="card-body">
+            <div class="table-responsive-wrapper">
+                <table id="tenantsTable" class="table table-hover table-small">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Property</th>
+                            <th>Unit No.</th>
+                            <th>Type</th>
+                            <th>Rent</th>
+                            <th>Status</th>
+                            <th>Tenant</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for unit in units %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{unit.property}}</td>
+                            <td>{{unit.name}}</td>
+                            <td>{{unit.unit_type}}</td>
+                            <td>{{unit.rent}}</td>
+                            <td>
+                                {% if unit.status == 'Vacant' %}
+                                    <span class="badge unit-vacant">Vacant</span>
+                                {% elif unit.status == 'Occupied' %}
+                                    <span class="badge unit-occupied">Occupied</span>
+                                {% else %}
+                                    <span class="badge unit-maintenance">Maintenance</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if unit.tenant %}
+                                    <a href="{% url 'tenant-detail' unit.tenant.id %}" class="text-decoration-none text-primary">
+                                        {{ unit.tenant.user.name }}
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignTenantModal{{unit.id}}">
+                                        <i class="fas fa-user-plus"></i> Assign
+                                    </button>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'unit-detail' unit.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
+
+{% for unit in units %}
+    {% include "properties/units/edit_unit_copy.html" %}
+{% endfor %}
 {% endblock content %}

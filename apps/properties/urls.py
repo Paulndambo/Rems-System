@@ -17,6 +17,7 @@ from apps.properties.views import (
     delete_maintenance_request,
     assign_tenant,
     water_bills,
+    view_water_bill,
     new_water_bill,
     edit_water_bill,
     delete_water_bill,
@@ -41,6 +42,7 @@ urlpatterns = [
     path('edit-water-bill/', edit_water_bill, name='edit-water-bill'),
     path('delete-water-bill/', delete_water_bill, name='delete-water-bill'),
     path('water-bills/', WaterBillListView.as_view(), name='water-bills'),
+    path('view-water-bill/<int:id>/', view_water_bill, name='view-water-bill'),
 
     path('maintenance-requests/', maintenance_requests, name='maintenance-requests'),
     path('new-maintenance-request/', new_maintenance_request, name='new-maintenance-request'),

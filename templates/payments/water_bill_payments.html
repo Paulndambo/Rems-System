@@ -1,50 +1,121 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="col">
-            <h5 class="mb-0">Water Bills Payments</h5>
-        </div>
-            <div class="col">
-                <input type="text" class="form-control" placeholder="Search..." 
-                id="searchInput" value="{{ search_query }}">
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-4">
+                <h5 class="mb-0 text-primary">Water Bills Payments</h5>
             </div>
-           
+            <div class="col-12 col-md-8">
+                <div class="d-flex gap-2">
+                    <input type="text" 
+                           class="form-control" 
+                           placeholder="Search by tenant name or unit..." 
+                           id="searchInput" 
+                           value="{{ search_query }}">
+                    <select class="form-select w-auto" id="yearFilter">
+                        <option value="">All Years</option>
+                        {% for year in years %}
+                            <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
     
     <div class="card-body">
-        <div class="loader" id="loader"></div>
-        <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Tenant</th>
-                    <th>House No.</th>
-                    <th>Month</th>
-                    <th>Amount Paid</th>
-                    <th>Date Paid</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                {% for payment in water_bill_payments %}
-                <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td>{{payment.water_bill.unit.tenant.user.name}}</td>
-                    <td>{{payment.water_bill.unit.name}}</td>
-                    <td>{{payment.water_bill.month}}(<b>{{payment.water_bill.year}}</b>)</td>
-                    <td>{{payment.amount_paid}}</td>
-                    <td>{{payment.created_at}}</td>
-                </tr>
-                {% endfor %}
-                
-            </tbody>
-        </table>
+        <div class="loader d-none" id="loader">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table id="tenantsTable" class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>Tenant</th>
+                        <th>Month</th>
+                        <th class="text-end">Amount Paid</th>
+                        <th>Date Paid</th>
+                       
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    {% for payment in water_bill_payments %}
+                    <tr>
+                        <td class="text-center">{{forloop.counter}}</td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-medium">{{payment.water_bill.unit.tenant.user.name}}</span>
+                                <small class="text-muted">Unit: {{payment.water_bill.unit.name}}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark">
+                                {{payment.water_bill.month}} {{payment.water_bill.year}}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <span class="fw-medium">Ksh. {{payment.amount_paid|floatformat:2}}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span>{{payment.created_at|date:"M d, Y"}}</span>
+                                <small class="text-muted">{{payment.created_at|date:"h:i A"}}</small>
+                            </div>
+                        </td>
+                        
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <div class="text-muted">
+                                <i class="fas fa-file-invoice fa-2x mb-3"></i>
+                                <p>No payment records found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock content %}
-{% block additional_scripts %}
 
+{% block additional_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const yearFilter = document.getElementById('yearFilter');
+    const loader = document.getElementById('loader');
+    const tableBody = document.getElementById('tableBody');
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    const handleSearch = debounce(() => {
+        loader.classList.remove('d-none');
+        // Add your search logic here
+        // Make API call to filter results
+        loader.classList.add('d-none');
+    }, 500);
+
+    searchInput.addEventListener('input', handleSearch);
+    yearFilter.addEventListener('change', handleSearch);
+});
+</script>
 {% endblock additional_scripts %}

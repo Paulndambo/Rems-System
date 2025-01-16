@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
+from datetime import datetime
 
 from django.views.generic import ListView
 from django.http import JsonResponse
@@ -321,6 +322,8 @@ class WaterBillListView(ListView):
                 | Q(unit__name__icontains=search_query)
                 | Q(month__name__icontains=search_query)
                 | Q(year__name__icontains=search_query)
+                | Q(tenant__user__first_name__icontains=search_query)
+                | Q(tenant__user__last_name__icontains=search_query)
             )
 
         return queryset.order_by("-created_at")
@@ -329,7 +332,7 @@ class WaterBillListView(ListView):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("search", "")
         context["months"] = MONTHS_LIST
-        context["years"] = years
+        context["years"] = Year.objects.filter(is_active=True)
         context["payment_methods"] = PAYMENT_METHODS
         context["units"] = PropertyUnit.objects.filter(is_occupied=True).order_by("-created_at")
         return context
@@ -350,6 +353,13 @@ def water_bills(request):
 
 
 @login_required
+def view_water_bill(request, id):
+    water_bill = WaterBill.objects.get(id=id)
+    date_today = datetime.now().strftime("%Y-%m-%d")
+    return render(request, 'water_bills/view_bill.html', {'bill': water_bill, 'date_today': date_today})
+
+
+@login_required
 def new_water_bill(request):
     if request.method == "POST":
         unit_id = request.POST.get('unit')
@@ -363,8 +373,6 @@ def new_water_bill(request):
         unit = PropertyUnit.objects.get(id=unit_id)
         year = Year.objects.get(id=year_id)
         month = Month.objects.get(name=month_name, year=year)
-
-        print(previous_balance, previous_reading, current_reading)
 
         WaterBill.objects.create(
             unit=unit,

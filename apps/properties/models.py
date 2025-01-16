@@ -113,3 +113,39 @@ class WaterBill(AbstractBaseModel):
     def balance(self):
         return self.amount - self.amount_paid
 
+
+class GarbageBill(AbstractBaseModel):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE, related_name="unitgarbagebills")
+    tenant = models.ForeignKey('tenants.Tenant', on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantgarbagebills")
+    month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
+    year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
+
+    def __str__(self):
+        return self.unit.name
+    
+
+class ElectricityBill(AbstractBaseModel):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE, related_name="unitelectricitybills")
+    tenant = models.ForeignKey('tenants.Tenant', on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantelectricitybills")
+    month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
+    year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
+    meter_number = models.CharField(max_length=255, null=True, blank=True)
+    previous_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    previous_reading = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    current_reading = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
+
+    def __str__(self):
+        return self.unit.name
+    
+
+    
+    def balance(self):
+        return self.amount - self.amount_paid

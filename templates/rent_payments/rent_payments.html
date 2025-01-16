@@ -22,7 +22,6 @@
                 <tr>
                     <th>#</th>
                     <th>Tenant</th>
-                    <th>House No.</th>
                     <th>Month</th>
                     <th>Amount Paid</th>
                     <th>Date Paid</th>
@@ -32,8 +31,7 @@
                 {% for payment in rent_payments %}
                 <tr>
                     <td>{{forloop.counter}}</td>
-                    <td>{{payment.rent_bill.unit.tenant.user.name}}</td>
-                    <td>{{payment.rent_bill.unit.name}}</td>
+                    <td>{{payment.rent_bill.unit.tenant.user.name}}({{payment.rent_bill.unit.name}})</td>
                     <td>{{payment.rent_bill.month}}(<b>{{payment.rent_bill.year}}</b>)</td>
                     <td>{{payment.amount_paid}}</td>
                     <td>{{payment.created_at}}</td>

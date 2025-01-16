@@ -1,101 +1,234 @@
 {% extends "base.html" %}
-    {% block additional_styles %}
+{% block additional_styles %}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <style>
-     
-   
-        /* New styles for tenants table */
+        /* Card styles */
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 1rem;
+        }
+
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 1.25rem;
+        }
+
+        /* Table styles */
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 1rem 0.75rem;
+        }
+
+        /* Status badge styles */
         .tenant-status {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.875rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .status-active {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #e6f4ea;
+            color: #1e7e34;
         }
 
         .status-inactive {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: #fde7e9;
+            color: #dc3545;
         }
 
         .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: #fff4e5;
+            color: #ff9800;
+        }
+
+        /* Action buttons */
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Add New Tenant button */
+        .btn-add-tenant {
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-add-tenant:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         /* Responsive styles */
+        @media (max-width: 992px) {
+            .card {
+                margin: 0.5rem;
+            }
+
+            .table-responsive {
+                border: none;
+            }
+        }
+
         @media (max-width: 768px) {
-            #sidebar {
-                margin-left: calc(-1 * var(--sidebar-width));
+            .card-header {
+                padding: 1rem;
             }
 
-            #sidebar.collapsed {
-                margin-left: 0;
+            .btn-add-tenant {
+                padding: 0.4rem 1rem;
+                font-size: 0.9rem;
             }
 
-            #content {
-                width: 100%;
-                margin-left: 0;
+            .table thead th {
+                font-size: 0.75rem;
             }
 
-            #content.expanded {
-                width: calc(100% - var(--sidebar-collapsed-width));
-                margin-left: var(--sidebar-collapsed-width);
+            .table tbody td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .tenant-status {
+                padding: 4px 8px;
+                font-size: 0.7rem;
+            }
+
+            .btn-action {
+                width: 28px;
+                height: 28px;
             }
         }
     </style>
 {% endblock additional_styles %}
+
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Tenants</h5>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTenantModal">
-                <i class="fas fa-plus me-2"></i>Add New Tenant
-            </button>
+        <div class="row d-flex justify-content-between align-items-center gap-3">
+            <div class="col-auto">
+                <h5 class="mb-0 fw-bold">Tenants</h5>
+            </div>
+            <div class="col-md-4">
+                <div class="search-wrapper flex-grow-1 max-w-md">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" 
+                            placeholder="Search bills..." 
+                            id="searchInput" 
+                            value="{{ search_query }}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary btn-add-tenant" data-bs-toggle="modal" data-bs-target="#newTenantModal">
+                    <i class="fas fa-plus me-2"></i>New Tenant
+                </button>
+            </div>
         </div>
     </div>
-    <div class="card-body">
-        <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Property</th>
-                    <th>Contact</th>
-                    <th>Move-in Date</th>
-                    <th>Rent</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for tenant in tenants %}
-                <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td>{{tenant.user.name}}</td>
-                    <td>{{tenant.unit.property}}</td>
-                    <td>{{tenant.user.phone}}</td>
-                    <td>{{tenant.move_in_date}}</td>
-                    <td>{{tenant.unit.rent}}</td>
-                    <td><span class="tenant-status status-active">{{tenant.status}}</span></td>
-                    <td>
-                        <a href="{% url 'tenant-detail' tenant.id %}" class="btn btn-sm btn-info me-1"><i class="fas fa-eye"></i></a>
-                        <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editTenantModal{{tenant.id}}"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteTenantModal{{tenant.id}}"><i class="fas fa-trash"></i></button>
-                    </td>
+
+    <div class="card-body p-0">
+        <div class="loader" id="loader"></div>
+        <div class="table-responsive">
+            <table id="tenantsTable" class="table table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Property</th>
+                        <th>Contact</th>
+                        <th>Move-in Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tenant in tenants %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-2">
+                                    {% if tenant.user.profile_picture %}
+                                        <img src="{{ tenant.user.profile_picture.url }}" alt="Profile" class="rounded-circle" width="32">
+                                    {% else %}
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                            <i class="fas fa-user text-secondary"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <span class="fw-medium">{{tenant.user.name}}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{tenant.unit.property}}</td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span>{{tenant.user.phone}}</span>
+                                <small class="text-muted">{{tenant.user.email}}</small>
+                            </div>
+                        </td>
+                        <td>{{tenant.move_in_date|date:"M d, Y"}}</td>
+                        <td><span class="tenant-status status-{{tenant.status|lower}}">{{tenant.status}}</span></td>
+                        <td>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'tenant-detail' tenant.id %}" class="btn btn-action btn-light" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button class="btn btn-action btn-light" data-bs-toggle="modal" data-bs-target="#editTenantModal{{tenant.id}}" title="Edit">
+                                    <i class="fas fa-edit text-primary"></i>
+                                </button>
+                                <button class="btn btn-action btn-light" data-bs-toggle="modal" data-bs-target="#deleteTenantModal{{tenant.id}}" title="Delete">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
                     {% include "tenants/edit_tenant.html" %}
                     {% include "tenants/delete_tenant.html" %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
 {% endblock content %}
 
