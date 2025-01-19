@@ -1,11 +1,5 @@
 from rest_framework import serializers
-from website.models import UnitListing, ListingImage, Amenity, Comment, ListingInterestExpression
-
-class UnitListingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UnitListing
-        fields = '__all__'
-
+from website.models import UnitListing, ListingImage, UnitAmenity, Comment, ListingInterestExpression
 
 class ListingImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,8 +8,22 @@ class ListingImageSerializer(serializers.ModelSerializer):
 
 class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Amenity
+        model = UnitAmenity
         fields = '__all__'
+
+class UnitListingSerializer(serializers.ModelSerializer):
+    location = serializers.SerializerMethodField()
+    images = ListingImageSerializer(many=True, read_only=True)
+    amenities = AmenitySerializer(many=True, read_only=True)
+    class Meta:
+        model = UnitListing
+        fields = '__all__'
+
+    def get_location(self, obj):
+        return f"{obj.town}, {obj.county}" if obj.town and obj.county else None
+
+
+
 
 
 class CommentSerializer(serializers.ModelSerializer):

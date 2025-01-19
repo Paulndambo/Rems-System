@@ -12,6 +12,9 @@ from django.views.generic import ListView
 from django.http import JsonResponse
 from django.db.models import Q
 from django.db import transaction
+from datetime import date
+from calendar import month_name
+
 
 date_today = datetime.now().date()
 
@@ -364,3 +367,31 @@ def generate_rent_payment(request):
     return render(request, "rent_payments/generate_rent_payment.html")
 
 
+def rent_payments_overview(request):
+    units = PropertyUnit.objects.order_by("name")
+    unit_numbers = [unit.name for unit in units]
+
+    # Fetch rent data grouped by month, year, and unit
+    rent_data = {}
+    bills = RentBill.objects.select_related("unit", "month", "year")
+    for bill in bills:
+        month_key = f"{bill.year.name}-{bill.month.name}"  # e.g., "2025-January"
+        if month_key not in rent_data:
+            rent_data[month_key] = {}
+        rent_data[month_key][bill.unit.name] = bill.fully_paid  # Store fully_paid status
+
+    # Generate rows for the table
+    rows = []
+    for month_key in sorted(rent_data.keys()):  # Sort by year-month
+        month_display = month_key.split("-")[1]  # Extract month name
+        year_display = month_key.split("-")[0]  # Extract year
+        row = [f"{month_display} {year_display}"]  # Month and year as the first column
+        for unit in unit_numbers:
+            row.append(rent_data[month_key].get(unit, None))  # Get fully_paid or None
+        rows.append(row)
+
+    context = {
+        "unit_numbers": unit_numbers,
+        "rows": rows,
+    }
+    return render(request, "rent_payments/overview.html", context)

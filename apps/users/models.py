@@ -2,9 +2,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from apps.core.models import AbstractBaseModel
+from apps.core.constants import UserRoles
 # Create your models here.
+
 class User(AbstractUser, AbstractBaseModel):
-    role = models.CharField(max_length=255, default='Landlord')
+    role = models.CharField(max_length=255, choices=UserRoles.choices(), default='Landlord')
     phone = models.CharField(max_length=255, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     city = models.CharField(max_length=255, blank=True, null=True)

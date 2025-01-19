@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import pay_water_bill, WaterBillPaymentsView, RentPaymentsView, pay_rent, single_receipt, ExpenseView, MonthlyRentBillsView, RentReceiptsView, add_expense, edit_expense, delete_expense, RentBillsView, generate_rent_bill
+from .views import pay_water_bill, WaterBillPaymentsView, RentPaymentsView, rent_payments_overview, pay_rent, single_receipt, ExpenseView, MonthlyRentBillsView, RentReceiptsView, add_expense, edit_expense, delete_expense, RentBillsView, generate_rent_bill
 
 urlpatterns = [
     path("pay-water-bill/", pay_water_bill, name="pay-water-bill"),
@@ -15,4 +15,5 @@ urlpatterns = [
     path("rent-receipt/<int:rent_receipt_id>/", single_receipt, name="rent-receipt"),
     path("pay-rent-bill/", pay_rent, name="pay-rent-bill"),
     path("rent-payments/", RentPaymentsView.as_view(), name="rent-payments"),
+    path("rent-payments-overview/", rent_payments_overview, name="rent-payments-overview"),
 ]

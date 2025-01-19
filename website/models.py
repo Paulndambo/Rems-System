@@ -7,6 +7,7 @@ LISTING_TYPES_CHOICES = [
     ('House', 'House'),
     ('AirBnB', 'AirBnB'),
     ('Room', 'Room'),
+    ('Hostel', 'Hostel'),
 ]
 
 LISTING_PURPOSE_CHOICES = [
@@ -21,7 +22,10 @@ UNIT_TYPES_CHOICES = [
     ("4 Bedroom", "4 Bedroom"),
     ("5 Bedroom", "5 Bedroom"),
     ("Studio", "Studio"),
+    ("Bedsitter", "Bedsitter"),
+    ("Single Room", "Single Room"),
     ("Penthouse", "Penthouse"),
+    ("Flat", "Flat"),
     ("Duplex", "Duplex"),
     ("Triplex", "Triplex"),
     ("Quadruplex", "Quadruplex"),
@@ -47,7 +51,62 @@ CURRENCY_CHOICES = [
     ('XOF', 'XOF'),
 ]
 
+FURNISH_STATUS_CHOICES = [
+    ('Fully Furnished', 'Fully Furnished'),
+    ('Partially Furnished', 'Partially Furnished'),
+    ('Unfurnished', 'Unfurnished'),
+    ('Semi Furnished', 'Semi Furnished'),
+]
+
+NOTICE_PERIOD_CHOICES = [
+    ('1 Month', '1 Month'),
+    ('2 Months', '2 Months'),
+    ('3 Months', '3 Months'),
+    ('4 Months', '4 Months'),
+    ('5 Months', '5 Months'),
+]
+
+MINIMUM_LEASE_PERIOD_CHOICES = [
+    ('1 Month', '1 Month'),
+    ('2 Months', '2 Months'),
+    ('3 Months', '3 Months'),
+    ('6 Months', '6 Months'),
+    ('9 Months', '9 Months'),
+    ('1 Year', '1 Year'),
+    ('2 Years', '2 Years'),
+    ('3 Years', '3 Years'),
+    ('4 Years', '4 Years'),
+    ('5 Years', '5 Years'),
+]
+
+LISTER_TYPE_CHOICES = [
+    ('Internal Agent', 'Internal Agent'),
+    ('External Agent', 'External Agent'),
+    ('Agency', 'Agency'),
+    ('Owner', 'Owner'),
+]
+
+class Subscription(AbstractBaseModel):
+    name = models.CharField(max_length=255)
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=255, choices=CURRENCY_CHOICES, default='KES')
+    description = models.TextField()
+    is_public = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+class Lister(AbstractBaseModel):
+    user = models.OneToOneField('users.User', on_delete=models.CASCADE)
+    lister_type = models.CharField(max_length=255, choices=LISTER_TYPE_CHOICES)
+    subscription = models.ForeignKey(Subscription, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):  
+        return f"{self.user.name} - {self.lister_type}"
+
+
 class UnitListing(AbstractBaseModel):
+    lister = models.ForeignKey(Lister, on_delete=models.CASCADE, related_name='listings', null=True, blank=True)
     property_name = models.CharField(max_length=255)
     listing_type = models.CharField(max_length=255, choices=LISTING_TYPES_CHOICES)
     listing_purpose = models.CharField(max_length=255, choices=LISTING_PURPOSE_CHOICES)
@@ -72,7 +131,12 @@ class UnitListing(AbstractBaseModel):
     unit_description = models.TextField()
     unit_image = models.ImageField(upload_to='listing_images/')
     unit_status = models.CharField(max_length=255, choices=UNIT_STATUS_CHOICES)
-    #unit_amenities = models.ManyToManyField('Amenity', blank=True)
+
+    minimum_lease_period = models.CharField(max_length=255, choices=MINIMUM_LEASE_PERIOD_CHOICES, default='1 Month')
+    notice_period = models.CharField(max_length=255, choices=NOTICE_PERIOD_CHOICES, default='1 Month') 
+
+    furnish_status = models.CharField(max_length=255, choices=FURNISH_STATUS_CHOICES, default='Unfurnished')
+
     views = models.IntegerField(default=0)
     likes = models.IntegerField(default=0)
     shares = models.IntegerField(default=0)
@@ -81,43 +145,55 @@ class UnitListing(AbstractBaseModel):
     is_trending = models.BooleanField(default=False)
     is_new = models.BooleanField(default=False) 
     owner = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True)
+    town = models.CharField(max_length=255, null=True, blank=True)
+    county = models.CharField(max_length=255, null=True, blank=True)
+    location_description = models.TextField(null=True, blank=True)
+    approved = models.BooleanField(default=False)
 
     def __str__(self):
         return self.property_name
+     
 
+class UnitAmenity(AbstractBaseModel):
+    unit_listing = models.ForeignKey(UnitListing, on_delete=models.CASCADE, related_name='amenities')
+    name = models.CharField(max_length=255)
+    available = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name   
 
 class ListingImage(AbstractBaseModel):
-    listing = models.ForeignKey(UnitListing, on_delete=models.CASCADE)
+    listing = models.ForeignKey(UnitListing, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='listing_images/')
 
     def __str__(self):
         return self.listing.unit_name
 
-
-class Amenity(AbstractBaseModel):
-    name = models.CharField(max_length=255)
-    description = models.TextField()
-
-    def __str__(self):
-        return self.name
-
-
 class Comment(AbstractBaseModel):
     listing = models.ForeignKey(UnitListing, on_delete=models.CASCADE)
     user = models.ForeignKey('users.User', on_delete=models.CASCADE)
     comment = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
+    
 
 class ListingInterestExpression(AbstractBaseModel):
-    listing = models.ForeignKey(UnitListing, on_delete=models.CASCADE)
+    listing = models.ForeignKey(UnitListing, on_delete=models.CASCADE, related_name='listinginterests')
     title = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=255)
     message = models.TextField()
+    processed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
 
+
+class ClientRequest(AbstractBaseModel):
+    name = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
+    email = models.EmailField(null=True, blank=True)
+    phone = models.CharField(max_length=255)
+    message = models.TextField()
+
+    def __str__(self):
+        return self.name
