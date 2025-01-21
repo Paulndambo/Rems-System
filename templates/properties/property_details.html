@@ -18,6 +18,32 @@
     .search-form {
         max-width: 300px;
     }
+    .table-responsive {
+        position: relative;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .position-sticky {
+        z-index: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .table > :not(caption) > * > * {
+            padding: 0.5rem;
+        }
+    }
+
+    .loader {
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.8);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
 </style>
 {% endblock additional_styles %}
 {% block content %}
@@ -77,6 +103,85 @@
             </div>
         </div>
 
+
+    
+            <!-- Header Section -->
+            <div class="card bg-white mb-4">
+                <div class="card-header">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-8 col-md-4">
+                            <h5 class="card-title mb-0 fw-bold">Payments Overview</h5>
+                        </div>
+                        <div class="col-4 col-md-8">
+                            <div class="d-flex gap-2">
+                                <div class="flex-grow-1">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="fas fa-search text-muted"></i>
+                                        </span>
+                                        <input type="text" 
+                                               class="form-control border-start-0 ps-0" 
+                                               placeholder="Search payments..." 
+                                               id="searchInput" 
+                                               value="{{ search_query }}"
+                                               aria-label="Search payments">
+                                    </div>
+                                </div>
+                              
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <div class="loader position-absolute top-50 start-50 translate-middle d-none" id="loader">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+    
+                    <table id="tenantsTable" class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="border-0 px-4 py-3 bg-light position-sticky start-0">
+                                    <strong>Month</strong>
+                                </th>
+                                {% for unit_number in unit_numbers %}
+                                    <th class="border-0 px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <strong>{{ unit_number }}</strong>
+                                        </div>
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            {% for row in rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                        {% if forloop.first %}
+                                            <td class="bg-light position-sticky start-0">
+                                                <strong>{{ cell }}</strong>
+                                            </td>
+                                        {% else %}
+                                            <td class="px-4 text-center">
+                                                {% if cell == True %}
+                                                    <i class="fas fa-check me-1"></i>
+                                                {% elif cell == False %}
+                                                    <i class="fas fa-times me-1"></i>
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        
+
+
         <!-- Units Table -->
         <div class="card">
             <div class="card-header bg-white">
@@ -92,7 +197,7 @@
                             </div>
                         </form>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUnitModal{{property.id}}">
-                            <i class="fas fa-plus"></i> Add Unit
+                             New Unit
                         </button>
                     </div>
                 </div>

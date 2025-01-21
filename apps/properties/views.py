@@ -10,7 +10,7 @@ from django.db.models import Q
 from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
 from apps.core.models import Month, Year
 from apps.tenants.models import Tenant
-from apps.payments.models import TenantPayment, RentPayment
+from apps.payments.models import TenantPayment, RentPayment, RentBill
 from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST, MONTHS_LIST, PAYMENT_METHODS
 # Create your views here.
 
@@ -31,12 +31,38 @@ def property_detail(request, id):
     units = PropertyUnit.objects.filter(property=property)
 
     maintenance_requests = MaintenanceRequest.objects.filter(unit__property=property, status="Pending").count()
+
+    unit_numbers = [unit.name for unit in units]
+
+    # Fetch rent data grouped by month, year, and unit
+    rent_data = {}
+    bills = RentBill.objects.select_related("unit", "month", "year")
+    for bill in bills:
+        month_key = f"{bill.year.name}-{bill.month.name}"  # e.g., "2025-January"
+        if month_key not in rent_data:
+            rent_data[month_key] = {}
+        rent_data[month_key][bill.unit.name] = bill.fully_paid  # Store fully_paid status
+
+    # Generate rows for the table
+    rows = []
+    for month_key in sorted(rent_data.keys()):  # Sort by year-month
+        month_display = month_key.split("-")[1]  # Extract month name
+        year_display = month_key.split("-")[0]  # Extract year
+        row = [f"{month_display} {year_display}"]  # Month and year as the first column
+        for unit in unit_numbers:
+            row.append(rent_data[month_key].get(unit, None))  # Get fully_paid or None
+        rows.append(row)
+
+
+
     context = {
         'property': property,
         'units': units,
         "unit_types": UNIT_TYPES,
         "unit_statuses": UNIT_STATUSES,
-        "maintenance_requests": maintenance_requests
+        "maintenance_requests": maintenance_requests,
+        "unit_numbers": unit_numbers,
+        "rows": rows,
     }
     return render(request, 'properties/property_details.html', context)
 

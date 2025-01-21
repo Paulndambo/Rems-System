@@ -118,8 +118,6 @@ def mark_amenity_unavailable(request, id):
     amenity.save()
     return redirect("listing-details", pk=amenity.unit_listing.id)
 
-
-
 class InterestExpressionListView(ListView):
     model = ListingInterestExpression
     template_name = 'website/interests/interests.html'
