@@ -67,10 +67,10 @@
                                     {% else %}
                                         <td class="px-4 text-center">
                                             {% if cell == True %}
-                                                <i class="fas fa-check me-1"></i>
-                                            {% elif cell == False %}
-                                                <i class="fas fa-times me-1"></i>
-                                            {% endif %}
+                                            <span style="color: green;">✔️</span>
+                                        {% elif cell == False %}
+                                            ❌
+                                        {% endif %}
                                         </td>
                                     {% endif %}
                                 {% endfor %}

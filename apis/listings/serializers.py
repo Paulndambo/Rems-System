@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from website.models import UnitListing, ListingImage, UnitAmenity, Comment, ListingInterestExpression
+from website.models import UnitListing, ListingImage, UnitAmenity, Comment, ListingInterestExpression, ClientRequest
 
 class ListingImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,3 +37,12 @@ class ListingInterestExpressionSerializer(serializers.ModelSerializer):
         model = ListingInterestExpression
         fields = '__all__'
 
+
+class ClientRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientRequest
+        fields = "__all__"
+
+
+class CollectListingViewsSerializer(serializers.Serializer):
+    listing_id = serializers.IntegerField()

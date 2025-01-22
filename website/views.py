@@ -1,10 +1,11 @@
+from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 
-from website.models import UnitListing, UnitAmenity, ListingImage, ListingInterestExpression, ClientRequest
+from website.models import UnitListing, Lister, UnitAmenity, ListingImage, ListingInterestExpression, ClientRequest
 # Create your views here.
 class ListingListView(ListView):
     model = UnitListing
@@ -38,10 +39,13 @@ def unit_listing_details(request, pk):
     amenities = listing.amenities.all()
     interests = listing.listinginterests.all().order_by("-created_at")
 
+    total_leads = listing.listinginterests.all().count()
+
     context = {
         "listing": listing,
         "amenities": amenities,
-        "interests": interests
+        "interests": interests,
+        "total_leads": total_leads
     }
 
     return render(request, "website/listing_details.html", context)
@@ -91,7 +95,7 @@ def new_webiste_listing(request):
             notice_period = request.POST.get("notice_period"),
             minimum_lease_period = request.POST.get("minimum_lease_period"),
             unit_status="Available",
-            unit_image=unit_image
+            unit_image=unit_image,
         )
 
         ListingImage.objects.create(listing=new_listing, image=unit_image)
@@ -142,3 +146,29 @@ class InterestExpressionListView(ListView):
         context = super().get_context_data(**kwargs)
         return context
     
+
+
+class ListerView(ListView):
+    model = Lister
+    template_name = "website/listers/listers.html"
+    context_object_name = "listers"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        search_query = self.request.GET.get("search", "")
+        print(f"You are searching for: {search_query}")
+
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(user__first_name__icontains=search_query)
+                | Q(user__last_name__icontains=search_query)
+            )
+
+        return queryset
+    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

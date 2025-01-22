@@ -93,16 +93,25 @@ class Subscription(AbstractBaseModel):
     description = models.TextField()
     is_public = models.BooleanField(default=False)
 
+
     def __str__(self):
         return self.name
 
 class Lister(AbstractBaseModel):
+    owned_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, related_name="listersowners")
     user = models.OneToOneField('users.User', on_delete=models.CASCADE)
     lister_type = models.CharField(max_length=255, choices=LISTER_TYPE_CHOICES)
     subscription = models.ForeignKey(Subscription, on_delete=models.SET_NULL, null=True, blank=True)
+    referral_code = models.CharField(max_length=255, null=True)
 
     def __str__(self):  
         return f"{self.user.name} - {self.lister_type}"
+    
+    def status(self):
+        return "Active" if self.is_active else "Inactive"
+    
+    def listings_count(self):
+        return self.listings.all().count()
 
 
 class UnitListing(AbstractBaseModel):
@@ -149,6 +158,7 @@ class UnitListing(AbstractBaseModel):
     county = models.CharField(max_length=255, null=True, blank=True)
     location_description = models.TextField(null=True, blank=True)
     approved = models.BooleanField(default=False)
+    commission = models.DecimalField(max_digits=100, decimal_places=2, default=0)
 
     def __str__(self):
         return self.property_name
@@ -177,15 +187,16 @@ class Comment(AbstractBaseModel):
 
 class ListingInterestExpression(AbstractBaseModel):
     listing = models.ForeignKey(UnitListing, on_delete=models.CASCADE, related_name='listinginterests')
-    title = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
-    email = models.EmailField()
-    phone = models.CharField(max_length=255)
-    message = models.TextField()
+    name = models.CharField(max_length=255,null=True)
+    email = models.EmailField(null=True)
+    phone = models.CharField(max_length=255, null=True)
+    message = models.TextField(null=True)
     processed = models.BooleanField(default=False)
+    preferredContact = models.CharField(max_length=255, null=True)
+    viewingDate = models.DateField(null=True)
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class ClientRequest(AbstractBaseModel):

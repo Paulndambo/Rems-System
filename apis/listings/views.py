@@ -9,8 +9,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from website.models import UnitListing, ListingImage, UnitAmenity, Comment, ListingInterestExpression
-from .serializers import UnitListingSerializer, ListingImageSerializer, AmenitySerializer, CommentSerializer, ListingInterestExpressionSerializer
+from website.models import UnitListing, ListingImage, UnitAmenity, ClientRequest, Comment, ListingInterestExpression
+from .serializers import UnitListingSerializer, ListingImageSerializer, ClientRequestSerializer, AmenitySerializer, CommentSerializer, ListingInterestExpressionSerializer, CollectListingViewsSerializer
 from .filters import UnitListingFilter
 
 
@@ -76,3 +76,29 @@ class ListingImageListView(generics.ListCreateAPIView):
         if listing_id:
             queryset = queryset.filter(listing_id=listing_id)
         return queryset
+
+
+class SubmitClientRequestAPIView(generics.CreateAPIView):
+    queryset = ClientRequest.objects.all()
+    serializer_class = ClientRequestSerializer
+
+
+class ExpressInterestAPIView(generics.CreateAPIView):
+    queryset = ListingInterestExpression.objects.all()
+    serializer_class = ListingInterestExpressionSerializer
+
+
+class CollectListingViewsAPIView(generics.CreateAPIView):
+    serializer_class = CollectListingViewsSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            listing = UnitListing.objects.filter(id=serializer.validated_data.get("listing_id")).first()
+            if listing:
+                listing.views += 1
+                listing.save()
+                return Response({ "message": "Listing views increased by 1" }, status=status.HTTP_201_CREATED)
+            return Response({ "failed": "Listing views could not be increased by 1" }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
