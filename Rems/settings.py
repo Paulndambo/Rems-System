@@ -148,3 +148,31 @@ LOGOUT_REDIRECT_URL = "/users/login/"
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+
+# FIREBASE CONFIGURATION
+import firebase_admin
+from firebase_admin import credentials
+
+
+FIREBASE_STORAGE_BUCKET = "rem-s-storage"
+FIREBASE_DATABASE_URL = "https://rem-s-default-rtdb.firebaseio.com"
+
+cred = credentials.Certificate("Rems/firebase_adminsdk.json")
+
+firebase_admin.initialize_app(cred, {
+    'storageBucket': FIREBASE_STORAGE_BUCKET,
+    'databaseURL': FIREBASE_DATABASE_URL,
+})
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'apps.users.firebase_auth.FirebaseAuthentication',
+    ),
+}
+
+
+CLOUDINARY_CLOUD_NAME = "dc4dykv8e"
+CLOUDINARY_API_KEY = "125761823436352"
+CLOUDINARY_API_SECRET = "RQUr1O1_KhylcnYFvBGw5d1IbUk"

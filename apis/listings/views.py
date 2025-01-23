@@ -1,3 +1,9 @@
+import os
+import time
+
+from django.core.files.base import ContentFile
+from django.core.files.storage import FileSystemStorage
+
 from django.db.models import Q
 from django.db import transaction
 
@@ -12,7 +18,10 @@ from rest_framework import status
 from website.models import UnitListing, ListingImage, UnitAmenity, ClientRequest, Comment, ListingInterestExpression
 from .serializers import UnitListingSerializer, ListingImageSerializer, ClientRequestSerializer, AmenitySerializer, CommentSerializer, ListingInterestExpressionSerializer, CollectListingViewsSerializer
 from .filters import UnitListingFilter
+from apps.core.cloudinary_handler import CloudinaryHandler
+from apps.core.firebase_files_handler import FirebaseFilesHandler
 
+fs = FileSystemStorage(location='temp')
 
 class UnitListingListView(generics.ListCreateAPIView):
     queryset = UnitListing.objects.all().prefetch_related('amenities', 'images')
@@ -77,13 +86,61 @@ class ListingImageListView(generics.ListCreateAPIView):
             queryset = queryset.filter(listing_id=listing_id)
         return queryset
 
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
 
-class SubmitClientRequestAPIView(generics.CreateAPIView):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+
+
+        if serializer.is_valid(raise_exception=True):
+            try:
+                image_file = serializer.validated_data['image']
+
+                file_extension = image_file.name.split('.')[-1].lower()
+                file_content = image_file.read()
+                file_content = ContentFile(file_content)
+                file_name = fs.save(
+                    f"temp_source_file.{file_extension}", file_content
+                )
+                temp_file = fs.path(file_name)
+
+                cloudinary_handler = CloudinaryHandler()
+                upload_result = cloudinary_handler.upload_image(temp_file, 'listing_images')
+
+                listing_image = serializer.save()
+                listing_image.image_url = upload_result['public_url']
+                listing_image.save()    
+
+                # Upload to firebase
+                #firebase_files_handler = FirebaseFilesHandler()
+                #firebase_result = firebase_files_handler.upload_file(temp_file)
+                #listing_image.backup_url = upload_result['firebase_path']
+                cloudinary_handler.clean_up_temp_file(temp_file)
+                return Response({"data": serializer.data, "upload_result": upload_result}, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                cloudinary_handler.clean_up_temp_file(temp_file)
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ClientRequestsAPIView(generics.ListCreateAPIView):
     queryset = ClientRequest.objects.all()
     serializer_class = ClientRequestSerializer
 
+    def get_permissions(self):
+        if self.request.method in ['GET', 'DELETE', 'PUT', 'PATCH']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
-class ExpressInterestAPIView(generics.CreateAPIView):
+
+class ClientRequestDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ClientRequest.objects.all()
+    serializer_class = ClientRequestSerializer
+    
+    lookup_field = 'id'
+
+
+class PropertyViewInterestsAPIView(generics.ListCreateAPIView):
     queryset = ListingInterestExpression.objects.all()
     serializer_class = ListingInterestExpressionSerializer
 

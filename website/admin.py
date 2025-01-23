@@ -4,7 +4,7 @@ from website.models import ClientRequest, ListingInterestExpression, Subscriptio
 # Register your models here.
 @admin.register(ClientRequest)
 class ClientRequestAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "title", "phone", "email"]
+    list_display = ["id", "name", "property_type", "unit_type", "phone", "email", "budget"]
 
 
 @admin.register(ListingInterestExpression)

@@ -16,6 +16,8 @@ class User(AbstractUser, AbstractBaseModel):
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     gender = models.CharField(max_length=255, blank=True, null=True)
     id_number = models.CharField(max_length=255, null=True, blank=True)
+    firebase_uid = models.CharField(max_length=255, null=True, blank=True)
+    profile_picture = models.URLField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.username

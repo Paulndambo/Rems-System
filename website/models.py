@@ -175,6 +175,8 @@ class UnitAmenity(AbstractBaseModel):
 class ListingImage(AbstractBaseModel):
     listing = models.ForeignKey(UnitListing, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='listing_images/')
+    image_url = models.URLField(max_length=255, null=True, blank=True)
+    backup_url = models.URLField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.listing.unit_name
@@ -201,10 +203,15 @@ class ListingInterestExpression(AbstractBaseModel):
 
 class ClientRequest(AbstractBaseModel):
     name = models.CharField(max_length=255)
-    title = models.CharField(max_length=255)
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=255)
     message = models.TextField()
+    budget = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    looking_to = models.CharField(max_length=255, null=True, blank=True)
+    property_type = models.CharField(max_length=255, null=True, blank=True)
+    location = models.CharField(max_length=255, null=True, blank=True)
+    unit_type = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.name
