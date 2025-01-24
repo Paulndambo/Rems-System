@@ -2,12 +2,13 @@ from django.db.models import Sum
 from django.db import models
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from apps.properties.models import Property
+from apps.properties.models import Property, WaterBill
 from apps.tenants.models import Tenant
 #from apps.payments.models import WaterBill, TenantMonthlyBill
 from apps.core.models import WaterPrice, Year, Month
-from apps.payments.models import RentPayment
-from apps.core.constants import MONTHS_LIST, UserRoles
+from apps.payments.models import RentPayment, RentBill
+
+from apps.core.constants import MONTHS_LIST, UserRoles, MaintenanceStatuses
 # Create your views here.
 @login_required
 def home(request):
@@ -28,7 +29,15 @@ def home(request):
 
 @login_required
 def caretaker_dashboard(request):
-    return render(request, 'caretaker_dashboard.html')
+    rent_bills = RentBill.objects.exclude(fully_paid=True).order_by('-created_at')
+    water_bills = WaterBill.objects.exclude(status__in=[MaintenanceStatuses.COMPLETED.value, MaintenanceStatuses.PAID.value]).order_by('-created_at')
+    
+    
+    context = {
+        "rent_bills": rent_bills[:5],
+        "water_bills": water_bills[:5]
+    }
+    return render(request, 'caretaker_dashboard.html', context)
 
 @login_required
 def years(request):
