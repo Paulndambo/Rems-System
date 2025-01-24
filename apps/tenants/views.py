@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.db.models import Avg
+from django.db.models import Avg, Sum
 from django.views.generic import ListView
 from django.db.models import Q
 
@@ -61,14 +61,13 @@ def tenant_detail(request, pk):
     print(water_bills)
     payments = tenant.tenantpayments.all().order_by('-created_at')
 
-    average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
 
-    total_expected_rent = tenant.tenantrentpayments.aggregate(total_expected=Avg('amount_expected'))['total_expected']
-    total_water_bill = water_bills.aggregate(total_amount=Avg('amount'))['total_amount']
+    total_expected_rent = tenant.tenantrentpayments.aggregate(total_expected=Sum('amount_expected'))['total_expected'] if len(tenant.tenantrentpayments.all()) > 0 else 0
+    total_water_bill = water_bills.aggregate(total_amount=Sum('amount'))['total_amount'] if len(water_bills) > 0 else 0
 
 
-    total_water_paid = water_bills.aggregate(total_amount=Avg('amount_paid'))['total_amount']
-    total_rent_paid = tenant.tenantrentpayments.aggregate(total_amount=Avg('amount_paid'))['total_amount']
+    total_water_paid = water_bills.aggregate(total_amount=Sum('amount_paid'))['total_amount'] if len(water_bills) > 0 else 0
+    total_rent_paid = tenant.tenantrentpayments.aggregate(total_amount=Sum('amount_paid'))['total_amount'] if len(tenant.tenantrentpayments.all()) > 0 else 0
 
     total_bill = total_expected_rent + total_water_bill if (total_expected_rent and total_expected_rent ) else 0
     total_paid = total_rent_paid + total_water_paid if (total_rent_paid and total_water_paid) else 0
@@ -80,7 +79,7 @@ def tenant_detail(request, pk):
         'units': units,
         'water_bills': water_bills,
         'payments': payments,
-        'average_water_bill': average_water_bill if average_water_bill else 0,
+        'total_water_bill': total_water_bill if total_water_bill else 0,
         'total_rent_paid': total_rent_paid if total_rent_paid else 0,
         'total_bill': round(total_bill, 2) if total_bill else 0,
         'total_paid': round(total_paid, 2) if total_paid else 0,

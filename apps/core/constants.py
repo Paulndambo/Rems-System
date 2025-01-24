@@ -192,11 +192,11 @@ class PaymentMethods(Enum):
     def choices(cls):
         return [(key.value, key.name) for key in cls]
 
-
 class UserRoles(Enum):
     LANDLORD = "Landlord"
     LISTER = "Lister"
     TENANT = "Tenant"
+    CARETAKER = "Caretaker"
 
     @classmethod
     def choices(cls):

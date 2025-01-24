@@ -140,17 +140,31 @@ def delete_property(request):
     return render(request, 'properties/delete_property.html')
 
 
-@login_required
-def property_units(request):
-    units = PropertyUnit.objects.all().order_by("-created_at")
-    tenants = Tenant.objects.all()
+class PropertyUnitListView(ListView):
+    model = PropertyUnit
+    template_name = "properties/units/units.html"
+    context_object_name = "units"
+    paginate_by = 9
 
-    context = {
-        "units": units,
-        "tenants": tenants
-    }
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
 
-    return render(request, 'properties/units/units.html', context)
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query) |
+                Q(name__icontains=search_query) |
+                Q(property__name__icontains=search_query)
+            )
+
+        return queryset.order_by("-created_at")
+    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = self.request.GET.get("search", "")
+        context["tenants"] = Tenant.objects.all()
+        return context
 
 
 @login_required

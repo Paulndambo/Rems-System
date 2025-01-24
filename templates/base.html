@@ -163,7 +163,11 @@
 <body>
     <div class="wrapper">
         <!-- Sidebar -->
-        {% include "includes/sidebar.html" %}
+        {% if request.user.role == "Caretaker" %}
+            {% include "includes/caretaker_sidebar.html" %}
+        {% else %}
+            {% include "includes/sidebar.html" %}
+        {% endif %}
 
         <!-- Page Content -->
         <div id="content">

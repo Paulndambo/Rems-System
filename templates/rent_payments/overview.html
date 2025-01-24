@@ -65,13 +65,17 @@
                                             <strong>{{ cell }}</strong>
                                         </td>
                                     {% else %}
-                                        <td class="px-4 text-center">
-                                            {% if cell == True %}
-                                            <span style="color: green;">✔️</span>
+                                    <td class="px-4 text-center">
+                                        {% if cell == True %}
+                                            <span class="badge rounded-pill bg-success-subtle text-success">
+                                                <i class="fas fa-check me-1"></i> Paid
+                                            </span>
                                         {% elif cell == False %}
-                                            ❌
+                                            <span class="badge rounded-pill bg-danger-subtle text-danger">
+                                                <i class="fas fa-times me-1"></i> Unpaid
+                                            </span>
                                         {% endif %}
-                                        </td>
+                                    </td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>

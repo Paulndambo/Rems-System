@@ -7,10 +7,13 @@ from apps.tenants.models import Tenant
 #from apps.payments.models import WaterBill, TenantMonthlyBill
 from apps.core.models import WaterPrice, Year, Month
 from apps.payments.models import RentPayment
-from apps.core.constants import MONTHS_LIST
+from apps.core.constants import MONTHS_LIST, UserRoles
 # Create your views here.
 @login_required
 def home(request):
+    if request.user.role == UserRoles.CARETAKER.value:
+        return redirect("caretaker-dashboard")
+    
     tenants_count = Tenant.objects.count()
     properties_count = Property.objects.count()
     #total_revenue = TenantMonthlyBill.objects.aggregate(total_amount=models.Sum('amount_paid'))['total_amount']
@@ -23,7 +26,9 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-
+@login_required
+def caretaker_dashboard(request):
+    return render(request, 'caretaker_dashboard.html')
 
 @login_required
 def years(request):

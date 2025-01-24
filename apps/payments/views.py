@@ -231,6 +231,32 @@ class RentBillsView(ListView):
         return context
     
 
+
+class CaretakerRentBillsView(ListView):
+    model = RentBill
+    template_name = "rent_bills/caretaker_rent_bills.html"
+    context_object_name = "rent_bills"
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(tenant__user__first_name__icontains=search_query)
+                | Q(unit__name__icontains=search_query)
+            )
+
+        return queryset.order_by("-created_at")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = self.request.GET.get("search", "")
+        context["payment_methods"] = PAYMENT_METHODS
+        return context
+
+
 class RentReceiptsView(ListView):
     model = RentBill
     template_name = "rent_bills/rent_receipts.html"

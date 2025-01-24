@@ -6,7 +6,7 @@ from apps.properties.views import (
     edit_property, 
     delete_property, 
     property_detail, 
-    property_units, 
+
     new_property_unit, 
     edit_property_unit, 
     delete_property_unit, 
@@ -16,12 +16,12 @@ from apps.properties.views import (
     edit_maintenance_request,
     delete_maintenance_request,
     assign_tenant,
-    water_bills,
     view_water_bill,
     new_water_bill,
     edit_water_bill,
     delete_water_bill,
     WaterBillListView,
+    PropertyUnitListView
 )
 
 urlpatterns = [
@@ -30,14 +30,13 @@ urlpatterns = [
     path('new-property/', new_property, name='new-property'),
     path('edit-property/', edit_property, name='edit-property'),
     path('delete-property/', delete_property, name='delete-property'),
-    path('units/', property_units, name='units'),
+    path('units/', PropertyUnitListView.as_view(), name='units'),
     path('unit/<int:id>/', property_unit_detail, name='unit-detail'),
     path('new-unit/', new_property_unit, name='new-unit'),
     path('edit-unit/', edit_property_unit, name='edit-unit'),
     path('delete-unit/', delete_property_unit, name='delete-unit'),
     path('assign-tenant/', assign_tenant, name='assign-tenant'),
 
-    #path('water-bills/', water_bills, name='water-bills'),
     path('new-water-bill/', new_water_bill, name='new-water-bill'),
     path('edit-water-bill/', edit_water_bill, name='edit-water-bill'),
     path('delete-water-bill/', delete_water_bill, name='delete-water-bill'),

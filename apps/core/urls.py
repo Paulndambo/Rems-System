@@ -1,5 +1,5 @@
 from django.urls import path
-from apps.core.views import home, months, years, new_year, water_prices, activate_year, deactivate_year, edit_water_price
+from apps.core.views import home, caretaker_dashboard, months, years, new_year, water_prices, activate_year, deactivate_year, edit_water_price
 
 urlpatterns = [
     path('', home, name='home'),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('edit-water-price/', edit_water_price, name='edit-water-price'),
     path('activate-year/<int:id>/', activate_year, name='activate-year'),
     path('deactivate-year/<int:id>/', deactivate_year, name='deactivate-year'),
+    path('caretaker-dashboard/', caretaker_dashboard, name='caretaker-dashboard'),
 ]

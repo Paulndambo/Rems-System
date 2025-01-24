@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Quick Actions Card -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-primary btn-block mb-2" data-toggle="modal" data-target="#recordRentModal">
+                        <i class="fas fa-money-bill-wave"></i> Record Rent Payment
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-info btn-block mb-2" data-toggle="modal" data-target="#recordWaterBillModal">
+                        <i class="fas fa-tint"></i> Record Water Bill
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+        <!-- Recent Rent Payments -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Rent Payments</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tenant</th>
+                                    <th>Unit</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in recent_rent_payments %}
+                                <tr>
+                                    <td>{{ payment.tenant.name }}</td>
+                                    <td>{{ payment.unit.number }}</td>
+                                    <td>{{ payment.amount }}</td>
+                                    <td>{{ payment.date|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No recent payments</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Water Bills -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Water Bills</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Unit</th>
+                                    <th>Amount</th>
+                                    <th>Reading</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bill in recent_water_bills %}
+                                <tr>
+                                    <td>{{ bill.unit.number }}</td>
+                                    <td>{{ bill.amount }}</td>
+                                    <td>{{ bill.meter_reading }}</td>
+                                    <td>{{ bill.date|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No recent water bills</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Record Rent Payment Modal -->
+<div class="modal fade" id="recordRentModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Record Rent Payment</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="#">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Select Tenant</label>
+                        <select name="tenant" class="form-control" required>
+                            {% for tenant in tenants %}
+                            <option value="#">{{ tenant.name }} - Unit {{ tenant.unit.number }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" name="amount" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Date</label>
+                        <input type="date" name="payment_date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Record Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Record Water Bill Modal -->
+<div class="modal fade" id="recordWaterBillModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Record Water Bill</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="#">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Select Unit</label>
+                        <select name="unit" class="form-control" required>
+                            {% for unit in units %}
+                            <option value="{{ unit.id }}">Unit {{ unit.number }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Meter Reading</label>
+                        <input type="number" name="meter_reading" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" name="amount" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bill Date</label>
+                        <input type="date" name="bill_date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Record Bill</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
