@@ -11,7 +11,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-uppercase mb-1">Uncollected Rent</h6>
-                            <h2 class="display-4 mb-0">Ksh. {{ total_pending_rent|default:"0" }}</h2>
+                            <h2 class="display-4 mb-0">Ksh. {{ total_rent_due }}</h2>
                         </div>
                         <div class="text-right">
                             <i class="fas fa-money-bill-wave fa-3x opacity-50"></i>
@@ -26,7 +26,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-uppercase mb-1">Uncollected Water Bills</h6>
-                            <h2 class="display-4 mb-0">Ksh. {{ total_pending_water|default:"0" }}</h2>
+                            <h2 class="display-4 mb-0">Ksh. {{ total_water_due }}</h2>
                         </div>
                         <div class="text-right">
                             <i class="fas fa-tint fa-3x opacity-50"></i>
@@ -45,19 +45,26 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <button class="btn btn-primary btn-block mb-2" data-toggle="modal" data-target="#recordRentModal">
+                    <button class="btn btn-primary btn-block mb-2" data-bs-toggle="modal" data-bs-target="#generateRentBillsModal">
                         <i class="fas fa-money-bill-wave"></i> Generate Rent Bills
                     </button>
                 </div>
                 <div class="col-md-6">
-                    <button class="btn btn-info btn-block mb-2" data-toggle="modal" data-target="#recordWaterBillModal">
+                    <button class="btn btn-info btn-block mb-2" data-bs-toggle="modal" data-bs-target="#newWaterBillModal">
                         <i class="fas fa-tint"></i> Record Water Bill
                     </button>
                 </div>
+                <!-- Water Bills 
+                <div class="col-md-6">
+                    <button class="btn btn-info btn-block mb-2" data-toggle="modal" data-target="#newWaterBillModal">
+                        <i class="fas fa-tint"></i> Record Water Bill
+                    </button>
+                </div>
+                -->
             </div>
         </div>
     </div>
-
+{% include 'water_bills/new_water_bill.html' %}
 
     <!-- Recent Activities -->
     <div class="row">
@@ -75,8 +82,8 @@
                                     <th>#</th>
                                     <th>Tenant</th>
                                     <th>Amount</th>
-                                    <th>Date</th>
-                                    <th></th>
+                                    <th>Date Due</th>
+                                   
                                 </tr>
                             </thead>
                             <tbody>
@@ -86,9 +93,7 @@
                                     <td>{{ rent_bill.unit.tenant.user.name }}(<b>{{ rent_bill.unit.name }}</b>)</td>
                                     <td>{{ rent_bill.amount_expected }}</td>
                                     <td>{{ rent_bill.due_date|date:"M d, Y" }}</td>
-                                    <td>
-                                        <a href="#" class="btn btn-primary btn-sm">Pay</a>
-                                    </td>
+                                    
                                 </tr>
                                 {% empty %}
                                 <tr>
@@ -118,7 +123,6 @@
                                     <th>Month</th>
                                     <th>Amount</th>
                                     <th>Reading</th>
-                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -129,10 +133,6 @@
                                     <td>{{ water_bill.month.name }}(<b>{{water_bill.year.name}}</b>)</td>
                                     <td>{{ water_bill.amount }}</td>
                                     <td>{{ water_bill.current_reading }}</td>
-                                   
-                                    <td>
-                                        <a href="#" class="btn btn-primary btn-sm">Pay</a>
-                                    </td>
                                 </tr>
                                 {% empty %}
                                 <tr>

@@ -87,18 +87,15 @@
                                         title="Edit">
                                     <i class="fas fa-edit text-primary"></i>
                                 </button>
-                                <button class="btn btn-sm btn-light" 
+                                {% if bill.status != 'Paid' %}
+                                <button class="btn btn-sm btn-primary" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#payWaterBillModal{{bill.id}}"
                                         title="Record Payment">
-                                    <i class="fas fa-dollar-sign text-success"></i>
+                                    Record Payment
                                 </button>
-                                <a href="{% url 'view-water-bill' bill.id %}" 
-                                   class="btn btn-sm btn-light" 
-                                   target="_blank"
-                                   title="Print">
-                                    <i class="fas fa-print text-secondary"></i>
-                                </a>
+                                {% endif %}
+                                
                             </div>
                         </td>
                     </tr>

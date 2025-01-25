@@ -1,12 +1,13 @@
 from datetime import datetime
 from decimal import Decimal
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.payments.models import WaterBillPayment, Expense, RentPayment, RentBill, TenantPayment
 from apps.properties.models import WaterBill, PropertyUnit, Property
 from apps.core.models import Month, Year
 
-from apps.core.constants import MaintenanceStatuses, MONTHS_LIST, EXPENSE_TYPES_LIST, PaymentMethods, PaymentStatuses, PAYMENT_METHODS
+from apps.core.constants import MaintenanceStatuses, UserRoles, MONTHS_LIST, EXPENSE_TYPES_LIST, PaymentMethods, PaymentStatuses, PAYMENT_METHODS
 
 from django.views.generic import ListView
 from django.http import JsonResponse
@@ -47,7 +48,7 @@ class WaterBillPaymentsView(ListView):
         context["expense_types"] = EXPENSE_TYPES_LIST
         return context
 
-
+@login_required
 def pay_water_bill(request):
     if request.method == "POST":
         water_bill_id = request.POST.get("water_bill_id")
@@ -123,7 +124,7 @@ class ExpenseView(ListView):
         context["expense_types"] = EXPENSE_TYPES_LIST
         return context
 
-
+@login_required
 def add_expense(request):
     if request.method == "POST":
         title = request.POST.get("title")
@@ -143,6 +144,7 @@ def add_expense(request):
     return render(request, "expenses/add_expense.html")
 
 
+@login_required
 def edit_expense(request):
 
     if request.method == "POST":
@@ -158,7 +160,7 @@ def edit_expense(request):
         return redirect("expenses")
     return render(request, "expenses/edit_expense.html", { "expense_types": EXPENSE_TYPES_LIST })
 
-
+@login_required
 def delete_expense(request):
     if request.method == "POST":
         expense_id = request.POST.get("expense_id")
@@ -166,6 +168,7 @@ def delete_expense(request):
         expense.delete()
         return redirect("expenses")
     return render(request, "expenses/delete_expense.html")
+
 
 
 class MonthlyRentBillsView(ListView):
@@ -200,6 +203,7 @@ class MonthlyRentBillsView(ListView):
         context["bill_months"] = MONTHS_LIST
         context["years"] = Year.objects.filter(is_active=True)
         return context
+
 
 
 class RentBillsView(ListView):
@@ -248,7 +252,8 @@ class CaretakerRentBillsView(ListView):
                 | Q(unit__name__icontains=search_query)
             )
 
-        return queryset.order_by("-created_at")
+        # Order by fully_paid (False first) and then by created_at
+        return queryset.order_by('fully_paid', '-created_at')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -279,8 +284,10 @@ def single_receipt(request, rent_receipt_id):
     rent_receipt = RentBill.objects.get(id=rent_receipt_id)
     return render(request, "rent_bills/single_receipt.html", { "rent_receipt": rent_receipt })
 
+@login_required
 @transaction.atomic
 def generate_rent_bill(request):
+    user = request.user
     if request.method == "POST":
         month = request.POST.get("month")
         year = request.POST.get("year")
@@ -292,6 +299,15 @@ def generate_rent_bill(request):
         month = Month.objects.get(name=month, year=year)
 
         print(f"Month: {month}, Year: {year}, Property: {property_id}, Due Date: {due_date}")
+
+        existing_bills = RentBill.objects.filter(month=month, year=year, unit__property_id=property_id)
+        if existing_bills.exists():
+            messages.error(request, "Rent bills for this month already exist.")
+
+            if user.role == UserRoles.CARETAKER.value:
+                return redirect("caretaker-rent-bills")
+            else:
+                return redirect("monthly-rent-bills")
 
         units = PropertyUnit.objects.filter(is_occupied=True).filter(property_id=property_id)
 
@@ -312,7 +328,10 @@ def generate_rent_bill(request):
 
         RentBill.objects.bulk_create(units_list)
 
-        return redirect("monthly-rent-bills")
+        if user.role == UserRoles.CARETAKER.value:
+            return redirect("caretaker-rent-bills")
+        else:
+            return redirect("monthly-rent-bills")
 
     return render(request, "rent_bills/generate_rent_bill.html")
 
@@ -341,8 +360,9 @@ class RentPaymentsView(ListView):
         context["payment_methods"] = PaymentMethods.choices()
         return context
 
-
+@login_required
 def pay_rent(request):
+    user = request.user
     if request.method == "POST":
         rent_bill_id = request.POST.get("rent_bill_id")
         amount_paid = Decimal(request.POST.get("amount_paid"))
@@ -383,7 +403,10 @@ def pay_rent(request):
             rent_bill.status = PaymentStatuses.PENDING.value
             rent_bill.save()
 
-        return redirect("rent-payments")
+        if user.role == UserRoles.CARETAKER.value:
+            return redirect("caretaker-rent-bills")
+        else:
+            return redirect("rent-payments")
     return render(request, "rent_payments/pay_rent.html")
 
 

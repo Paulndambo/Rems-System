@@ -4,12 +4,12 @@
 <div class="card shadow-sm">
     <div class="card-header bg-light">
         <div class="row align-items-center g-3">
-            <div class="col-12 col-md-8">
+            <div class="col-12 col-md-4">
                 <h5 class="mb-0 text-primary d-flex align-items-center">
                     <i class="fas fa-file-invoice-dollar me-2"></i>Monthly Rent
                 </h5>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-4 text-end">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="fas fa-search text-muted"></i>
@@ -20,18 +20,12 @@
                         value="{{ search_query }}">
                 </div>
             </div>
-            <!-- Added export buttons 
-            <div class="col-12 col-md-4 text-md-end">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-file-excel me-1"></i>Excel
-                    </button>
-                    <button type="button" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-file-pdf me-1"></i>PDF
-                    </button>
-                </div>
+            <div class="col-12 col-md-4 text-end">
+                <button class="btn btn-primary btn-block mb-2" data-bs-toggle="modal" data-bs-target="#generateRentBillsModal">
+                    <i class="fas fa-money-bill-wave"></i> Generate Rent Bills
+                </button>
             </div>
-            -->
+         
         </div>
     </div>
     
@@ -46,9 +40,9 @@
                         <th width="15%">Month</th>
                         <th class="text-end" width="12%">Expected</th>
                         <th class="text-end" width="12%">Paid</th>
-                        <th width="12%">Due Date</th>
+                        
                         <th width="12%">Status</th>
-                        <th class="text-center" width="12%">Actions</th>
+                        <th class="" width="12%">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -72,12 +66,7 @@
                         </td>
                         <td class="text-end fw-medium">{{rent_bill.amount_expected}}</td>
                         <td class="text-end fw-medium">{{rent_bill.amount_paid}}</td>
-                        <td>
-                            <div>{{rent_bill.due_date}}</div>
-                            {% if rent_bill.status == 'Overdue' %}
-                            <small class="text-danger">Overdue</small>
-                            {% endif %}
-                        </td>
+                       
                         <td>
                             {% if rent_bill.status == 'Pending' %}
                                 <span class="badge bg-warning-subtle text-warning px-2 py-1">Pending</span>
@@ -96,15 +85,10 @@
                                 <button class="btn btn-primary btn-sm" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#payRentBillModal{{rent_bill.id}}">
-                                    <i class="fas fa-dollar-sign"></i>
-                                    <span class="d-none d-md-inline ms-1">Pay</span>
+                                    Record Payment
                                 </button>
                                 {% endif %}
-                                <a href="{% url 'rent-receipt' rent_bill.id %}" 
-                                   class="btn btn-outline-danger btn-sm">
-                                    <i class="fas fa-print"></i>
-                                    <span class="d-none d-md-inline ms-1">Print</span>
-                                </a>
+                                
                             </div>
                         </td>
                     </tr>

@@ -2,7 +2,7 @@ from django.db.models import Sum
 from django.db import models
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from apps.properties.models import Property, WaterBill
+from apps.properties.models import Property, WaterBill, PropertyUnit
 from apps.tenants.models import Tenant
 #from apps.payments.models import WaterBill, TenantMonthlyBill
 from apps.core.models import WaterPrice, Year, Month
@@ -31,11 +31,25 @@ def home(request):
 def caretaker_dashboard(request):
     rent_bills = RentBill.objects.exclude(fully_paid=True).order_by('-created_at')
     water_bills = WaterBill.objects.exclude(status__in=[MaintenanceStatuses.COMPLETED.value, MaintenanceStatuses.PAID.value]).order_by('-created_at')
-    
+
+    total_rent = RentBill.objects.aggregate(total_amount=Sum('amount_expected'))['total_amount']
+    total_water = WaterBill.objects.aggregate(total_amount=Sum('amount'))['total_amount']
+
+    total_rent_paid = RentBill.objects.aggregate(total_amount=Sum('amount_paid'))['total_amount']
+    total_water_paid = WaterBill.objects.aggregate(total_amount=Sum('amount_paid'))['total_amount']
+
+    total_rent_due = total_rent - total_rent_paid
+    total_water_due = total_water - total_water_paid
     
     context = {
         "rent_bills": rent_bills[:5],
-        "water_bills": water_bills[:5]
+        "water_bills": water_bills[:5],
+        "bill_months": MONTHS_LIST,
+        "years": Year.objects.filter(is_active=True).order_by('-created_at'),
+        "properties": Property.objects.filter(is_active=True).order_by('-created_at'),
+        "total_rent_due": round(total_rent_due, 0) if total_rent_due is not None else 0,
+        "total_water_due": round(total_water_due, 0) if total_water_due is not None else 0,
+        "units": PropertyUnit.objects.filter(is_occupied=True).order_by('-created_at')
     }
     return render(request, 'caretaker_dashboard.html', context)
 
