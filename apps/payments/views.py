@@ -15,6 +15,7 @@ from django.db.models import Q
 from django.db import transaction
 from datetime import date
 from calendar import month_name
+import json
 
 
 date_today = datetime.now().date()
@@ -457,3 +458,27 @@ def rent_payments_overview(request):
         "rows": rows,
     }
     return render(request, "rent_payments/overview.html", context)
+
+def monthly_rent_report(request):
+    # ... existing view logic ...
+    
+    # Prepare data for the trend chart
+    months_labels = []
+    expected_amounts = []
+    paid_amounts = []
+    
+    # Get the last 6 months of data
+    recent_bills = RentBill.objects.order_by('-month__id')[:6]
+    for bill in reversed(recent_bills):
+        months_labels.append(f"{bill.month.name} {bill.year.name}")
+        expected_amounts.append(float(bill.amount_expected))
+        paid_amounts.append(float(bill.amount_paid))
+    
+    context.update({
+        'months_labels': json.dumps(months_labels),
+        'expected_amounts': json.dumps(expected_amounts),
+        'paid_amounts': json.dumps(paid_amounts),
+        # ... existing context data ...
+    })
+    
+    return render(request, 'reports/monthly_rent_report.html', context)
