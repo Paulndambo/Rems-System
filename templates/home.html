@@ -2,8 +2,8 @@
 
 {% block content %}
 <!-- Stats Cards Row -->
-<div class="row g-4">
-    <div class="col-md-6">
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-4">
         <a href="{% url 'properties' %}" class="text-decoration-none">
             <div class="card card-stats h-100 shadow-sm hover-lift">
                 <div class="card-body bg-primary bg-gradient text-white rounded">
@@ -24,7 +24,7 @@
             </div>
         </a>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 col-xl-4">
         <a href="{% url 'tenants' %}" class="text-decoration-none">
             <div class="card card-stats h-100 shadow-sm hover-lift">
                 <div class="card-body bg-success bg-gradient text-white rounded">
@@ -45,7 +45,7 @@
             </div>
         </a>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 col-xl-4">
         <a href="#" class="text-decoration-none">
             <div class="card card-stats h-100 shadow-sm hover-lift">
                 <div class="card-body bg-warning bg-gradient text-white rounded">
@@ -66,26 +66,61 @@
             </div>
         </a>
     </div>
-    <div class="col-md-6">
-        <a href="#" class="text-decoration-none">
-            <div class="card card-stats h-100 shadow-sm hover-lift">
-                <div class="card-body bg-danger bg-gradient text-white rounded">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-0 text-white-50">Pending Bills</h6>
-                            <h2 class="my-2 fw-bold">23</h2>
-                            <p class="card-text mb-0 d-flex align-items-center">
-                                <i class="fas fa-exclamation-circle me-1 small"></i>
-                                <span>5 due today</span>
-                            </p>
-                        </div>
-                        <div class="stat-icon-container">
-                            <i class="fas fa-exclamation-circle stat-icon opacity-75"></i>
+ 
+</div>
+
+<!-- Charts Section -->
+<div class="row g-4">
+    <!-- Revenue Chart -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="card-title mb-0">Revenue Overview</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Occupancy Chart -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="card-title mb-0">Occupancy Rate</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="occupancyChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activities -->
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Recent Activities</h5>
+                <a href="#" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for activity in recent_activities %}
+                    <div class="list-group-item py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="activity-icon bg-{{ activity.bg_class }}-subtle rounded-circle p-2 me-3">
+                                <i class="fas {{ activity.icon_class }} text-{{ activity.bg_class }}"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">{{ activity.title }}</h6>
+                                <p class="text-muted small mb-0">{{ activity.description }}</p>
+                            </div>
+                            <small class="text-muted ms-auto">{{ activity.timestamp|timesince }} ago</small>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
-        </a>
+        </div>
     </div>
 </div>
 
@@ -105,13 +140,112 @@
     .stat-icon {
         font-size: 2rem;
     }
-    /* Ensure the anchor inherits card colors */
-    .card-stats .card-body {
-        color: inherit;
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    /* Prevent default link color from showing through */
-    a .card-stats {
-        color: inherit;
+    .card {
+        border: none;
+        border-radius: 0.75rem;
+    }
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,.05);
     }
 </style>
+
+<!-- Add Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Revenue Chart
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: JSON.parse('{{ chart_data.labels|safe }}'),
+            datasets: [{
+                label: 'Expected Revenue',
+                data: JSON.parse('{{ chart_data.expected_amounts|safe }}'),
+                borderColor: 'rgb(255, 99, 132)',
+                borderDash: [5, 5],
+                tension: 0.1,
+                fill: false
+            },
+            {
+                label: 'Actual Revenue',
+                data: JSON.parse('{{ chart_data.paid_amounts|safe }}'),
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1,
+                fill: true,
+                backgroundColor: 'rgba(75, 192, 192, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': Kes.' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return 'Kes.' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Occupancy Chart
+    const occupancyCtx = document.getElementById('occupancyChart').getContext('2d');
+    new Chart(occupancyCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Occupied', 'Vacant'],
+            datasets: [{
+                data: [
+                    {{ occupancy_data.occupied }},
+                    {{ occupancy_data.vacant }}
+                ],
+                backgroundColor: [
+                    'rgb(75, 192, 192)',
+                    'rgb(255, 99, 132)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = {{ occupancy_data.occupied }} + {{ occupancy_data.vacant }};
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return `${context.label}: ${context.parsed} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock content %}

@@ -53,8 +53,8 @@ def property_detail(request, id):
             row.append(rent_data[month_key].get(unit, None))  # Get fully_paid or None
         rows.append(row)
 
-
-
+    occupied_units = PropertyUnit.objects.filter(property=property, is_occupied=True).count()
+    tenants = Tenant.objects.all()
     context = {
         'property': property,
         'units': units,
@@ -63,6 +63,8 @@ def property_detail(request, id):
         "maintenance_requests": maintenance_requests,
         "unit_numbers": unit_numbers,
         "rows": rows,
+        "occupied_units": occupied_units,
+        "tenants": tenants
     }
     return render(request, 'properties/property_details.html', context)
 

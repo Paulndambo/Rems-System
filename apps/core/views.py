@@ -1,5 +1,7 @@
-from django.db.models import Sum
-from django.db import models
+from django.db.models import Sum, Count
+from django.db.models.functions import ExtractMonth, TruncMonth
+from datetime import datetime, timedelta
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.properties.models import Property, WaterBill, PropertyUnit
@@ -7,24 +9,95 @@ from apps.tenants.models import Tenant
 #from apps.payments.models import WaterBill, TenantMonthlyBill
 from apps.core.models import WaterPrice, Year, Month
 from apps.payments.models import RentPayment, RentBill
-
 from apps.core.constants import MONTHS_LIST, UserRoles, MaintenanceStatuses
+import json
+
 # Create your views here.
 @login_required
 def home(request):
     if request.user.role == UserRoles.CARETAKER.value:
         return redirect("caretaker-dashboard")
     
-    tenants_count = Tenant.objects.count()
+    # Basic stats
     properties_count = Property.objects.count()
-    #total_revenue = TenantMonthlyBill.objects.aggregate(total_amount=models.Sum('amount_paid'))['total_amount']
-    total_rent = RentPayment.objects.aggregate(total_amount=Sum('amount_paid'))['total_amount']
-
+    tenants_count = Tenant.objects.filter(is_active=True).count()
+    
+    # Get total revenue (sum of all paid rent)
+    total_revenue = RentBill.objects.all(
+    ).aggregate(
+        total=Sum('amount_paid')
+    )['total'] or 0
+    
+    # Get monthly revenue data for the last 6 months
+    current_year = Year.objects.filter(is_active=True).first()
+    
+    monthly_data = []
+    if current_year:
+        monthly_data = RentBill.objects.filter(
+            month__year=current_year
+        ).values('month').annotate(
+            expected_amount=Sum('amount_expected'),
+            paid_amount=Sum('amount_paid')
+        ).order_by('month__created_at')
+    
+    # Format data for Chart.js
+    labels = []
+    expected_amounts = []
+    paid_amounts = []
+    
+    for data in monthly_data:
+        month = Month.objects.get(id=data['month'])
+        labels.append(month.name)
+        expected_amounts.append(float(data['expected_amount'] or 0))
+        paid_amounts.append(float(data['paid_amount'] or 0))
+    
+    # Get occupancy data
+    total_units = PropertyUnit.objects.count()
+    occupied_units = PropertyUnit.objects.filter(is_occupied=True).count()
+    vacant_units = total_units - occupied_units
+    
+    # Get recent activities
+    recent_activities = []
+    
+    # Recent payments
+    recent_payments = RentBill.objects.filter(
+        status='paid'
+    ).select_related('tenant', 'unit', 'month').order_by('-updated_at')[:3]
+    
+    for payment in recent_payments:
+        recent_activities.append({
+            'type': 'payment',
+            'title': 'New Payment Received',
+            'description': f'{payment.tenant.name} paid rent for {payment.unit.unit_number} ({payment.month.name})',
+            'timestamp': payment.updated_at,
+            'icon_class': 'fa-check',
+            'bg_class': 'success'
+        })
+    
+    # Sort activities by timestamp
+    recent_activities.sort(key=lambda x: x['timestamp'], reverse=True)
+    
     context = {
+        'properties_count': properties_count,
         'tenants_count': tenants_count,
-        'properties_count': properties_count, 
-        'total_revenue': total_rent if total_rent is not None else 0
+        'total_revenue': f"${total_revenue:,.2f}",
+        
+        # Chart data
+        'chart_data': {
+            'labels': json.dumps(labels),
+            'expected_amounts': json.dumps(expected_amounts),
+            'paid_amounts': json.dumps(paid_amounts),
+        },
+        
+        # Occupancy data
+        'occupancy_data': {
+            'occupied': occupied_units,
+            'vacant': vacant_units,
+        },
+        
+        'recent_activities': recent_activities,
     }
+    
     return render(request, 'home.html', context)
 
 @login_required
