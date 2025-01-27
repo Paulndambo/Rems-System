@@ -13,6 +13,8 @@ class WaterBillPayment(AbstractBaseModel):
 
    
 class Expense(AbstractBaseModel):
+    property = models.ForeignKey("properties.Property", on_delete=models.SET_NULL, null=True, blank=True)
+    unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     expense_type = models.CharField(max_length=255, choices=ExpenseTypes.choices(), default=ExpenseTypes.OTHER.value)

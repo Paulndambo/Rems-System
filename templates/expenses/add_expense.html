@@ -17,6 +17,26 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col">
+                            <label for="property" class="form-label fw-bold">Property</label>
+                            <select class="form-select" id="property" name="property">
+                                <option value="" selected>Choose...</option>
+                                {% for property in properties %}
+                                    <option value="{{ property.id }}">{{ property.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="unit" class="form-label fw-bold">Unit</label>
+                            <select class="form-select" id="unit" name="unit">
+                                <option value="" selected>Choose...</option>
+                                {% for unit in units %}
+                                    <option value="{{ unit.id }}">{{ unit.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
                             <label for="contact" class="form-label fw-bold">Expense Type</label>
                             <select class="form-select" id="expense_type" name="expense_type">
                                 <option value="" selected>Choose...</option>

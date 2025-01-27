@@ -15,13 +15,13 @@ class UnitListingSerializer(serializers.ModelSerializer):
     location = serializers.SerializerMethodField()
     images = ListingImageSerializer(many=True, read_only=True)
     amenities = AmenitySerializer(many=True, read_only=True)
+    #listing_images = serializers.JSONField(default=list, write_only=True)
     class Meta:
         model = UnitListing
         fields = '__all__'
 
     def get_location(self, obj):
         return f"{obj.town}, {obj.county}" if obj.town and obj.county else None
-
 
 
 

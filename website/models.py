@@ -13,6 +13,7 @@ LISTING_TYPES_CHOICES = [
 LISTING_PURPOSE_CHOICES = [
     ('For Sale', 'For Sale'),
     ('For Rent', 'For Rent'),
+    ('For Lease', 'For Lease'),
 ]
 
 UNIT_TYPES_CHOICES = [

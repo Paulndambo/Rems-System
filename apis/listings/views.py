@@ -62,6 +62,8 @@ class UnitListingListView(generics.ListCreateAPIView):
             for amenity in amenities_list:
                 listing_amenities.append(UnitAmenity(unit_listing=listing, name=amenity))
             UnitAmenity.objects.bulk_create(listing_amenities)
+
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

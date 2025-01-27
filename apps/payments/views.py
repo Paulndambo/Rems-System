@@ -122,6 +122,8 @@ class ExpenseView(ListView):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("search", "")
         context["expense_types"] = EXPENSE_TYPES_LIST
+        context["properties"] = Property.objects.filter(is_active=True)
+        context["units"] = PropertyUnit.objects.all()
         return context
 
 @login_required
@@ -133,12 +135,17 @@ def add_expense(request):
         description = request.POST.get("description")
         spend_on = request.POST.get("spend_on")
 
+        property_id = request.POST.get("property")
+        unit_id = request.POST.get("unit")
+
         Expense.objects.create(
             title=title, 
             amount=amount, 
             expense_type=expense_type, 
             description=description, 
-            spend_on=spend_on
+            spend_on=spend_on,
+            property_id=property_id,
+            unit_id=unit_id
         )
         return redirect("expenses")
     return render(request, "expenses/add_expense.html")
@@ -156,6 +163,12 @@ def edit_expense(request):
         expense.expense_type = request.POST.get("expense_type")
         expense.description = request.POST.get("description")
         expense.spend_on = request.POST.get("spend_on")
+
+        property_id = request.POST.get("property")
+        unit_id = request.POST.get("unit")
+
+        expense.property_id = property_id
+        expense.unit_id = unit_id
         expense.save()
         return redirect("expenses")
     return render(request, "expenses/edit_expense.html", { "expense_types": EXPENSE_TYPES_LIST })
