@@ -39,6 +39,7 @@
                     <thead class="table-light">
                         <tr>
                             <th class="text-center">#</th>
+                            <th>Property</th>
                             <th>Title</th>
                             <th>Amount</th>
                             <th>Expense Type</th>
@@ -50,6 +51,7 @@
                         {% for expense in expenses %}
                         <tr>
                             <td class="text-center">{{forloop.counter}}</td>
+                            <td>{{expense.property.name}}(<b>{{expense.unit.name}}</b>)</td>
                             <td>{{expense.title}}</td>
                             <td>
                                 <span class="badge bg-success fs-6">

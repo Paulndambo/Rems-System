@@ -20,18 +20,19 @@
                         <div class="col">
                             <label for="property" class="form-label fw-bold">Property</label>
                             <select class="form-select" id="property" name="property">
-                                <option value="" selected>Choose...</option>
+                                <option value="{{expense.property.id}}" selected>{{expense.property}}</option>
                                 {% for property in properties %}
-                                    <option value="{{ property.id }}">{{ property.name }}</option>
+                                    {% if property.id != expense.property.id %}
+                                        <option value="{{ property.id }}">{{ property.name }}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="col">
-                            <label for="unit" class="form-label fw-bold">Unit</label>
+                            <label for="unit{{expense.id}}" class="form-label fw-bold">Unit</label>
                             <select class="form-select select2" id="unit" name="unit">
-                                <option value="" selected>Choose...</option>
                                 {% for unit in units %}
-                                    <option value="{{ unit.id }}">{{ unit.name }}(<b>{{unit.property.name}}</b>)</option>
+                                    <option value="{{ unit.id }}" {% if unit.id == expense.unit.id %}selected{% endif %}>{{ unit.name }} ({{ unit.property.name }})</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -78,12 +79,15 @@
 
 <script>
     $(document).ready(function() {
-        $('#unit').select2({
+    $('.select2').each(function() {
+        $(this).select2({
             theme: 'bootstrap-5',
             width: '100%',
-            dropdownParent: $('#newWaterBillModal{{expense.id}}'),
+            dropdownParent: $(this).closest('.modal'),
             placeholder: 'Choose...',
             allowClear: true
         });
     });
+});
+
 </script>

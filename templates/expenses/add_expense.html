@@ -26,7 +26,7 @@
                         </div>
                         <div class="col">
                             <label for="unit" class="form-label fw-bold">Unit</label>
-                            <select class="form-select select2" id="unit" name="unit">
+                            <select class="form-select select2" id="expenseUnit" name="expenseUnit">
                                 <option value="" selected>Choose...</option>
                                 {% for unit in units %}
                                     <option value="{{ unit.id }}">{{unit.name}} ({{unit.property}})</option>
@@ -77,7 +77,7 @@
 
 <script>
     $(document).ready(function() {
-        $('#unit').select2({
+        $('#expenseUnit').select2({
             theme: 'bootstrap-5',
             width: '100%',
             dropdownParent: $('#newExpenseModal'),

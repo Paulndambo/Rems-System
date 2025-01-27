@@ -9,8 +9,13 @@
             <form id="tenantForm" method="POST" action="{% url 'pay-rent-bill' %}">
                 <div class="modal-body">
                     {% csrf_token %}
+                    <div class="row mb-3">
+                        <p><b>Total Amount:</b> {{rent_bill.amount_expected}}</p>
+                        <p><b>Total Paid:</b> {{rent_bill.amount_paid}}</p>
+                        <p><b>Balance:</b> {{rent_bill.balance}}</p>
+                    </div>
+                    <hr/>
                     <input type="number" name="rent_bill_id" id="rent_bill_id" value="{{rent_bill.id}}" readonly hidden>
-              
                 <div class="row mb-3">
                     <div class="col">
                         <label for="payment_method" class="form-label fw-bold">Payment Method</label>
