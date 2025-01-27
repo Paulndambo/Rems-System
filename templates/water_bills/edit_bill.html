@@ -10,8 +10,9 @@
                 <div class="modal-body">
                     {% csrf_token %}
                     <input type="number" name="water_bill_id" id="water_bill_id" value="{{bill.id}}" readonly hidden>
-                    <div class="mb-3">
-                        <label for="name" class="form-label fw-bold">Unit</label>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="name" class="form-label fw-bold">Unit</label>
                         <select class="form-select" id="unit" name="unit">
                             <option value="{{bill.unit.id}}" selected>{{bill.unit.name}}</option>
                             {% for unit in units %}
@@ -20,6 +21,12 @@
                                 {% endif %}
                             {% endfor %}
                         </select>
+                        </div>
+                        <div class="col">
+                            <label for="reading_date" class="form-label fw-bold">Reading Date</label>
+                            <input type="date" class="form-control" id="reading_date" name="reading_date" value="{{bill.reading_date | date:'Y-m-d'}}" />
+                        </div>
+                        
                     </div>
                 <div class="row mb-3">
                     <div class="col-md-6">

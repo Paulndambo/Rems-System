@@ -4,80 +4,88 @@
 <!-- Stats Cards Row -->
 <div class="row g-4">
     <div class="col-md-6">
-        <div class="card card-stats h-100 shadow-sm hover-lift">
-            <div class="card-body bg-primary bg-gradient text-white rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-0 text-white-50">Total Properties</h6>
-                        <h2 class="my-2 fw-bold">{{properties_count}}</h2>
-                        <p class="card-text mb-0 d-flex align-items-center">
-                            <i class="fas fa-arrow-up me-1 small"></i>
-                            <span>+3 this month</span>
-                        </p>
-                    </div>
-                    <div class="stat-icon-container">
-                        <i class="fas fa-building stat-icon opacity-75"></i>
+        <a href="{% url 'properties' %}" class="text-decoration-none">
+            <div class="card card-stats h-100 shadow-sm hover-lift">
+                <div class="card-body bg-primary bg-gradient text-white rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0 text-white-50">Total Properties</h6>
+                            <h2 class="my-2 fw-bold">{{properties_count}}</h2>
+                            <p class="card-text mb-0 d-flex align-items-center">
+                                <i class="fas fa-arrow-up me-1 small"></i>
+                                <span>+3 this month</span>
+                            </p>
+                        </div>
+                        <div class="stat-icon-container">
+                            <i class="fas fa-building stat-icon opacity-75"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-md-6">
-        <div class="card card-stats h-100 shadow-sm hover-lift">
-            <div class="card-body bg-success bg-gradient text-white rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-0 text-white-50">Active Tenants</h6>
-                        <h2 class="my-2 fw-bold">{{tenants_count}}</h2>
-                        <p class="card-text mb-0 d-flex align-items-center">
-                            <i class="fas fa-arrow-up me-1 small"></i>
-                            <span>+12 this month</span>
-                        </p>
-                    </div>
-                    <div class="stat-icon-container">
-                        <i class="fas fa-users stat-icon opacity-75"></i>
+        <a href="{% url 'tenants' %}" class="text-decoration-none">
+            <div class="card card-stats h-100 shadow-sm hover-lift">
+                <div class="card-body bg-success bg-gradient text-white rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0 text-white-50">Active Tenants</h6>
+                            <h2 class="my-2 fw-bold">{{tenants_count}}</h2>
+                            <p class="card-text mb-0 d-flex align-items-center">
+                                <i class="fas fa-arrow-up me-1 small"></i>
+                                <span>+12 this month</span>
+                            </p>
+                        </div>
+                        <div class="stat-icon-container">
+                            <i class="fas fa-users stat-icon opacity-75"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-md-6">
-        <div class="card card-stats h-100 shadow-sm hover-lift">
-            <div class="card-body bg-warning bg-gradient text-white rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-0 text-white-50">Total Revenue</h6>
-                        <h2 class="my-2 fw-bold">{{total_revenue}}</h2>
-                        <p class="card-text mb-0 d-flex align-items-center">
-                            <i class="fas fa-arrow-up me-1 small"></i>
-                            <span>+8% this month</span>
-                        </p>
-                    </div>
-                    <div class="stat-icon-container">
-                        <i class="fas fa-dollar-sign stat-icon opacity-75"></i>
+        <a href="#" class="text-decoration-none">
+            <div class="card card-stats h-100 shadow-sm hover-lift">
+                <div class="card-body bg-warning bg-gradient text-white rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0 text-white-50">Total Revenue</h6>
+                            <h2 class="my-2 fw-bold">{{total_revenue}}</h2>
+                            <p class="card-text mb-0 d-flex align-items-center">
+                                <i class="fas fa-arrow-up me-1 small"></i>
+                                <span>+8% this month</span>
+                            </p>
+                        </div>
+                        <div class="stat-icon-container">
+                            <i class="fas fa-dollar-sign stat-icon opacity-75"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-md-6">
-        <div class="card card-stats h-100 shadow-sm hover-lift">
-            <div class="card-body bg-danger bg-gradient text-white rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-0 text-white-50">Pending Bills</h6>
-                        <h2 class="my-2 fw-bold">23</h2>
-                        <p class="card-text mb-0 d-flex align-items-center">
-                            <i class="fas fa-exclamation-circle me-1 small"></i>
-                            <span>5 due today</span>
-                        </p>
-                    </div>
-                    <div class="stat-icon-container">
-                        <i class="fas fa-exclamation-circle stat-icon opacity-75"></i>
+        <a href="#" class="text-decoration-none">
+            <div class="card card-stats h-100 shadow-sm hover-lift">
+                <div class="card-body bg-danger bg-gradient text-white rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0 text-white-50">Pending Bills</h6>
+                            <h2 class="my-2 fw-bold">23</h2>
+                            <p class="card-text mb-0 d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle me-1 small"></i>
+                                <span>5 due today</span>
+                            </p>
+                        </div>
+                        <div class="stat-icon-container">
+                            <i class="fas fa-exclamation-circle stat-icon opacity-75"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 </div>
 
@@ -96,6 +104,14 @@
     }
     .stat-icon {
         font-size: 2rem;
+    }
+    /* Ensure the anchor inherits card colors */
+    .card-stats .card-body {
+        color: inherit;
+    }
+    /* Prevent default link color from showing through */
+    a .card-stats {
+        color: inherit;
     }
 </style>
 {% endblock content %}

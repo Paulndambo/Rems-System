@@ -409,6 +409,7 @@ def new_water_bill(request):
         previous_balance = request.POST.get('previous_balance')
         previous_reading = request.POST.get('previous_reading')
         current_reading = request.POST.get('current_reading')
+        reading_date = request.POST.get('reading_date')
 
         unit = PropertyUnit.objects.get(id=unit_id)
         year = Year.objects.get(id=year_id)
@@ -423,7 +424,8 @@ def new_water_bill(request):
             previous_balance=previous_balance,
             previous_reading=previous_reading,
             current_reading=current_reading,
-            meter_number=unit.water_meter_number
+            meter_number=unit.water_meter_number,
+            reading_date=reading_date
         )
         return redirect("water-bills")
     return render(request, 'water_bills/new_water_bill.html')
@@ -437,6 +439,7 @@ def edit_water_bill(request):
         previous_balance = request.POST.get('previous_balance')
         previous_reading = request.POST.get('previous_reading')
         current_reading = request.POST.get('current_reading')
+        reading_date = request.POST.get('reading_date')
 
         month_name = request.POST.get('month')
         year_id = request.POST.get('year')
@@ -450,6 +453,7 @@ def edit_water_bill(request):
         water_bill.current_reading = current_reading
         water_bill.month = month
         water_bill.year = year
+        water_bill.reading_date = reading_date
         water_bill.save()
 
         water_bill.amount = water_bill.total_amount()

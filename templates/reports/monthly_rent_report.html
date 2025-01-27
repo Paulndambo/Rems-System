@@ -12,8 +12,9 @@
             <div class="col-9">
                 <form method="GET" class="row g-3 justify-content-end">
                     <div class="col-auto">
-                        <select name="month" class="form-select">
-                            <option value="">Select Month</option>
+                        <label class="form-label small mb-1">Month</label>
+                        <select name="month" class="form-select form-select-sm">
+                            <option value="">All Months</option>
                             {% for month in months %}
                                 <option value="{{ month }}" {% if selected_month == month %}selected{% endif %}>
                                     {{ month }}
@@ -22,8 +23,9 @@
                         </select>
                     </div>
                     <div class="col-auto">
-                        <select name="year" class="form-select">
-                            <option value="">Select Year</option>
+                        <label class="form-label small mb-1">Year</label>
+                        <select name="year" class="form-select form-select-sm">
+                            <option value="">All Years</option>
                             {% for year in years %}
                                 <option value="{{ year.id }}" {% if selected_year == year.id %}selected{% endif %}>
                                     {{ year.name }}
@@ -31,14 +33,14 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter me-2"></i>
+                    <div class="col-auto d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary btn-sm" title="Filter">
+                            <i class="fas fa-filter me-2"></i>Filter
                         </button>
                     </div>
-                    <div class="col-auto">
-                        <a href="?{{ request.GET.urlencode }}&export=csv" class="btn btn-success">
-                            <i class="fas fa-download me-2"></i>
+                    <div class="col-auto d-flex align-items-end">
+                        <a href="?{{ request.GET.urlencode }}&export=csv" class="btn btn-success btn-sm" title="Export to CSV">
+                            <i class="fas fa-download me-2"></i>Export
                         </a>
                     </div>
                 </form>
@@ -49,18 +51,17 @@
     <div class="card-body">
         <div class="loader" id="loader"></div>
         <div class="table-responsive">
-            <table id="tenantsTable" class="table table-hover align-middle" style="width:100%">
+            <table id="tenantsTable" class="table table-hover align-middle table-striped" style="width:100%">
                 <thead class="table-light">
                     <tr>
-                        <th class="text-center">#</th>
-                        <th>Tenant</th>
-                        <th>Unit</th>
-                        <th>Month</th>
-                        <th class="">Amount Expected</th>
-                        <th class="">Amount Paid</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        
+                        <th class="text-center" width="5%">#</th>
+                        <th width="20%">Tenant</th>
+                        <th width="15%">Unit</th>
+                        <th width="15%">Month</th>
+                        <th class="text-end" width="10%">Expected</th>
+                        <th class="text-end" width="10%">Paid</th>
+                        <th width="15%">Due Date</th>
+                        <th width="10%">Status</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -75,21 +76,26 @@
                         <td>{{rent_bill.due_date}}</td>
                         <td>
                             {% if rent_bill.status == 'Pending' %}
-                                <span class="badge bg-warning text-dark">Pending</span>
+                                <span class="badge rounded-pill bg-warning text-dark">Pending</span>
                             {% elif rent_bill.status == 'Paid' %}
-                                <span class="badge bg-success">Paid</span>
+                                <span class="badge rounded-pill bg-success">Paid</span>
                             {% elif rent_bill.status == 'Partially Paid' %}
-                                <span class="badge bg-warning">Partially Paid</span>
-                            
+                                <span class="badge rounded-pill bg-info">Partially Paid</span>
                             {% elif rent_bill.status == 'Overdue' %}
-                                <span class="badge bg-danger">Overdue</span>
+                                <span class="badge rounded-pill bg-danger">Overdue</span>
                             {% endif %}
                         </td>
-                        
                     </tr>
-                
                     {% endfor %}
                 </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <td colspan="4" class="text-end fw-bold">Totals:</td>
+                        <td class="text-end fw-bold">{{ total_expected }}</td>
+                        <td class="text-end fw-bold">{{ total_paid }}</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
@@ -97,5 +103,20 @@
 {% endblock content %}
 
 {% block additional_scripts %}
-
+<script>
+    $(document).ready(function() {
+        $('#tenantsTable').DataTable({
+            "pageLength": 25,
+            "order": [],
+            "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                   '<"row"<"col-sm-12"tr>>' +
+                   '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            "language": {
+                "lengthMenu": "Show _MENU_ entries",
+                "search": "Search:",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries"
+            }
+        });
+    });
+</script>
 {% endblock additional_scripts %}

@@ -85,6 +85,7 @@ class WaterBill(AbstractBaseModel):
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
     unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE, related_name="unitwaterbills")
     tenant = models.ForeignKey('tenants.Tenant', on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantwaterbills")
+    reading_date = models.DateField(null=True, blank=True)
     month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
     year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
     meter_number = models.CharField(max_length=255, null=True, blank=True)
