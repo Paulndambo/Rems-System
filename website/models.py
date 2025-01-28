@@ -160,7 +160,10 @@ class UnitListing(AbstractBaseModel):
     location_description = models.TextField(null=True, blank=True)
     approved = models.BooleanField(default=False)
     commission = models.DecimalField(max_digits=100, decimal_places=2, default=0)
-
+    contact_phone = models.CharField(max_length=255, null=True, blank=True)
+    contact_name = models.CharField(max_length=255, null=True, blank=True)
+    viewing_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    direct_contact_fee = models.DecimalField(max_digits=10, decimal_places=2, default=100)
     def __str__(self):
         return self.property_name
      

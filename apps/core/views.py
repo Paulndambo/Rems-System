@@ -20,7 +20,7 @@ def home(request):
     
     # Basic stats
     properties_count = Property.objects.count()
-    tenants_count = Tenant.objects.filter(is_active=True).count()
+    tenants_count = Tenant.objects.all().count()
     
     # Get total revenue (sum of all paid rent)
     total_revenue = RentBill.objects.all(
