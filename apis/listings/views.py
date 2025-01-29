@@ -16,7 +16,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from website.models import UnitListing, ListingImage, UnitAmenity, ClientRequest, Comment, ListingInterestExpression
-from .serializers import UnitListingSerializer, ListingImageSerializer, ClientRequestSerializer, AmenitySerializer, CommentSerializer, ListingInterestExpressionSerializer, CollectListingViewsSerializer
+from .serializers import UnitListingSerializer, ListingImageSerializer, ClientRequestSerializer, AmenitySerializer, CommentSerializer, ListingInterestExpressionSerializer, CollectListingViewsSerializer, UploadListingImageSerializer
 from .filters import UnitListingFilter
 from apps.core.cloudinary_handler import CloudinaryHandler
 from apps.core.firebase_files_handler import FirebaseFilesHandler
@@ -114,15 +114,24 @@ class ListingImageListView(generics.ListCreateAPIView):
                 listing_image.image_url = upload_result['public_url']
                 listing_image.save()    
 
-                # Upload to firebase
-                #firebase_files_handler = FirebaseFilesHandler()
-                #firebase_result = firebase_files_handler.upload_file(temp_file)
-                #listing_image.backup_url = upload_result['firebase_path']
                 cloudinary_handler.clean_up_temp_file(temp_file)
                 return Response({"data": serializer.data, "upload_result": upload_result}, status=status.HTTP_201_CREATED)
             except Exception as e:
                 cloudinary_handler.clean_up_temp_file(temp_file)
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UploadListingImageAPIView(generics.ListCreateAPIView):
+    serializer_class = UploadListingImageSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        print(request.data)
+        if serializer.is_valid(raise_exception=True):
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ClientRequestsAPIView(generics.ListCreateAPIView):

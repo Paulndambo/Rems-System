@@ -1,5 +1,6 @@
 from django.urls import path
 from website.views import ListingListView, ListerView, unit_listing_details, approve_listing, reject_listing, new_webiste_listing, mark_amenity_available, mark_amenity_unavailable
+from . import views
 
 urlpatterns = [
     path("", ListingListView.as_view(), name="website-listings"),
@@ -10,4 +11,5 @@ urlpatterns = [
     path("mark-amenity-available/<int:id>/", mark_amenity_available, name="mark-amenity-available"),
     path("mark-amenity-unavailable/<int:id>/", mark_amenity_unavailable, name="mark-amenity-unavailable"),
     path("listers/", ListerView.as_view(), name="listers"),
+    path('upload-images/', views.upload_images, name='upload_images'),
 ]

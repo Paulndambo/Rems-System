@@ -6,8 +6,14 @@ class ListingImageSerializer(serializers.ModelSerializer):
         model = ListingImage
         fields = '__all__'
 
+class UploadListingImageSerializer(serializers.Serializer):
+    listing = serializers.IntegerField()
+    images = serializers.JSONField(default=list)
+
+
 class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
+
         model = UnitAmenity
         fields = '__all__'
 
@@ -22,7 +28,6 @@ class UnitListingSerializer(serializers.ModelSerializer):
 
     def get_location(self, obj):
         return f"{obj.town}, {obj.county}" if obj.town and obj.county else None
-
 
 
 

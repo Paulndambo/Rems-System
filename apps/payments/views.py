@@ -22,7 +22,6 @@ date_today = datetime.now().date()
 
 
 # Create your views here.
-
 class WaterBillPaymentsView(ListView):
     model = WaterBillPayment
     template_name = "payments/water_bill_payments.html"

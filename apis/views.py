@@ -4,9 +4,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import PaymentRecord, Customer
+from website.models import UnitListing, ClientRequest, ListingInterestExpression
+from apps.users.models import User
+from django.db.models import Count, Sum
+
+
 
 # Create your views here.
 class PaystackWebhookView(APIView):
+
     def post(self, request, *args, **kwargs):
         data = request.data
         
@@ -68,3 +74,25 @@ class PaystackWebhookView(APIView):
             print("Processed webhook data:", webhook_data)
         
         return Response(webhook_data, status=status.HTTP_200_OK)
+
+
+class MetricsView(APIView):
+    def get(self, request, *args, **kwargs):
+        total_listings = UnitListing.objects.count()
+        total_users = User.objects.count()
+        total_requests = ClientRequest.objects.count()
+        total_leads = ListingInterestExpression.objects.count()
+        total_revenue = PaymentRecord.objects.all().aggregate(total=Sum('amount'))['total'] or 0
+        listing_types = UnitListing.objects.values('listing_type').annotate(count=Count('id'))
+
+
+        metrics = {
+            'total_listings': total_listings,
+            'total_users': total_users,
+            'total_requests': total_requests,
+            'total_leads': total_leads,
+            'total_revenue': total_revenue,
+            'listing_types': listing_types,
+        }
+
+        return Response(metrics, status=status.HTTP_200_OK)

@@ -219,3 +219,10 @@ class ClientRequest(AbstractBaseModel):
 
     def __str__(self):
         return self.name
+
+class UploadedImage(models.Model):
+    image = models.ImageField(upload_to='uploads/%Y/%m/%d/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Image uploaded at {self.uploaded_at}"

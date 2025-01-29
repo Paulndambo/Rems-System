@@ -4,8 +4,11 @@ from django.views.generic import ListView
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_http_methods
 
-from website.models import UnitListing, Lister, UnitAmenity, ListingImage, ListingInterestExpression, ClientRequest
+from website.models import UnitListing, Lister, UnitAmenity, ListingImage, ListingInterestExpression, ClientRequest, UploadedImage
 # Create your views here.
 class ListingListView(ListView):
     model = UnitListing
@@ -147,7 +150,6 @@ class InterestExpressionListView(ListView):
         return context
     
 
-
 class ListerView(ListView):
     model = Lister
     template_name = "website/listers/listers.html"
@@ -172,3 +174,57 @@ class ListerView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+@ensure_csrf_cookie
+@require_http_methods(["POST"])
+def upload_images(request):
+    try:
+        # Get the uploaded files
+        files = request.FILES.getlist('images')
+        
+        if not files:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'No files were uploaded'
+            }, status=400)
+
+        uploaded_images = []
+        
+        # Process each uploaded file
+        for file in files:
+            # Validate file type
+            if not file.content_type.startswith('image/'):
+                continue
+                
+            # Validate file size (5MB limit)
+            if file.size > 5 * 1024 * 1024:
+                continue
+                
+            # Save the image
+            image = UploadedImage(image=file)
+            image.save()
+            
+            uploaded_images.append({
+                'id': image.id,
+                'url': image.image.url,
+                'uploaded_at': image.uploaded_at.isoformat()
+            })
+        
+        if not uploaded_images:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'No valid images were uploaded'
+            }, status=400)
+            
+        return JsonResponse({
+            'status': 'success',
+            'message': f'Successfully uploaded {len(uploaded_images)} images',
+            'images': uploaded_images
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
