@@ -1,0 +1,50 @@
+<!-- Add this modal HTML after the table in your template -->
+<div class="modal fade" id="payGarbageBillModal{{bill.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tenantModalLabel">Pay Garbage Bill</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'pay-garbage-bill' %}">
+
+                <div class="modal-body" >
+                    {% csrf_token %}
+                <input type="hidden" name="garbage_bill_id" id="garbage_bill_id" value="{{bill.id}}">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Amount Paid</label>
+                        <input type="number" class="form-control" id="amount_paid" name="amount_paid" min="1" max="{{bill.balance}}" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="rent" class="form-label fw-bold">Payment Method</label>
+                        <select class="form-select" id="payment_method" name="payment_method">
+                            <option value="" selected>Choose...</option>
+                            <option value="Cash">Cash</option>
+                            <option value="M-Pesa">M-Pesa</option>
+                            <option value="Bank Deposit">Bank Deposit</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="unit" class="form-label fw-bold">Payment Date</label>
+                        <input type="date" class="form-control" id="payment_date" name="payment_date" />
+                    </div>
+                </div>
+
+                    
+                </div>
+                <div class="text-center mb-3">
+                    <button type="submit" class="btn btn-primary">Pay Garbage Bill</button>
+                </div>
+            </form>
+        </div>
+
+
+    </div>
+</div>

@@ -1,6 +1,7 @@
 from django.db import models
 from apps.core.models import AbstractBaseModel
 from apps.core.constants import ExpenseTypes, PaymentMethods, PaymentStatuses
+from decimal import Decimal
 # Create your models here.
 class UnitMonthBill(AbstractBaseModel):
     unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True)
@@ -19,7 +20,7 @@ class UnitMonthBill(AbstractBaseModel):
     
 
     def update_amount_expected(self):
-        self.amount_expected = self.rent_amount + self.water_amount + self.garbage_amount
+        self.amount_expected = Decimal(self.rent_amount) + Decimal(self.water_amount) + Decimal(self.garbage_amount)
         self.save()
 
 
@@ -97,10 +98,15 @@ class GarbageBill(AbstractBaseModel):
     status = models.CharField(max_length=255, choices=PaymentStatuses.choices(), default=PaymentStatuses.PENDING.value)
     fully_paid = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"{self.tenant.user.name}"
     
+    def balance(self):
+        return self.amount_expected - self.amount_paid
 
 
 class GarbageBillPayment(AbstractBaseModel):
+
     garbage_bill = models.ForeignKey("GarbageBill", on_delete=models.SET_NULL, null=True, blank=True)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateField()

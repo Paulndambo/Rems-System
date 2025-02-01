@@ -179,8 +179,10 @@ PAYMENT_METHODS = [
     'Cash',
     'M-Pesa',
     'Bank Transfer',
-    'Bank Deposit'
+    'Bank Deposit',
+    'Cheque'
 ]
+
 
 class PaymentMethods(Enum):
     CASH = 'Cash'

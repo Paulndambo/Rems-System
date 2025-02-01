@@ -133,3 +133,66 @@ def delete_garbage_bill(request, pk):
         return redirect("garbage-bills")
 
     return render(request, "garbage_bills/delete_garbage_bill.html")
+
+
+# Garbage Bill Payments
+
+class GarbageBillPaymentsView(ListView):
+    model = GarbageBillPayment
+    template_name = "garbage_bills/garbage_bill_payments.html"
+    context_object_name = "garbage_bill_payments"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query)
+                | Q(garbage_bill__unit__name__icontains=search_query)
+                | Q(garbage_bill__unit__property__name__icontains=search_query)
+                | Q(garbage_bill__tenant__user__first_name__icontains=search_query)
+                | Q(garbage_bill__tenant__user__last_name__icontains=search_query)
+            )
+        return queryset.order_by("-created_at")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['payment_methods'] = PAYMENT_METHODS
+        return context
+                
+
+def pay_garbage_bill(request):
+    if request.method == "POST":
+        garbage_bill_id = request.POST.get("garbage_bill_id")
+        amount_paid = request.POST.get("amount_paid")
+        payment_method = request.POST.get("payment_method")
+        payment_date = request.POST.get("payment_date")
+
+        garbage_bill = GarbageBill.objects.get(id=garbage_bill_id)
+        GarbageBillPayment.objects.create(
+            garbage_bill=garbage_bill,
+            amount_paid=amount_paid,
+            payment_method=payment_method,
+            payment_date=payment_date
+        )
+
+        garbage_bill.amount_paid += Decimal(amount_paid)
+        garbage_bill.save()
+
+
+        if garbage_bill.amount_paid == garbage_bill.amount_expected:
+            garbage_bill.status = PaymentStatuses.PAID.value
+        elif garbage_bill.amount_paid < garbage_bill.amount_expected:
+            garbage_bill.status = PaymentStatuses.PARTIALLY_PAID.value
+        else:
+            garbage_bill.status = PaymentStatuses.PENDING.value
+        garbage_bill.save()
+
+        garbage_bill.unit_bill.amount_paid += Decimal(amount_paid)
+        garbage_bill.unit_bill.save()
+        garbage_bill.unit_bill.update_amount_expected()
+
+
+        return redirect("garbage-bills")
+    return render(request, "garbage_bills/pay_garbage_bill.html")
