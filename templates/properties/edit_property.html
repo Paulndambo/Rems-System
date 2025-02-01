@@ -11,20 +11,26 @@
                     {% csrf_token %}
                     <input type="number" name="property_id" id="property_id" value="{{property.id}}" readonly hidden>
                     <div class="row mb-3">
-                    <div class="col-md-9">
+                    <div class="col">
                         <label for="name" class="form-label fw-bold">Name</label>
                         <input type="text" class="form-control" id="name" name="name" value="{{property.name}}" required>
                     </div>
-                    <div class="col-md-3">
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
                         <label for="unit" class="form-label fw-bold">Units</label>
                         <input type="number" class="form-control" id="units" name="units" value="{{property.units}}" required>
+                    </div>  
+                    <div class="col-md-6">
+                        <label for="garbage_charge" class="form-label fw-bold">Garbage Charge</label>
+                        <input type="number" class="form-control" id="garbage_charge" name="garbage_charge" value="{{property.garbage_charge}}" required>
                     </div>
                 </div>
                     
-                        <div class="mb-3">
-                            <label for="move_in_date" class="form-label fw-bold">Address/Location</label>
-                            <input type="text" class="form-control" id="address" name="address" value="{{property.address}}" required>
-                        </div>
+                <div class="mb-3">
+                    <label for="move_in_date" class="form-label fw-bold">Address/Location</label>
+                    <input type="text" class="form-control" id="address" name="address" value="{{property.address}}" required>
+                </div>
                     
                     <div class="row mb-3">
                         <div class="col-md-6">

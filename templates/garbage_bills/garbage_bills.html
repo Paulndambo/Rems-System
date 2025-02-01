@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-4">
+                <h5 class="mb-0 text-primary">
+                    <i class="fas fa-tint me-2"></i>Garbage Bills
+                </h5>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" 
+                           placeholder="Search bills..." 
+                           id="searchInput" 
+                           value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="col-12 col-md-4 text-md-end">
+                <button class="btn btn-primary w-100 w-md-auto" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#newGarbageBillModal">
+                    <i class="fas fa-plus-circle me-2"></i>Generate Bills
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="loader" id="loader"></div>
+        <div class="table-responsive">
+            <table id="tenantsTable" class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>Tenant</th>
+                        <th>Month</th>
+                       
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Paid</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    {% for bill in garbage_bills %}
+                    <tr>
+                        <td class="text-center">{{forloop.counter}}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm bg-light rounded-circle me-2">
+                                    <i class="fas fa-user text-primary"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-medium">{{bill.unit.tenant.user.name}}</div>
+                                    <small class="text-muted">Unit: {{bill.unit.name}}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>{{bill.unit_bill.month}}</div>
+                            <small class="text-muted">{{bill.unit_bill.year}}</small>
+                        </td>
+                       
+                        <td class="text-end">{{bill.amount_expected}}</td>
+                        <td class="text-end">{{bill.amount_paid}}</td>
+                        <td class="text-center">
+
+                            {% if bill.status == 'Paid' %}
+                            <span class="badge bg-success-subtle text-success px-3">{{bill.status}}</span>
+                            {% elif bill.status == 'Pending' %}
+                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.status}}</span>
+                            {% elif bill.status == 'Partially Paid' %}
+                            <span class="badge bg-warning-subtle text-warning px-3">{{bill.status}}</span>
+                            {% elif bill.status == 'Overdue' %}
+                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.status}}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-sm btn-light" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editWaterBillModal{{bill.id}}"
+                                        title="Edit">
+                                    <i class="fas fa-edit text-primary"></i>
+                                </button>
+                                {% if bill.status != 'Paid' %}
+                                <button class="btn btn-sm btn-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#payWaterBillModal{{bill.id}}"
+                                        title="Record Payment">
+                                    Record Payment
+                                </button>
+                                {% endif %}
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    {% include "garbage_bills/edit_garbage_bill.html" %}
+                    {% include "garbage_bills/pay_garbage_bill.html" %}
+                    {% include "garbage_bills/delete_garbage_bill.html" %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not garbage_bills %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-water fa-3x text-muted"></i>
+            </div>
+            <h6 class="text-muted">No water bills found</h6>
+            <p class="text-muted small">Add a new water bill to get started</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
+
+{% block additional_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function(e) {
+        const searchText = e.target.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#tableBody tr');
+        
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchText) ? '' : 'none';
+        });
+    });
+
+    // Print functionality
+    function printWaterBill(billId) {
+        const printContent = document.getElementById('printArea' + billId);
+        const originalContent = document.body.innerHTML;
+        
+        document.body.innerHTML = printContent.innerHTML;
+        window.print();
+        document.body.innerHTML = originalContent;
+        
+        // Reload the page after printing
+        window.location.href = "{% url 'water-bills' %}";
+    }
+});
+</script>
+{% endblock additional_scripts %}

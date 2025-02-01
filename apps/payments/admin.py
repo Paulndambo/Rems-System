@@ -1,10 +1,16 @@
 from django.contrib import admin
-from .models import RentPayment, TenantPayment, RentBill, WaterBillPayment, Expense
+from .models import RentPayment, TenantPayment, RentBill, WaterBillPayment, Expense, GarbageBill, UnitMonthBill
 
 # Register your models here.
+
+@admin.register(UnitMonthBill)
+class UnitMonthBillAdmin(admin.ModelAdmin):
+    list_display = ["id", "unit", "tenant", "rent_amount", "water_amount", "garbage_amount", "amount_expected"]
+
 @admin.register(RentPayment)
 class RentPaymentAdmin(admin.ModelAdmin):
     list_display = ["id", "rent_bill", "amount_paid", "payment_date", "payment_method"]
+
 
 @admin.register(RentBill)
 class RentBillAdmin(admin.ModelAdmin):
@@ -22,3 +28,7 @@ class WaterBillPaymentAdmin(admin.ModelAdmin):
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):
     list_display = ["id", "title", "amount", "expense_type", "spend_on"]
+
+@admin.register(GarbageBill)
+class GarbageBillAdmin(admin.ModelAdmin):
+    list_display = ["id", "unit", "tenant", "amount_expected", "amount_paid", "due_date", "status", "fully_paid"]

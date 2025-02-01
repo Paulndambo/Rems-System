@@ -2,15 +2,17 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from datetime import datetime
-
+from decimal import Decimal
 from django.views.generic import ListView
 from django.http import JsonResponse
 from django.db.models import Q
 
+
 from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
 from apps.core.models import Month, Year
 from apps.tenants.models import Tenant
-from apps.payments.models import TenantPayment, RentPayment, RentBill
+from apps.payments.models import TenantPayment, RentPayment, RentBill, UnitMonthBill
+
 from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST, MONTHS_LIST, PAYMENT_METHODS
 # Create your views here.
 
@@ -84,10 +86,11 @@ def new_property(request):
         manager_email = request.POST.get('manager_email')
         manager_phone = request.POST.get('manager_phone')
         manager_gender = request.POST.get('manager_gender')
-        
+        garbage_charge = request.POST.get('garbage_charge')
         Property.objects.create(
             owner=owner, 
-            name=name, 
+            name=name,  
+            garbage_charge=garbage_charge,
             address=address, 
             city=city, 
             country=country, 
@@ -111,6 +114,7 @@ def edit_property(request):
         city = request.POST.get('city')
         country = request.POST.get('country')
         units = request.POST.get('units')
+        garbage_charge = request.POST.get('garbage_charge')
 
         manager_name = request.POST.get('manager_name')
         manager_email = request.POST.get('manager_email')
@@ -120,6 +124,7 @@ def edit_property(request):
         
         Property.objects.filter(id=property_id).update(
             name=name, 
+            garbage_charge=garbage_charge,
             address=address, 
             city=city, 
             country=country, 
@@ -208,10 +213,13 @@ def new_property_unit(request):
         status = request.POST.get('status')
         floor = request.POST.get('floor')
         security_deposit = request.POST.get('security_deposit')
+        water_price = request.POST.get('water_price')
+        
         
         PropertyUnit.objects.create(
             property=property, 
             name=name, 
+            water_price=water_price,
             rent=rent, 
             size=size,
             unit_type=unit_type,
@@ -235,6 +243,7 @@ def edit_property_unit(request):
         status = request.POST.get('status')
         floor = request.POST.get('floor')
         security_deposit = request.POST.get('security_deposit')
+        water_price = request.POST.get('water_price')
 
         unit=PropertyUnit.objects.get(id=unit_id)
         unit.name=name 
@@ -243,6 +252,7 @@ def edit_property_unit(request):
         unit.unit_type=unit_type
         unit.status=status
         unit.floor=floor
+        unit.water_price=water_price
         unit.is_occupied=True if status == "Occupied" else False
         unit.security_deposit=security_deposit
         unit.save()
@@ -417,7 +427,21 @@ def new_water_bill(request):
         year = Year.objects.get(id=year_id)
         month = Month.objects.get(name=month_name, year=year)
 
+        unit_bill = UnitMonthBill.objects.filter(unit=unit, month=month, year=year).first()
+
+        if not unit_bill:
+            unit_bill = UnitMonthBill.objects.create(
+                unit=unit,
+                tenant=unit.tenant,
+                month=month,
+                year=year
+            )
+        unit_bill.water_amount = Decimal(unit.water_price) * Decimal(current_reading)
+        unit_bill.update_amount_expected()
+        unit_bill.save()
+
         WaterBill.objects.create(
+            unit_bill=unit_bill,
             unit=unit,
             property=unit.property,
             tenant=unit.tenant,
@@ -460,6 +484,10 @@ def edit_water_bill(request):
 
         water_bill.amount = water_bill.total_amount()
         water_bill.save()
+
+        water_bill.unit_bill.water_amount = water_bill.amount
+        water_bill.unit_bill.update_amount_expected()
+        water_bill.unit_bill.save()
 
         return redirect("water-bills")
     return render(request, 'water_bills/edit_bill.html')

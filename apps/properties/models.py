@@ -24,6 +24,8 @@ class Property(AbstractBaseModel):
     manager_city = models.CharField(max_length=255, null=True, blank=True)
     manager_country = models.CharField(max_length=255, null=True, blank=True)
     manager_zip = models.CharField(max_length=255, null=True, blank=True)
+    garbage_charge = models.DecimalField(max_digits=10, decimal_places=2, default=250.00)
+
 
     def __str__(self):
         return self.name
@@ -64,6 +66,7 @@ class PropertyUnit(AbstractBaseModel):
     security_deposit = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     water_meter_number = models.CharField(max_length=255, null=True, blank=True)
     electricity_meter_number = models.CharField(max_length=255, null=True, blank=True)
+    water_price = models.DecimalField(max_digits=10, decimal_places=2, default=200.00)
 
     def __str__(self):
         return self.name
@@ -82,6 +85,7 @@ class MaintenanceRequest(AbstractBaseModel):
     
 
 class WaterBill(AbstractBaseModel):
+    unit_bill = models.ForeignKey("payments.UnitMonthBill", on_delete=models.SET_NULL, null=True, blank=True)
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
     unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE, related_name="unitwaterbills")
     tenant = models.ForeignKey('tenants.Tenant', on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantwaterbills")
@@ -101,8 +105,8 @@ class WaterBill(AbstractBaseModel):
     
 
     def total_amount(self):
-        water_price = WaterPrice.objects.filter(is_active=True).first()
-        return (Decimal(water_price.unit_price) * Decimal(self.current_reading)) + Decimal(self.previous_balance)
+        water_price = self.unit.water_price
+        return (Decimal(water_price) * Decimal(self.current_reading)) + Decimal(self.previous_balance)
 
     def save(self, *args, **kwargs):
         

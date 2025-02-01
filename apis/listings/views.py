@@ -39,11 +39,14 @@ class UnitListingListView(generics.ListCreateAPIView):
         # Dynamically build the filter
         filter_conditions = Q()
         if town:
+            town = town.strip()
             filter_conditions &= Q(town__icontains=town) | Q(county__icontains=town)
 
         if unit_type:
+            unit_type = unit_type.strip()
             filter_conditions &= Q(unit_type__icontains=unit_type)
         if listing_type:
+            listing_type = listing_type.strip()
             filter_conditions &= Q(listing_type__icontains=listing_type)
 
         # Apply the filter
