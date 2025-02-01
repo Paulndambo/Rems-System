@@ -1,25 +1,37 @@
-from datetime import datetime
-from decimal import Decimal
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from apps.payments.models import WaterBillPayment, Expense, RentPayment, RentBill, TenantPayment
-from apps.properties.models import WaterBill, PropertyUnit, Property
-from apps.core.models import Month, Year
-
-from apps.core.constants import MaintenanceStatuses, UserRoles, MONTHS_LIST, EXPENSE_TYPES_LIST, PaymentMethods, PaymentStatuses, PAYMENT_METHODS
-
-from django.views.generic import ListView
-from django.http import JsonResponse
-from django.db.models import Q
-from django.db import transaction
-from datetime import date
 from calendar import month_name
-import json
+from datetime import date, datetime
+from decimal import Decimal
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.views.generic import ListView
 
+from apps.core.constants import (
+    MaintenanceStatuses,
+    UserRoles,
+    MONTHS_LIST,
+    EXPENSE_TYPES_LIST,
+    PaymentMethods,
+    PaymentStatuses,
+    PAYMENT_METHODS
+)
+from apps.core.models import Month, Year
+from apps.payments.models import (
+    WaterBillPayment,
+    Expense,
+    RentPayment,
+    RentBill,
+    TenantPayment,
+    UnitMonthBill
+)
+from apps.properties.models import WaterBill, PropertyUnit, Property
+
+# Move global variable to top
 date_today = datetime.now().date()
-
 
 # Create your views here.
 class WaterBillPaymentsView(ListView):
@@ -31,8 +43,6 @@ class WaterBillPaymentsView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         search_query = self.request.GET.get("search", "")
-
-        print(f"You are searching for {search_query}")
 
         if search_query:
             queryset = queryset.filter(
@@ -50,50 +60,60 @@ class WaterBillPaymentsView(ListView):
 
 @login_required
 def pay_water_bill(request):
-    if request.method == "POST":
-        water_bill_id = request.POST.get("water_bill_id")
-        amount_paid = Decimal(request.POST.get("amount_paying"))
-        payment_method = request.POST.get("payment_method")
+    if request.method != "POST":
+        return render(request, "water_bills/pay_water_bill.html")
+        
+    water_bill_id = request.POST.get("water_bill_id")
+    amount_paid = Decimal(request.POST.get("amount_paying"))
+    payment_method = request.POST.get("payment_method")
 
-        bill = WaterBill.objects.get(id=water_bill_id)
+    bill = WaterBill.objects.get(id=water_bill_id)
 
-        payment = WaterBillPayment.objects.create(
-            tenant=bill.unit.tenant,
-            water_bill=bill,
-            amount_paid=amount_paid, 
-            payment_date=date_today,
-            month=bill.month,
-            year=bill.year,
-            payment_method=payment_method
-        )
+    # Create water bill payment
+    payment = WaterBillPayment.objects.create(
+        tenant=bill.unit.tenant,
+        water_bill=bill,
+        amount_paid=amount_paid,
+        payment_date=date_today,
+        month=bill.month,
+        year=bill.year,
+        payment_method=payment_method
+    )
 
-        bill.amount_paid += payment.amount_paid
-        bill.save()
+    # Update bill amounts and status
+    bill.amount_paid += payment.amount_paid
+    if bill.amount_paid == bill.amount:
+        bill.status = MaintenanceStatuses.PAID.value
+    elif bill.amount_paid < bill.amount:
+        bill.status = MaintenanceStatuses.PARTIALLY_PAID.value
+    else:
+        bill.status = MaintenanceStatuses.OVERDUE.value
+    bill.save()
 
-        TenantPayment.objects.create(
-            tenant=bill.unit.tenant,
-            unit=bill.unit,
-            amount_paid=payment.amount_paid,
-            payment_date=date_today,
-            payment_type="Water Bill",
-            water_bill_payment=payment,
-            month=bill.month,
-            year=bill.year,
-            payment_method=payment_method
-        )
+    # Create tenant payment record
+    TenantPayment.objects.create(
+        tenant=bill.unit.tenant,
+        unit=bill.unit,
+        amount_paid=payment.amount_paid,
+        payment_date=date_today,
+        payment_type="Water Bill",
+        water_bill_payment=payment,
+        month=bill.month,
+        year=bill.year,
+        payment_method=payment_method
+    )
 
-        if bill.amount_paid == bill.amount:
-            bill.status = MaintenanceStatuses.PAID.value
-            bill.save()
-        elif bill.amount_paid < bill.amount:
-            bill.status = MaintenanceStatuses.PARTIALLY_PAID.value
-            bill.save()
-        else:
-            bill.status = MaintenanceStatuses.OVERDUE.value
-            bill.save()
+    # Update unit bill amounts and status
+    bill.unit_bill.amount_paid += payment.amount_paid
+    if bill.unit_bill.amount_paid == bill.unit_bill.amount_expected:
+        bill.unit_bill.status = PaymentStatuses.PAID.value
+    elif bill.unit_bill.amount_paid < bill.unit_bill.amount_expected:
+        bill.unit_bill.status = PaymentStatuses.PARTIALLY_PAID.value
+    else:
+        bill.unit_bill.status = PaymentStatuses.PENDING.value
+    bill.unit_bill.save()
 
-        return redirect("water-bills")
-    return render(request, "water_bills/pay_water_bill.html")
+    return redirect("water-bills")
 
 
 class ExpenseView(ListView):
@@ -106,8 +126,6 @@ class ExpenseView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         search_query = self.request.GET.get("search", "")
-
-        print(f"You are searching for {search_query}")
 
         if search_query:
             queryset = queryset.filter(
@@ -130,27 +148,19 @@ class ExpenseView(ListView):
 
 @login_required
 def add_expense(request):
-    if request.method == "POST":
-        title = request.POST.get("title")
-        amount = request.POST.get("amount")
-        expense_type = request.POST.get("expense_type")
-        description = request.POST.get("description")
-        spend_on = request.POST.get("spend_on")
+    if request.method != "POST":
+        return render(request, "expenses/add_expense.html")
 
-        property_id = request.POST.get("property")
-        unit_id = request.POST.get("unit")
-
-        Expense.objects.create(
-            title=title, 
-            amount=amount, 
-            expense_type=expense_type, 
-            description=description, 
-            spend_on=spend_on,
-            property_id=property_id,
-            unit_id=unit_id
-        )
-        return redirect("expenses")
-    return render(request, "expenses/add_expense.html")
+    Expense.objects.create(
+        title=request.POST.get("title"),
+        amount=request.POST.get("amount"),
+        expense_type=request.POST.get("expense_type"),
+        description=request.POST.get("description"),
+        spend_on=request.POST.get("spend_on"),
+        property_id=request.POST.get("property"),
+        unit_id=request.POST.get("unit")
+    )
+    return redirect("expenses")
 
 
 @login_required
@@ -198,7 +208,6 @@ class MonthlyRentBillsView(ListView):
 
         bills = RentBill.objects.values_list("month", flat=True)
         months = Month.objects.filter(id__in=bills).values_list("id", flat=True)
-        print(months)
 
         search_query = self.request.GET.get("search", "")
 
@@ -313,8 +322,6 @@ def generate_rent_bill(request):
         year = Year.objects.get(id=year)
         month = Month.objects.get(name=month, year=year)
 
-        print(f"Month: {month}, Year: {year}, Property: {property_id}, Due Date: {due_date}")
-
         existing_bills = RentBill.objects.filter(month=month, year=year, unit__property_id=property_id)
         if existing_bills.exists():
             messages.error(request, "Rent bills for this month already exist.")
@@ -326,13 +333,26 @@ def generate_rent_bill(request):
 
         units = PropertyUnit.objects.filter(is_occupied=True).filter(property_id=property_id)
 
-        for unit in units:
-            print(f"Unit: {unit.name}, Rent Amount: {unit.rent}")
-
         units_list = []
         for unit in units:
+            unit_bill = UnitMonthBill.objects.filter(unit=unit, month=month, year=year).first()
+
+            if not unit_bill:
+                unit_bill = UnitMonthBill.objects.create(
+                    unit=unit,
+                    tenant=unit.tenant,
+                    month=month,
+                    year=year
+                )
+            
+            unit_bill.rent_amount = unit.rent
+            unit_bill.garbage_amount = unit.property.garbage_charge
+            unit_bill.update_amount_expected()
+            unit_bill.save()
+
             units_list.append(RentBill(
                     unit=unit,
+                    unit_bill=unit_bill,
                     tenant=unit.tenant,
                     amount_expected=unit.rent,
                     due_date=due_date,
@@ -407,8 +427,13 @@ def pay_rent(request):
             payment_method=payment_method
         )
 
+        rent_bill.unit_bill.amount_paid += amount_paid
+        rent_bill.unit_bill.save()
+
+
         if rent_bill.amount_paid == rent_bill.amount_expected:
             rent_bill.status = PaymentStatuses.PAID.value
+
             rent_bill.fully_paid = True
             rent_bill.save()
         elif rent_bill.amount_paid < rent_bill.amount_expected:
@@ -417,6 +442,17 @@ def pay_rent(request):
         else:
             rent_bill.status = PaymentStatuses.PENDING.value
             rent_bill.save()
+
+        if rent_bill.unit_bill.amount_paid == rent_bill.unit_bill.amount_expected:
+            rent_bill.unit_bill.status = PaymentStatuses.PAID.value
+            rent_bill.unit_bill.save()
+        elif rent_bill.unit_bill.amount_paid < rent_bill.unit_bill.amount_expected:
+            rent_bill.unit_bill.status = PaymentStatuses.PARTIALLY_PAID.value
+            rent_bill.unit_bill.save()
+        else:
+            rent_bill.unit_bill.status = PaymentStatuses.PENDING.value
+            rent_bill.unit_bill.save()
+            
 
         if user.role == UserRoles.CARETAKER.value:
             return redirect("caretaker-rent-bills")

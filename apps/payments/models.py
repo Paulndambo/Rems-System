@@ -71,9 +71,6 @@ class RentPayment(AbstractBaseModel):
     payment_method = models.CharField(max_length=255, choices=PaymentMethods.choices(), null=True, blank=True)
     
 
-    def __str__(self):
-        return f"{self.rent_bill.tenant.user.name}"
-
 
 class TenantPayment(AbstractBaseModel):
     tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantpayments")

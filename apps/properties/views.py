@@ -436,7 +436,7 @@ def new_water_bill(request):
                 month=month,
                 year=year
             )
-        unit_bill.water_amount = Decimal(unit.water_price) * Decimal(current_reading)
+        unit_bill.water_amount = (Decimal(unit.water_price) * Decimal(current_reading)) + Decimal(previous_balance)
         unit_bill.update_amount_expected()
         unit_bill.save()
 
