@@ -22,6 +22,33 @@ from apps.core.models import Month, Year
 from apps.payments.models import GarbageBill, GarbageBillPayment, UnitMonthBill, RentBill, RentPayment, TenantPayment
 
 
+
+class MonthlyUnitBillsView(ListView):
+    model = Month
+    template_name = "unit_bills/monthly_unit_bills.html"
+    context_object_name = "months"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+
+        month_ids = list(UnitMonthBill.objects.values_list("month_id", flat=True))
+        print(f"month_ids: {month_ids}")
+
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query)
+                | Q(name__icontains=search_query)
+            )
+        return queryset.filter(id__in=month_ids).order_by("-created_at")
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
 class UnitMonthBillsView(ListView):
     model = UnitMonthBill
     template_name = "unit_bills/unit_bills.html"
@@ -31,6 +58,8 @@ class UnitMonthBillsView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         search_query = self.request.GET.get("search", "")
+        month = self.kwargs.get("month_id")
+
 
         if search_query:
             queryset = queryset.filter(
@@ -40,7 +69,7 @@ class UnitMonthBillsView(ListView):
                 | Q(tenant__user__first_name__icontains=search_query)
                 | Q(tenant__user__last_name__icontains=search_query)
             )
-        return queryset.order_by("-created_at")
+        return queryset.filter(month_id=month).order_by("-created_at")
 
 
     def get_context_data(self, **kwargs):
@@ -214,3 +243,12 @@ def collect_unit_bill_payment(request):
 
         return redirect("unit-bill-details", pk=unit_bill_id)
     return render(request, "unit_bills/collect_payment.html")
+
+
+def unit_bill_receipt(request, month_id):
+    unit_bills = UnitMonthBill.objects.filter(month_id=month_id)
+    context = {
+        "unit_bills": unit_bills
+    }
+
+    return render(request, "unit_bills/unit_bills_receipt.html", context)

@@ -1,7 +1,7 @@
 from django.urls import path
 from apps.payments.views import pay_water_bill, WaterBillPaymentsView, RentPaymentsView, CaretakerRentBillsView, rent_payments_overview, pay_rent, single_receipt, ExpenseView, MonthlyRentBillsView, RentReceiptsView, add_expense, edit_expense, delete_expense, RentBillsView, generate_rent_bill
 from apps.payments.garbage_bills.views import generate_garbage_bills, edit_garbage_bill, delete_garbage_bill, GarbageBillsView, pay_garbage_bill
-from apps.payments.unit_bills.views import UnitMonthBillsView, unit_bill_details, collect_unit_bill_payment
+from apps.payments.unit_bills.views import UnitMonthBillsView, unit_bill_details, collect_unit_bill_payment, MonthlyUnitBillsView, unit_bill_receipt
 
 urlpatterns = [
     path("pay-water-bill/", pay_water_bill, name="pay-water-bill"),
@@ -28,7 +28,9 @@ urlpatterns = [
     path("pay-garbage-bill/", pay_garbage_bill, name="pay-garbage-bill"),
 
     # Unit Bills
-    path("unit-bills/", UnitMonthBillsView.as_view(), name="unit-bills"),
+    path("monthly-unit-bills/", MonthlyUnitBillsView.as_view(), name="monthly-unit-bills"),
+    path("unit-bills/<int:month_id>/", UnitMonthBillsView.as_view(), name="unit-bills"),
     path("unit-bill-details/<int:pk>/", unit_bill_details, name="unit-bill-details"),
     path("collect-unit-bill-payment/", collect_unit_bill_payment, name="collect-unit-bill-payment"),
+    path("unit-bill-receipts/<int:month_id>/", unit_bill_receipt, name="unit-bill-receipts"),
 ]
