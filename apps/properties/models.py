@@ -85,7 +85,7 @@ class MaintenanceRequest(AbstractBaseModel):
     
 
 class WaterBill(AbstractBaseModel):
-    unit_bill = models.ForeignKey("payments.UnitMonthBill", on_delete=models.SET_NULL, null=True, blank=True)
+    unit_bill = models.ForeignKey("payments.UnitMonthBill", on_delete=models.CASCADE, null=True, blank=True)
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
     unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE, related_name="unitwaterbills")
     tenant = models.ForeignKey('tenants.Tenant', on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantwaterbills")
@@ -99,6 +99,7 @@ class WaterBill(AbstractBaseModel):
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
+    due_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.unit.name

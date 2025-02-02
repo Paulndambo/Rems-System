@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "apps.properties",
     "apps.payments",
     "apps.reports",
+    "apps.notifications",
     "website",
     "apis",
 ]
@@ -176,3 +177,6 @@ REST_FRAMEWORK = {
 CLOUDINARY_CLOUD_NAME = "dc4dykv8e"
 CLOUDINARY_API_KEY = "125761823436352"
 CLOUDINARY_API_SECRET = "RQUr1O1_KhylcnYFvBGw5d1IbUk"
+
+
+SMS_API_KEY = "be1a1f74f8c3e33db3446550989edd4fd36a7bfb"

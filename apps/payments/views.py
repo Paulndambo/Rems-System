@@ -29,6 +29,7 @@ from apps.payments.models import (
     UnitMonthBill
 )
 from apps.properties.models import WaterBill, PropertyUnit, Property
+from apps.payments.models import GarbageBill
 
 # Move global variable to top
 date_today = datetime.now().date()
@@ -324,8 +325,7 @@ def generate_rent_bill(request):
 
         existing_bills = RentBill.objects.filter(month=month, year=year, unit__property_id=property_id)
         if existing_bills.exists():
-            messages.error(request, "Rent bills for this month already exist.")
-
+            
             if user.role == UserRoles.CARETAKER.value:
                 return redirect("caretaker-rent-bills")
             else:
@@ -336,6 +336,7 @@ def generate_rent_bill(request):
         units_list = []
         for unit in units:
             unit_bill = UnitMonthBill.objects.filter(unit=unit, month=month, year=year).first()
+            
 
             if not unit_bill:
                 unit_bill = UnitMonthBill.objects.create(
@@ -360,6 +361,15 @@ def generate_rent_bill(request):
                     year=year,
                 )
             )
+            garbage_bill = GarbageBill.objects.filter(unit=unit, unit_bill=unit_bill).first()
+            if not garbage_bill:
+                garbage_bill = GarbageBill.objects.create(
+                    unit_bill=unit_bill,
+                    unit=unit,
+                    tenant=unit.tenant,
+                    amount_expected=unit.property.garbage_charge,
+                    due_date=due_date,
+                )
 
         RentBill.objects.bulk_create(units_list)
 

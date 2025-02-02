@@ -27,6 +27,7 @@ class GarbageBillsView(ListView):
     model = GarbageBill
     template_name = "garbage_bills/garbage_bills.html"
     context_object_name = "garbage_bills"
+    paginate_by = 9
 
 
     def get_queryset(self):
@@ -56,11 +57,8 @@ class GarbageBillsView(ListView):
 @transaction.atomic
 def generate_garbage_bills(request):
     if request.method == "POST":
-        print("****************This post request is coming *****************")
-
         property_id = request.POST.get("property")
         month = request.POST.get("month")
-
         year = request.POST.get("year")
         due_date = request.POST.get("date_due")
 
@@ -72,7 +70,7 @@ def generate_garbage_bills(request):
         units = PropertyUnit.objects.filter(property_id=property_id, is_occupied=True)
 
         for unit in units:
-            unit_bill = UnitMonthBill.objects.filter(unit=unit, month=month, year=year).first() 
+            unit_bill = UnitMonthBill.objects.filter(unit=unit, month=month, year=year).first()
 
             if not unit_bill:
                 unit_bill = UnitMonthBill.objects.create(
@@ -81,13 +79,24 @@ def generate_garbage_bills(request):
                     rent_amount=unit.rent,
                     water_amount=0,
                     garbage_amount=unit.property.garbage_charge,
-
                     month=month,
                     year=year
                 )
 
             unit_bill.amount_expected = unit_bill.rent_amount + unit_bill.water_amount + unit_bill.garbage_amount
             unit_bill.save()
+
+            rent_bill = RentBill.objects.filter(unit=unit, unit_bill=unit_bill).first()
+            if not rent_bill:
+                RentBill.objects.create(
+                    unit=unit,
+                    unit_bill=unit_bill,
+                    tenant=unit.tenant,
+                    amount_expected=unit.rent,
+                    due_date=due_date,
+                    month=month,
+                    year=year
+                )
 
             unit_bill.update_amount_expected()
 
@@ -141,6 +150,7 @@ class GarbageBillPaymentsView(ListView):
     model = GarbageBillPayment
     template_name = "garbage_bills/garbage_bill_payments.html"
     context_object_name = "garbage_bill_payments"
+    paginate_by = 9
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -162,9 +172,12 @@ class GarbageBillPaymentsView(ListView):
         return context
                 
 
+@login_required
+@transaction.atomic
 def pay_garbage_bill(request):
     if request.method == "POST":
         garbage_bill_id = request.POST.get("garbage_bill_id")
+
         amount_paid = request.POST.get("amount_paid")
         payment_method = request.POST.get("payment_method")
         payment_date = request.POST.get("payment_date")

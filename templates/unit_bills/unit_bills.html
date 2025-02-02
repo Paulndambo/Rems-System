@@ -72,36 +72,33 @@
                         <td class="text-end">{{bill.amount_paid}}</td>
                         <td class="text-center">
 
-                            {% if bill.status == 'Paid' %}
-                            <span class="badge bg-success-subtle text-success px-3">{{bill.status}}</span>
-                            {% elif bill.status == 'Pending' %}
-                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.status}}</span>
-                            {% elif bill.status == 'Partially Paid' %}
-                            <span class="badge bg-warning-subtle text-warning px-3">{{bill.status}}</span>
-                            {% elif bill.status == 'Overdue' %}
-                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.status}}</span>
+                            {% if bill.unit_bill_status == 'Paid' %}
+                            <span class="badge bg-success-subtle text-success px-3">{{bill.unit_bill_status}}</span>
+                            {% elif bill.unit_bill_status == 'Pending' %}
+                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.unit_bill_status}}</span>
+                            {% elif bill.unit_bill_status == 'Partially Paid' %}
+
+                            <span class="badge bg-warning-subtle text-warning px-3">{{bill.unit_bill_status}}</span>
+                            {% elif bill.unit_bill_status == 'Overdue' %}
+                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.unit_bill_status}}</span>
                             {% endif %}
                         </td>
                         <td>
+
                             <div class="d-flex justify-content-center gap-2">
-                                <!-- Record Payment -->
-                                {% if bill.status != 'Paid' %}
+                                <a href="{% url 'unit-bill-details' bill.id %}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
                                 <button class="btn btn-sm btn-primary" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#payWaterBillModal{{bill.id}}"
-                                        title="Record Payment">
-                                    Collect
-                                </button>
-                                {% endif %}
-                                
-                                <button class="btn btn-sm btn-info" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#notifyUnitBillModal{{bill.id}}"
                                         title="Message">
-                                        <i class="fas fa-message"></i>
+                                        <i class="bi bi-envelope"></i>
+
                                 </button>
                             </div>
                         </td>
+
 
                     </tr>
                    

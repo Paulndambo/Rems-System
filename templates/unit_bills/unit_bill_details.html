@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Unit Bill Details</h3>
+        {% if unit_bill.balance > 0 %}
+        <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#collectUnitBillPaymentModal{{unit_bill.id}}">
+            <i class="fas fa-credit-card me-2"></i>Make Payment
+        </a>
+        {% endif %}
+
+    </div>
+    <div class="card-body">
+        <!-- Bill Information -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100 border-0 bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4"><i class="fas fa-file-invoice me-2"></i>Bill Information</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted">Bill Number:</th>
+                                <td class="fw-bold">#{{ unit_bill.id }}-{{ unit_bill.unit.name }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Tenant:</th>
+
+                                <td class="fw-bold">{{ unit_bill.tenant.user.first_name }} {{ unit_bill.tenant.user.last_name }}</td>
+                            </tr>
+                            <tr>
+
+                                <th class="text-muted">Unit:</th>
+                                <td>{{ unit_bill.unit.name }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Bill Date:</th>
+                                <td>{{ unit_bill.created_at|date:"F d, Y" }}</td>
+                            </tr>
+                        </table>
+                        {% if unit_bill.bill_disclaimer %}
+                        <p class="bg-danger text-white p-2 rounded">{{ unit_bill.bill_disclaimer }}</p>
+                        {% if unit_bill.bill_disclaimer  == "Rent bill is missing" %}
+                        <a href="{% url 'monthly-rent-bills' %}" class="btn btn-warning">Create Rent Bill</a>
+                        {% elif unit_bill.bill_disclaimer  == "Water bill is missing" %}
+                        <a href="{% url 'water-bills' %}" class="btn btn-warning">Create Water Bill</a>
+                        {% elif unit_bill.bill_disclaimer  == "Garbage bill is missing" %}
+                        <a href="{% url 'garbage-bills' %}" class="btn btn-warning">Create Garbage Bill</a>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+
+                </div>
+
+
+
+
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 border-0 bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4"><i class="fas fa-money-bill-wave me-2"></i>Payment Summary</h5>
+                        <!-- Add Bill Components Breakdown -->
+                        <div class="bill-components mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted"><i class="fas fa-home me-2"></i>Rent</span>
+                                <span>KES {{ unit_bill.rent_amount|floatformat:2 }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted"><i class="fas fa-tint me-2"></i>Water Bill</span>
+                                <span>KES {{ unit_bill.water_amount|floatformat:2 }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-muted"><i class="fas fa-trash me-2"></i>Garbage Collection</span>
+                                <span>KES {{ unit_bill.garbage_amount|floatformat:2 }}</span>
+                            </div>
+                            <hr class="my-3">
+                        </div>
+
+                        <!-- Total and Balance Information -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Total Amount:</span>
+                            <span class="h5 mb-0">KES {{ unit_bill.amount_expected|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Amount Paid:</span>
+                            <span class="text-success h5 mb-0">KES {{ unit_bill.amount_paid|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Balance:</span>
+                            <span class="{% if unit_bill.balance > 0 %}text-danger{% else %}text-success{% endif %} h5 mb-0">
+                                KES {{ unit_bill.balance|floatformat:2 }}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Status:</span>
+                            <span class="badge {% if unit_bill.unit_bill_status == 'Paid' %}bg-success{% elif unit_bill.unit_bill_status == 'Partially Paid' %}bg-warning{% else %}bg-danger{% endif %} px-3 py-2">
+                                {{ unit_bill.unit_bill_status }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">
+                            <i class="fas fa-history me-2"></i>Bill Payments
+                        </h5>
+                        {% if payments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Payment Date</th>
+                                        <th>Amount</th>
+                                        <th>Payment Method</th>
+                                        <th>Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ payment.payment_date|date:"F d, Y" }}</td>
+                                        <td class="fw-bold">KES {{ payment.amount_paid|floatformat:2 }}</td>
+                                        <td><i class="fas fa-money-bill-wave me-2"></i>{{ payment.payment_method }}</td>
+                                        <td>{{ payment.payment_type }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-receipt fa-3x mb-3"></i>
+                            <p>No payments have been made yet.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'unit_bills/collect_payment.html' %}
+
+{% endblock %}
