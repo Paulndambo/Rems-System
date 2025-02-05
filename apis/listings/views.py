@@ -11,6 +11,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.conf import settings
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -20,6 +21,8 @@ from .serializers import UnitListingSerializer, ListingImageSerializer, ClientRe
 from .filters import UnitListingFilter
 from apps.core.cloudinary_handler import CloudinaryHandler
 from apps.core.firebase_files_handler import FirebaseFilesHandler
+from rest_framework.parsers import MultiPartParser, FormParser
+from apis.firebase_writer import FirebaseListingWriter
 
 fs = FileSystemStorage(location='temp')
 
@@ -58,16 +61,45 @@ class UnitListingListView(generics.ListCreateAPIView):
         serializer = self.get_serializer(data=data)
         if serializer.is_valid(raise_exception=True):
             listing = serializer.save()
-            ListingImage.objects.create(listing=listing, image=data['unit_image'])
+            
             amenities_list = ["Power Backup", "Water Backup", "Internet", "Gym", "Swimming Pool", "Kids Playground", "Security", "Parking", "Garbage Disposal", "Gas", "Laundry", "Wheelchair Access", "Elevator", "24hr Security", "24hr Water Supply", "CCTV", "Security Guard", "House Keeping", "Maintenance", "Backyard", "Balcony", "Garden", "Rooftop Access"]
+
             listing_amenities = []
 
             for amenity in amenities_list:
                 listing_amenities.append(UnitAmenity(unit_listing=listing, name=amenity))
+
             UnitAmenity.objects.bulk_create(listing_amenities)
 
-            
+
+            image_file = serializer.validated_data['unit_image']
+
+            file_extension = image_file.name.split('.')[-1].lower()
+            file_content = image_file.read()
+            file_content = ContentFile(file_content)
+
+            file_name = fs.save(
+                f"temp_source_file.{file_extension}", file_content
+            )
+            temp_file = fs.path(file_name)
+
+            cloudinary_handler = CloudinaryHandler()
+            upload_result = cloudinary_handler.upload_image(temp_file, 'listing_images')
+
+            image_url = upload_result['public_url']
+
+            listing.unit_image_url = image_url
+            listing.save()  
+
+            ListingImage.objects.create(listing=listing, image=data['unit_image'], image_url=image_url)
+
+            firebase_data = serializer.data
+            firebase_data['unit_image_url'] = image_url
+
+            firebase_writer = FirebaseListingWriter()
+            firebase_writer.write_to_firebase_document_with_id("listings", firebase_data, listing.id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -125,17 +157,32 @@ class ListingImageListView(generics.ListCreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UploadListingImageAPIView(generics.ListCreateAPIView):
-    serializer_class = UploadListingImageSerializer
+class UploadListingImageAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
     permission_classes = [AllowAny]
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        print(request.data)
-        if serializer.is_valid(raise_exception=True):
+    def post(self, request, listing_id, *args, **kwargs):
+        listing = UnitListing.objects.filter(id=listing_id).first()
+        if not listing:
+            return Response({"error": "Listing not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        MEDIA_ROOT = settings.MEDIA_ROOT
+        cloudinary_handler = CloudinaryHandler()
+        images = request.FILES.getlist('images')
+        for image in images:
+            file_extension = image.name.split('.')[-1].lower()
+            file_content = image.read()
+            file_content = ContentFile(file_content)
+            print("**************Image is being recorded****************")
+            file_name = fs.save(
+                f"temp_source_file.{file_extension}", file_content
+            )
+            temp_file = fs.path(file_name)
+            upload_result = cloudinary_handler.upload_image(temp_file, 'listing_images')
+            ListingImage.objects.create(listing=listing, image=image, image_url=upload_result['public_url'])
+            cloudinary_handler.clean_up_temp_file(temp_file)
+        return Response({"message": "Images uploaded successfully"}, status=status.HTTP_201_CREATED)
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ClientRequestsAPIView(generics.ListCreateAPIView):
     queryset = ClientRequest.objects.all()

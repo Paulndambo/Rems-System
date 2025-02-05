@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from website.models import ClientRequest, ListingInterestExpression, Subscription, Lister
+from website.models import ClientRequest, ListingInterestExpression, Subscription, Lister, ListingImage
 # Register your models here.
 @admin.register(ClientRequest)
 class ClientRequestAdmin(admin.ModelAdmin):
@@ -20,3 +20,8 @@ class SubscriptionAdmin(admin.ModelAdmin):
 @admin.register(Lister)
 class ListerAdmin(admin.ModelAdmin):
     list_display = ["id", "user", "lister_type", "subscription"]
+
+
+@admin.register(ListingImage)
+class ListingImageAdmin(admin.ModelAdmin):
+    list_display = ["id", 'created_at', "listing", "image", "image_url"]

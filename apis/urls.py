@@ -13,6 +13,6 @@ urlpatterns = [
     path('client-requests/<int:id>/', ClientRequestDetailAPIView.as_view(), name='client-request-detail'),
     path('paystack-webhook/', PaystackWebhookView.as_view(), name='paystack-webhook'),
     path('metrics/', MetricsView.as_view(), name='metrics'),
-    path('upload-listing-images/', UploadListingImageAPIView.as_view(), name='upload-listing-images'),
+    path('upload-listing-images/<int:listing_id>/', UploadListingImageAPIView.as_view(), name='upload-listing-images'),
 ]
 

@@ -140,11 +140,11 @@ class UnitListing(AbstractBaseModel):
 
     unit_description = models.TextField()
     unit_image = models.ImageField(upload_to='listing_images/')
+    unit_image_url = models.URLField(max_length=255, null=True, blank=True)
     unit_status = models.CharField(max_length=255, choices=UNIT_STATUS_CHOICES)
 
     minimum_lease_period = models.CharField(max_length=255, choices=MINIMUM_LEASE_PERIOD_CHOICES, default='1 Month')
     notice_period = models.CharField(max_length=255, choices=NOTICE_PERIOD_CHOICES, default='1 Month') 
-
     furnish_status = models.CharField(max_length=255, choices=FURNISH_STATUS_CHOICES, default='Unfurnished')
 
     views = models.IntegerField(default=0)
@@ -183,7 +183,7 @@ class ListingImage(AbstractBaseModel):
     backup_url = models.URLField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return self.listing.unit_name
+        return self.listing.property_name
 
 class Comment(AbstractBaseModel):
     listing = models.ForeignKey(UnitListing, on_delete=models.CASCADE)
