@@ -27,7 +27,7 @@ class WaterBillPaymentAdmin(admin.ModelAdmin):
 
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):
-    list_display = ["id", "title", "amount", "expense_type", "spend_on"]
+    list_display = ["id", "title", "property", "unit", "amount", "expense_type", "spend_on"]
 
 @admin.register(GarbageBill)
 class GarbageBillAdmin(admin.ModelAdmin):

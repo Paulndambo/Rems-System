@@ -51,7 +51,7 @@
                         {% for expense in expenses %}
                         <tr>
                             <td class="text-center">{{forloop.counter}}</td>
-                            <td>{{expense.property.name}}(<b>{{expense.unit.name}}</b>)</td>
+                            <td>{{expense.property.name}}{% if expense.unit %} ({{expense.unit.name}}){% endif %}</td>
                             <td>{{expense.title}}</td>
                             <td>
                                 <span class="badge bg-success fs-6">

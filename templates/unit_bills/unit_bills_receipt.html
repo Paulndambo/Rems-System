@@ -60,10 +60,11 @@
             font-size: 14px;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     {% for bill in unit_bills %}
-    <div class="receipt">
+    <div class="receipt" id="receipt-{{ bill.id }}">
         <div class="header">
             <div class="company-name">{{ company_name }}</div>
             <div class="receipt-title">MONTHLY BILL RECEIPT</div>
@@ -140,7 +141,31 @@
     {% endfor %}
 
     <script>
-        window.print();
+        window.onload = function() {
+            const receipts = document.querySelectorAll('.receipt');
+            let index = 0;
+
+            function downloadNextReceipt() {
+                if (index < receipts.length) {
+                    const receipt = receipts[index];
+                    const opt = {
+                        margin:       1,
+                        filename:     `receipt-${receipt.id}.pdf`,
+                        image:        { type: 'jpeg', quality: 0.98 },
+                        html2canvas:  { scale: 2 },
+                        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                    };
+                    html2pdf().from(receipt).set(opt).save().then(() => {
+                        index++;
+                        downloadNextReceipt(); // Download the next receipt
+                    });
+                } else {
+                    window.history.back(); // Redirect back to the previous page after all downloads
+                }
+            }
+
+            downloadNextReceipt(); // Start downloading receipts
+        };
     </script>
 </body>
 </html>

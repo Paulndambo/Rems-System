@@ -282,7 +282,7 @@ def assign_tenant(request):
         unit.is_occupied = True
         unit.status = "Occupied"
         unit.save()
-        return redirect("unit-detail", id=unit.id)
+        return redirect("property-detail", id=unit.property.id)
     return render(request, 'properties/units/assign_tenant.html')
 
 """Maintenance Requests"""

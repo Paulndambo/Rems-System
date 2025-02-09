@@ -75,6 +75,7 @@
                         
                         <td>
                             <div class="d-flex justify-content-center gap-2">
+                                <!--
                                 {% if not rent_bill.fully_paid %}
                                 <button class="btn btn-primary btn-sm" 
                                         data-bs-toggle="modal" 
@@ -82,9 +83,11 @@
                                     Collect Rent
                                 </button>
                                 {% endif %}
+                                -->
                                 <a href="{% url 'rent-receipt' rent_bill.id %}" 
                                    class="btn btn-outline-danger btn-sm">
                                     <i class="fas fa-print"></i>
+
                                     <span class="d-none d-md-inline ms-1">Print</span>
                                 </a>
                             </div>

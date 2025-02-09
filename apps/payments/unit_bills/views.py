@@ -33,8 +33,7 @@ class MonthlyUnitBillsView(ListView):
         search_query = self.request.GET.get("search", "")
 
         month_ids = list(UnitMonthBill.objects.values_list("month_id", flat=True))
-        print(f"month_ids: {month_ids}")
-
+        
 
         if search_query:
             queryset = queryset.filter(
@@ -90,9 +89,19 @@ def unit_bill_details(request, pk):
     return render(request, "unit_bills/unit_bill_details.html", context)
 
 
+def unit_bill_receipt(request, unit_bill_id):
+    bill = UnitMonthBill.objects.get(id=unit_bill_id)
+    context = {
+        "bill": bill
+    }
+
+    return render(request, "unit_bills/unit_bill_receipt.html", context)
+
+
 @login_required
 @transaction.atomic
 def collect_unit_bill_payment(request):
+
     if request.method == "POST":
         unit_bill_id = request.POST.get("unit_bill_id")
         rent_amount = request.POST.get("rent_amount")
@@ -114,6 +123,7 @@ def collect_unit_bill_payment(request):
 
             if rent_bill.amount_paid >= rent_bill.amount_expected:
                 rent_bill.fully_paid = True
+                rent_bill.status = PaymentStatuses.PAID.value
                 rent_bill.save()
 
             elif rent_bill.amount_paid > 0:
@@ -156,6 +166,7 @@ def collect_unit_bill_payment(request):
 
             if water_bill.amount_paid >= water_bill.amount:
                 water_bill.fully_paid = True
+                water_bill.status = PaymentStatuses.PAID.value
                 water_bill.save()
             elif water_bill.amount_paid > 0:
                 water_bill.status = PaymentStatuses.PARTIALLY_PAID.value
@@ -199,7 +210,8 @@ def collect_unit_bill_payment(request):
 
 
             if unit_bill.garbage_amount_paid >= unit_bill.garbage_amount:
-                unit_bill.fully_paid = True
+                garbage_bill.fully_paid = True
+                garbage_bill.status = PaymentStatuses.PAID.value
                 garbage_bill.save()
 
             elif garbage_bill.amount_paid > 0:
@@ -229,7 +241,6 @@ def collect_unit_bill_payment(request):
                 year=unit_bill.year
             )
 
-
         if unit_bill.amount_paid >= unit_bill.amount_expected:
             unit_bill.fully_paid = True
             unit_bill.status = PaymentStatuses.PAID.value
@@ -243,12 +254,3 @@ def collect_unit_bill_payment(request):
 
         return redirect("unit-bill-details", pk=unit_bill_id)
     return render(request, "unit_bills/collect_payment.html")
-
-
-def unit_bill_receipt(request, month_id):
-    unit_bills = UnitMonthBill.objects.filter(month_id=month_id)
-    context = {
-        "unit_bills": unit_bills
-    }
-
-    return render(request, "unit_bills/unit_bills_receipt.html", context)

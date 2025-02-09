@@ -20,17 +20,18 @@ class Tenant(AbstractBaseModel):
         return PropertyUnit.objects.filter(tenant=self).first()
 
     def lease_end_date(self):
-
-        if self.lease_duration == '3 Months':
-            return self.lease_date + timedelta(days=90)
-        elif self.lease_duration == '6 Months':
-            return self.lease_date + timedelta(days=180)
-        elif self.lease_duration == '9 Months':
-            return self.lease_date + timedelta(days=270)
-        elif self.lease_duration == '1 Year':
-            return self.lease_date + timedelta(days=365)
-        else:
-            return self.lease_date + timedelta(days=365)
+        if self.lease_date:
+            if self.lease_duration == '3 Months':
+                return self.lease_date + timedelta(days=90)
+            elif self.lease_duration == '6 Months':
+                return self.lease_date + timedelta(days=180)
+            elif self.lease_duration == '9 Months':
+                return self.lease_date + timedelta(days=270)
+            elif self.lease_duration == '1 Year':
+                return self.lease_date + timedelta(days=365)
+            else:
+                return self.lease_date + timedelta(days=365)
+        return None
     
 
 class TenantNextOfKin(AbstractBaseModel):

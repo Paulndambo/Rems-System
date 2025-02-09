@@ -1,0 +1,24 @@
+<!-- Add this modal HTML after the table in your template -->
+<div class="modal fade" id="sendWhatsAppModal{{bill.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tenantModalLabel">Send Unit Bill Notification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="tenantForm" method="POST" action="{% url 'send-unit-bill-notification' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="number" name="unit_bill_id" id="unit_bill_id" value="{{bill.id}}" readonly hidden>
+                    <div class="row mb-2">
+                        <p>Are you sure you want to send unit bill notification to tenant named: <b>{{bill.tenant.user.name}}</b>?</p>
+                   </div>
+                    
+                <div class="text-center mb-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Yes, Send Notification</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

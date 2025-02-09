@@ -32,5 +32,5 @@ urlpatterns = [
     path("unit-bills/<int:month_id>/", UnitMonthBillsView.as_view(), name="unit-bills"),
     path("unit-bill-details/<int:pk>/", unit_bill_details, name="unit-bill-details"),
     path("collect-unit-bill-payment/", collect_unit_bill_payment, name="collect-unit-bill-payment"),
-    path("unit-bill-receipts/<int:month_id>/", unit_bill_receipt, name="unit-bill-receipts"),
+    path("unit-bill-receipt/<int:unit_bill_id>/", unit_bill_receipt, name="unit-bill-receipt"),
 ]

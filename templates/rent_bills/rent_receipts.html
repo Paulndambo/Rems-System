@@ -72,6 +72,7 @@
             padding: 30px;
             margin-bottom: 30px;
             width: auto;
+            page-break-after: always;
         }
 
         .receipt-header {
@@ -140,15 +141,19 @@
             font-size: 14px;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div class="controls no-print">
         <button onclick="window.print()" class="print-btn">
             <i class="fas fa-print"></i> Print Receipts
         </button>
+        <button id="pdf-btn" class="print-btn">
+            <i class="fas fa-file-pdf"></i> Download PDF
+        </button>
     </div>
 
-    <div class="receipts-container">
+    <div class="receipts-container" id="receipts-container">
         {% for rent_receipt in rent_receipts %}
         <div class="receipt">
             
@@ -216,5 +221,27 @@
         </div>
         {% endfor %}
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const element = document.getElementById('receipts-container');
+            html2pdf()
+                .from(element)
+                .save('rent_receipts.pdf')
+                .then(() => {
+                    window.history.back();
+                });
+        });
+
+        document.getElementById('pdf-btn').addEventListener('click', function() {
+            const element = document.getElementById('receipts-container');
+            html2pdf()
+                .from(element)
+                .save('rent_receipts.pdf')
+                .then(() => {
+                    window.history.back();
+                });
+        });
+    </script>
 </body>
 </html>

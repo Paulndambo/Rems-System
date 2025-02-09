@@ -25,17 +25,6 @@
                             </select>
                         </div>
                         <div class="col">
-                            <label for="unit" class="form-label fw-bold">Unit</label>
-                            <select class="form-select select2" id="expenseUnit" name="expenseUnit">
-                                <option value="" selected>Choose...</option>
-                                {% for unit in units %}
-                                    <option value="{{ unit.id }}">{{unit.name}} ({{unit.property}})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
                             <label for="contact" class="form-label fw-bold">Expense Type</label>
                             <select class="form-select" id="expense_type" name="expense_type">
                                 <option value="" selected>Choose...</option>
@@ -48,6 +37,9 @@
                                 <option value="Other">Other</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="row mb-3">
+                        
                         <div class="col">
                             <label for="amount" class="form-label fw-bold">Amount</label>
                             <input type="number" class="form-control" id="amount" name="amount" required>

@@ -29,16 +29,6 @@
                             </select>
                         </div>
                         <div class="col">
-                            <label for="unit{{expense.id}}" class="form-label fw-bold">Unit</label>
-                            <select class="form-select select2" id="unit" name="unit">
-                                {% for unit in units %}
-                                    <option value="{{ unit.id }}" {% if unit.id == expense.unit.id %}selected{% endif %}>{{ unit.name }} ({{ unit.property.name }})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
                             <label for="contact" class="form-label fw-bold">Expense Type</label>
                             <select class="form-select" id="expense_type" name="expense_type">
                                 <option value="{{expense.expense_type}}" selected>{{expense.expense_type}}</option>
@@ -49,6 +39,9 @@
                                 {% endfor %}
                             </select>
                         </div>
+                    </div>
+                    <div class="row mb-3">
+                        
                         <div class="col">
                             <label for="amount" class="form-label fw-bold">Amount</label>
                             <input type="number" class="form-control" id="amount" name="amount" value="{{expense.amount}}" required>
@@ -75,19 +68,3 @@
         </div>
     </div>
 </div>
-
-
-<script>
-    $(document).ready(function() {
-    $('.select2').each(function() {
-        $(this).select2({
-            theme: 'bootstrap-5',
-            width: '100%',
-            dropdownParent: $(this).closest('.modal'),
-            placeholder: 'Choose...',
-            allowClear: true
-        });
-    });
-});
-
-</script>

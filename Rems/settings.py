@@ -180,3 +180,12 @@ CLOUDINARY_API_SECRET = "RQUr1O1_KhylcnYFvBGw5d1IbUk"
 
 
 SMS_API_KEY = "be1a1f74f8c3e33db3446550989edd4fd36a7bfb"
+
+# WhatsApp API Settings
+WAAPI_API_KEY = "2RDJwuApiDRbzhXZ612V0PYgnWnNdxwUEixrWzi81387110a"
+WAAPI_INSTANCE_KEY = "44109"
+
+if DEBUG:
+    BACKEND_BASE_URL = "http://localhost:8000"
+else:
+    BACKEND_BASE_URL = "https://yunukee.com"

@@ -15,7 +15,6 @@ class Property(AbstractBaseModel):
     city = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
     units = models.PositiveIntegerField()
-    #unit_rent = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     manager_name = models.CharField(max_length=255, null=True, blank=True)
     manager_phone_number = models.CharField(max_length=255, null=True, blank=True)
     manager_email = models.EmailField(null=True, blank=True)
@@ -94,12 +93,13 @@ class WaterBill(AbstractBaseModel):
     year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
     meter_number = models.CharField(max_length=255, null=True, blank=True)
     previous_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    previous_reading = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    current_reading = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    previous_reading = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
+    current_reading = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
     due_date = models.DateField(null=True, blank=True)
+    fully_paid = models.BooleanField(default=False)
 
     def __str__(self):
         return self.unit.name

@@ -87,17 +87,24 @@
                                 <a href="{% url 'unit-bill-details' bill.id %}" class="btn btn-sm btn-info">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                <a href="{% url 'unit-bill-receipt' bill.id %}" class="btn btn-sm btn-secondary">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                                
+
                                 <button class="btn btn-sm btn-primary" 
                                         data-bs-toggle="modal" 
-                                        data-bs-target="#notifyUnitBillModal{{bill.id}}"
+                                        data-bs-target="#sendWhatsAppModal{{bill.id}}"
+
                                         title="Message">
                                         <i class="bi bi-envelope"></i>
 
                                 </button>
+                                
                             </div>
                         </td>
 
-
+                        {% include 'notifications/send_unit_bill_notification.html' %}
                     </tr>
                    
                     {% endfor %}

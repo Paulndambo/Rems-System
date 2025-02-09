@@ -88,18 +88,21 @@
                                         title="Edit">
                                     <i class="fas fa-edit text-primary"></i>
                                 </button>
+                                <!--
                                 {% if bill.status != 'Paid' %}
                                 <button class="btn btn-sm btn-primary" 
                                         data-bs-toggle="modal" 
+
                                         data-bs-target="#payGarbageBillModal{{bill.id}}"
                                         title="Record Payment">
                                     Record Payment
                                 </button>
 
                                 {% endif %}
-                                
+                                -->
                             </div>
                         </td>
+
                     </tr>
                     {% include "garbage_bills/edit_garbage_bill.html" %}
                     {% include "garbage_bills/pay_garbage_bill.html" %}

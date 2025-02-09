@@ -141,6 +141,23 @@
             font-size: 14px;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        window.onload = function() {
+            const element = document.querySelector('.receipt');
+            const opt = {
+                margin:       1,
+                filename:     'receipt.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                window.history.back(); // Redirect back to the previous page
+            });
+        };
+    </script>
 </head>
 <body>
     <div class="controls no-print">

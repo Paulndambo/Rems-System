@@ -2,8 +2,13 @@ from django.db import models
 from apps.core.models import AbstractBaseModel
 from apps.core.constants import ExpenseTypes, PaymentMethods, PaymentStatuses
 from decimal import Decimal
+from django.urls import reverse
+from django.conf import settings
+
+BACKEND_BASE_URL = settings.BACKEND_BASE_URL
 # Create your models here.
 class UnitMonthBill(AbstractBaseModel):
+
     unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True)
     tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True)
     month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
@@ -19,10 +24,16 @@ class UnitMonthBill(AbstractBaseModel):
     status = models.CharField(max_length=255, choices=PaymentStatuses.choices(), default=PaymentStatuses.PENDING.value)
     notified = models.BooleanField(default=False)
     fully_paid = models.BooleanField(default=False)
+    whatsapp_notification_sent = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.unit.name} - {self.month.name} - {self.year.name}"
     
+
+    def unit_bill_receipt_link(self):
+        return f"{BACKEND_BASE_URL}/payments/unit-bill-receipt/{self.id}/"
+
+
     def update_amount_expected(self):
         self.amount_expected = Decimal(self.rent_amount) + Decimal(self.water_amount) + Decimal(self.garbage_amount)
         self.save()
@@ -87,8 +98,9 @@ class Expense(AbstractBaseModel):
     spend_on = models.DateField()
 
     def __str__(self):
-        return self.name
+        return self.property.name
     
+
 
 class RentBill(AbstractBaseModel):
     unit_bill = models.ForeignKey("UnitMonthBill", on_delete=models.CASCADE, null=True, blank=True)

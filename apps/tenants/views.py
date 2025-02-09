@@ -50,8 +50,14 @@ class TenantListView(ListView):
 
         return queryset.order_by("-created_at")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['lease_durations'] = LEASE_DURATIONS
+        return context
+
 
 def tenant_detail(request, pk):
+
     tenant = Tenant.objects.get(pk=pk)
     next_of_kin = TenantNextOfKin.objects.filter(tenant=tenant)
 
@@ -81,6 +87,7 @@ def tenant_detail(request, pk):
         'payments': payments,
         'total_water_bill': total_water_bill if total_water_bill else 0,
         'total_rent_paid': total_rent_paid if total_rent_paid else 0,
+        'total_water_paid': total_water_paid if total_water_paid else 0,
         'total_bill': round(total_bill, 2) if total_bill else 0,
         'total_paid': round(total_paid, 2) if total_paid else 0,
         'total_debt': round(total_debt, 2) if total_debt else 0
@@ -105,11 +112,11 @@ def new_tenant(request):
         user = User.objects.create(
             first_name=first_name, 
             last_name=last_name, 
-            email=email, 
+            email=email if email else f"{first_name}.{last_name}@gmail.com", 
             phone=phone, 
             id_number=id_number,
             gender=gender,
-            username=email,
+            username=email if email else f"{first_name}.{last_name}",
             role='Tenant',
         )
 
