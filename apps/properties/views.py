@@ -12,6 +12,7 @@ from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, W
 from apps.core.models import Month, Year
 from apps.tenants.models import Tenant
 from apps.payments.models import TenantPayment, RentPayment, RentBill, UnitMonthBill, GarbageBill
+from apps.users.models import User
 
 from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST, MONTHS_LIST, PAYMENT_METHODS
 # Create your views here.
@@ -19,10 +20,12 @@ from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST, MONTHS_L
 years = Year.objects.filter(is_active=True)
 @login_required
 def properties(request):
-    properties = Property.objects.all()
+    properties = Property.objects.all().order_by("-created_at")
+    house_managers = User.objects.filter(role="House Manager")
     context = {
         "properties": properties,
-        "gender_choices": GENDER_LIST
+        "gender_choices": GENDER_LIST,
+        "house_managers": house_managers
     }
     return render(request, 'properties/properties.html', context)
 
@@ -57,6 +60,7 @@ def property_detail(request, id):
 
     occupied_units = PropertyUnit.objects.filter(property=property, is_occupied=True).count()
     tenants = Tenant.objects.all()
+    house_managers = User.objects.filter(role="House Manager")
     context = {
         'property': property,
         'units': units,
@@ -66,7 +70,8 @@ def property_detail(request, id):
         "unit_numbers": unit_numbers,
         "rows": rows,
         "occupied_units": occupied_units,
-        "tenants": tenants
+        "tenants": tenants,
+        "house_managers": house_managers
     }
     return render(request, 'properties/property_details.html', context)
 
@@ -81,11 +86,9 @@ def new_property(request):
         
         country = request.POST.get('country')
         units = request.POST.get('units')
+        house_manager = request.POST.get('house_manager')
+        user = User.objects.get(id=house_manager)
 
-        manager_name = request.POST.get('manager_name')
-        manager_email = request.POST.get('manager_email')
-        manager_phone = request.POST.get('manager_phone')
-        manager_gender = request.POST.get('manager_gender')
         garbage_charge = request.POST.get('garbage_charge')
         Property.objects.create(
             owner=owner, 
@@ -95,11 +98,8 @@ def new_property(request):
             city=city, 
             country=country, 
             units=units,
-            manager_name=manager_name,
-            manager_email=manager_email,
-            manager_gender=manager_gender,
-            manager_phone_number=manager_phone,
-            is_active=True
+            is_active=True,
+            house_manager=user
         )
         return redirect("properties")
     return render(request, 'properties/new_property.html')
@@ -116,26 +116,24 @@ def edit_property(request):
         units = request.POST.get('units')
         garbage_charge = request.POST.get('garbage_charge')
 
-        manager_name = request.POST.get('manager_name')
-        manager_email = request.POST.get('manager_email')
-        manager_phone = request.POST.get('manager_phone')
-        manager_gender = request.POST.get('manager_gender')
+        house_manager = request.POST.get('house_manager')
+        user = User.objects.get(id=house_manager)
+
+        print(f"House Manager: {house_manager}")
        
         
-        Property.objects.filter(id=property_id).update(
-            name=name, 
-            garbage_charge=garbage_charge,
-            address=address, 
-            city=city, 
-            country=country, 
-            units=units,
-            manager_name=manager_name,
-            manager_email=manager_email,
-            manager_phone_number=manager_phone,
-            manager_gender=manager_gender
-        )
+        property = Property.objects.get(id=property_id)
+
+        property.name=name
+        property.garbage_charge=garbage_charge
+        property.address=address
+        property.city=city
+        property.country=country
+        property.units=units
+        property.house_manager=user
+        property.save()
         return redirect(f"/properties/{property_id}")
-    return render(request, 'properties/edi_property.html')
+    return render(request, 'properties/edit_property.html')
 
 
 @login_required

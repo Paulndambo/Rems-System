@@ -70,8 +70,15 @@
                         </div>
                        
                         <div class="col">
-                            <label for="rent" class="form-label fw-bold">Occupation</label>
-                            <input type="text" class="form-control" id="occupation" name="occupation" value="{{tenant.occupation}}" />
+                            <label for="rent" class="form-label fw-bold">Marital Status</label>
+                            <select class="form-select" id="marital_status" name="marital_status">
+                                <option value="{{tenant.user.marital_status}}" selected>{{tenant.user.marital_status}}</option>
+                                {% for status in marital_statuses %}
+                                    {% if status != tenant.user.marital_status %}
+                                        <option value="{{status}}">{{status}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
                    

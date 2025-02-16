@@ -4,7 +4,7 @@ from apps.properties.models import Property, PropertyUnit, WaterBill
 # Register your models here.
 @admin.register(Property)
 class PropertyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'owner', 'city', 'country', 'units')
+    list_display = ('id', 'name', 'owner', 'city', 'country', 'units', 'house_manager')
    
 
 @admin.register(PropertyUnit)

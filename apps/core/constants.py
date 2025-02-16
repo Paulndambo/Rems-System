@@ -53,6 +53,10 @@ MONTHS_LIST = [
 ]
 
 years = [
+    2020,
+    2021,
+    2022,
+    2023,
     2024,
     2025,
     2026,
@@ -199,7 +203,16 @@ class UserRoles(Enum):
     LISTER = "Lister"
     TENANT = "Tenant"
     CARETAKER = "Caretaker"
+    HOUSE_MANAGER = "House Manager"
 
     @classmethod
     def choices(cls):
         return [(key.value, key.name) for key in cls]
+    
+
+MARITAL_STATUSES = [
+    'Single',
+    'Married',
+    'Divorced',
+    'Widowed'
+]

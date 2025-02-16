@@ -6,7 +6,7 @@ from django.db.models import Q
 from apps.tenants.models import Tenant, TenantNextOfKin
 from apps.properties.models import PropertyUnit
 from apps.users.models import User
-from apps.core.constants import LEASE_DURATIONS 
+from apps.core.constants import LEASE_DURATIONS, MARITAL_STATUSES
 #from apps.payments.models import WaterBill, TenantMonthlyBill
 # Create your views here.
 def tenants(request):
@@ -15,7 +15,8 @@ def tenants(request):
     context = {
         'tenants': tenants,
         'units': units,
-        'lease_durations': LEASE_DURATIONS
+        'lease_durations': LEASE_DURATIONS,
+        'marital_statuses': MARITAL_STATUSES
     }
     return render(request, 'tenants/tenants.html', context)
 
@@ -53,6 +54,7 @@ class TenantListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['lease_durations'] = LEASE_DURATIONS
+        context['marital_statuses'] = MARITAL_STATUSES
         return context
 
 
@@ -103,11 +105,10 @@ def new_tenant(request):
         phone = request.POST.get('phone')
         id_number = request.POST.get('id_number')
         gender = request.POST.get("gender")
-        unit_assigned = request.POST.get('unit_assigned')
         move_in_date = request.POST.get('move_in_date')
         lease_duration = request.POST.get('lease_duration')
         lease_date = request.POST.get('lease_date')
-        occupation = request.POST.get('occupation')
+        marital_status = request.POST.get('marital_status')
 
         user = User.objects.create(
             first_name=first_name, 
@@ -117,18 +118,18 @@ def new_tenant(request):
             id_number=id_number,
             gender=gender,
             username=email if email else f"{first_name}.{last_name}",
+            marital_status=marital_status,
             role='Tenant',
         )
 
         user.set_password('1234')
         user.save()
 
-        tenant = Tenant.objects.create(
+        Tenant.objects.create(
             user=user,
             move_in_date=move_in_date,
             lease_duration=lease_duration,
             lease_date=lease_date,
-            occupation=occupation,
             status='Active',
             renews_every=lease_duration
         )
@@ -146,11 +147,10 @@ def edit_tenant(request):
         phone = request.POST.get('phone')
         id_number = request.POST.get('id_number')
         gender = request.POST.get("gender")
-        unit_assigned = request.POST.get('unit_assigned')
         move_in_date = request.POST.get('move_in_date')
         lease_duration = request.POST.get('lease_duration')
         lease_date = request.POST.get('lease_date')
-        occupation = request.POST.get('occupation')
+        marital_status = request.POST.get('marital_status')
         
 
         tenant.user.first_name = first_name
@@ -159,11 +159,11 @@ def edit_tenant(request):
         tenant.user.phone = phone
         tenant.user.id_number = id_number
         tenant.user.gender = gender
-        tenant.unit_assigned = unit_assigned
         tenant.move_in_date = move_in_date
         tenant.lease_duration = lease_duration
-        tenant.occupation = occupation
+        tenant.user.marital_status = marital_status
         tenant.renews_every = lease_duration
+        tenant.lease_date = lease_date
 
 
         tenant.user.save()

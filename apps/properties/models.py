@@ -15,15 +15,8 @@ class Property(AbstractBaseModel):
     city = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
     units = models.PositiveIntegerField()
-    manager_name = models.CharField(max_length=255, null=True, blank=True)
-    manager_phone_number = models.CharField(max_length=255, null=True, blank=True)
-    manager_email = models.EmailField(null=True, blank=True)
-    manager_gender = models.CharField(max_length=255, null=True, blank=True)
-    manager_address = models.CharField(max_length=255, null=True, blank=True)
-    manager_city = models.CharField(max_length=255, null=True, blank=True)
-    manager_country = models.CharField(max_length=255, null=True, blank=True)
-    manager_zip = models.CharField(max_length=255, null=True, blank=True)
-    garbage_charge = models.DecimalField(max_digits=10, decimal_places=2, default=250.00)
+    house_manager = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True, related_name="managedproperties")
+    garbage_charge = models.DecimalField(max_digits=10, decimal_places=2, default=130.00)
 
 
     def __str__(self):

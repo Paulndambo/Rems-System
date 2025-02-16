@@ -13,6 +13,20 @@
                 <span class="nav-label">Dashboard</span>
             </a>
         </li>
+
+        <li class="mb-3">
+            <a href="#peopleSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+                <div>
+                    <i class="bi bi-people-fill me-3"></i>
+                    <span class="nav-label">People</span>
+                </div>
+                <i class="bi bi-chevron-down fs-7"></i>
+            </a>
+            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="peopleSubmenu">
+                <li class="mb-2"><a href="{% url 'users' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Users</span></a></li>
+                <li class="mb-2"><a href="{% url 'tenants' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Tenants</span></a></li>
+            </ul>
+        </li>
         
         <li class="mb-3">
             <a href="#propertiesSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
@@ -24,7 +38,6 @@
             </a>
             <ul class="collapse list-unstyled submenu ps-4 mt-2" id="propertiesSubmenu">
                 <li class="mb-2"><a href="{% url 'properties' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">List</span></a></li>
-                <li class="mb-2"><a href="{% url 'tenants' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Tenants</span></a></li>
                 <li class="mb-2"><a href="{% url 'maintenance-requests' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Maintenance</span></a></li>
             </ul>
         </li>
@@ -38,11 +51,12 @@
                 <i class="bi bi-chevron-down fs-7"></i>
             </a>
             <ul class="collapse list-unstyled submenu ps-4 mt-2" id="paymentsSubmenu">
-                <li class="mb-2"><a href="{% url 'monthly-unit-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Unit Bills</span></a></li>
+                <li class="mb-2"><a href="{% url 'monthly-unit-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Monthly Bills</span></a></li>
                 <li class="mb-2"><a href="{% url 'monthly-rent-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Rent Bills</span></a></li>
 
                 <li class="mb-2"><a href="{% url 'water-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Bills</span></a></li>
                 <li class="mb-2"><a href="{% url 'garbage-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Garbage Bills</span></a></li>
+                <li class="mb-2"><a href="#" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Pending Bills</span></a></li>
             </ul>
         </li>
 

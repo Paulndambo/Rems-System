@@ -79,7 +79,7 @@ def send_unit_bill_notification(request):
         tenant = unit_bill.tenant
         
         # TODO: Get recipient number from tenant model instead of hardcoding
-        recipient_number = '254745491093'
+        recipient_number = tenant.user.phone
         
         tenant_name = f"{tenant.user.first_name} {tenant.user.last_name}"
         message = format_bill_message(tenant_name, unit_bill)
