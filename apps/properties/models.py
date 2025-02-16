@@ -63,6 +63,7 @@ class PropertyUnit(AbstractBaseModel):
     def __str__(self):
         return self.name
     
+    
 class MaintenanceRequest(AbstractBaseModel):
     title = models.CharField(max_length=255)
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
