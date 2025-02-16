@@ -6,7 +6,7 @@
         <div class="row g-3 align-items-center">
             <div class="col-12 col-md-8">
                 <h5 class="mb-0 text-primary">
-                    <i class="fas fa-tint me-2"></i>Unit Bills
+                    <i class="fas fa-tint me-2"></i>Pending Bills
                 </h5>
 
             </div>
@@ -33,9 +33,6 @@
                         <th class="text-center">#</th>
                         <th>Tenant</th>
                         <th>Month</th>
-                        <th>Rent</th>
-                        <th>Water</th>
-                        <th>Garbage</th>
                         <th class="text-end">Expected</th>
                         <th class="text-end">Paid</th>
                         <th class="text-center">Status</th>
@@ -62,10 +59,7 @@
                             <small class="text-muted">{{bill.year}}</small>
                         </td>
 
-                        <td class="text-end">{{bill.rent_amount}}</td>
-                        <td class="text-end">{{bill.water_amount}}</td>
-                        <td class="text-end">{{bill.garbage_amount}}</td>
-                    
+                        
                         <td class="text-end">{{bill.amount_expected}}</td>
                         <td class="text-end">{{bill.amount_paid}}</td>
                         <td class="text-center">
@@ -90,7 +84,6 @@
                                 <a href="{% url 'unit-bill-receipt' bill.id %}" class="btn btn-sm btn-secondary">
                                     <i class="bi bi-printer"></i>
                                 </a>
-                                
                                 
                                 <button class="btn btn-sm btn-primary" 
                                         data-bs-toggle="modal" 

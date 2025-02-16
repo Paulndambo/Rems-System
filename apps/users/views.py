@@ -51,7 +51,7 @@ class UserListView(ListView):
 
         if search_query:
             queryset = queryset.filter(Q(id__icontains=search_query) | Q(first_name__icontains=search_query))
-        return queryset.order_by('-created_at')
+        return queryset.exclude(role="Tenant").order_by('-created_at')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -72,6 +72,7 @@ def new_user(request):
         marital_status = request.POST.get('marital_status')
 
         user = User.objects.create(
+            username=email,
             first_name=first_name,
             last_name=last_name,
             email=email,
@@ -97,6 +98,7 @@ def edit_user(request):
         user.gender = request.POST.get('gender')
         user.role = request.POST.get('role')
         user.marital_status = request.POST.get('marital_status')
+        user.username = request.POST.get('email')
         user.save()
         return redirect('users')
     return render(request, 'users/edit_user.html')

@@ -198,3 +198,28 @@ def collect_unit_bill_payment(request):
 
         return redirect("unit-bill-details", pk=unit_bill_id)
     return render(request, "unit_bills/collect_payment.html")
+
+
+class PendingBillsView(ListView):
+    model = UnitMonthBill
+    template_name = "unit_bills/pending_bills.html"
+    context_object_name = "pending_bills"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+    
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query) |
+                Q(unit__name__icontains=search_query) |
+                Q(unit__property__name__icontains=search_query) |
+                Q(tenant__user__first_name__icontains=search_query) |
+                Q(tenant__user__last_name__icontains=search_query)
+            )
+        return queryset.filter(fully_paid=False).order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
