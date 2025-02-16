@@ -6,6 +6,7 @@ from typing import Dict, Any
 from apps.payments.models import UnitMonthBill, RentBill, GarbageBill
 from apps.properties.models import WaterBill
 from apps.core.constants import PaymentStatuses
+from apps.notifications.whatsapp import WhatsAppNotification
 
 
 def format_bill_message(tenant_name: str, bill: UnitMonthBill) -> str:
@@ -53,24 +54,6 @@ Please make the payment before the due date.
 Thank you."""
 
 
-def send_whatsapp_message(recipient: str, message: str) -> Dict[str, Any]:
-    """Send WhatsApp message using WaAPI."""
-    url = f'https://waapi.app/api/v1/instances/{settings.WAAPI_INSTANCE_KEY}/client/action/send-message'
-    
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Bearer {settings.WAAPI_API_KEY}"
-    }
-    
-    payload = {
-        "chatId": f"{recipient}@c.us",
-        "message": message
-    }
-    
-    response = requests.post(url, json=payload, headers=headers)
-    return response.json() if response.content else {}
-
 def send_unit_bill_notification(request):
     """View to send WhatsApp notification for unit bill."""
     if request.method == 'POST':
@@ -85,7 +68,11 @@ def send_unit_bill_notification(request):
         message = format_bill_message(tenant_name, unit_bill)
         
         try:
-            send_whatsapp_message(recipient_number, message)
+            whatsapp_notification = WhatsAppNotification( 
+                message=message,
+                recipient=recipient_number
+            )
+            whatsapp_notification.send_message()
             success = True
             unit_bill.whatsapp_notification_sent = True
             unit_bill.save()

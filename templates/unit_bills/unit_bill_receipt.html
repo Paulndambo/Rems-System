@@ -52,7 +52,7 @@
         }
         .total-section {
             margin-top: 20px;
-            text-align: right;
+            text-align: center;
         }
         .footer {
             margin-top: 40px;
@@ -122,16 +122,11 @@
 
         <div class="total-section">
             <h3>Total Amount: KES {{ bill.amount_expected|floatformat:2 }}</h3>
+            <h3>Total Paid: KES {{ bill.amount_paid|floatformat:2 }}</h3>
         </div>
 
         <hr>
-        <div class="payment_details">
-            <h3>Payment Details</h3>
-            <p>Payment Method: Mpesa Paybill</p>
-            <p>Paybill Number: 525252</p>
-            <p>Account Number: 123456543</p>
-        </div>
-
+        
         <div class="footer">
             <p>This is a computer-generated receipt and does not require a signature.</p>
             <p>For any queries, please contact: {{ company_contact }}</p>

@@ -115,7 +115,7 @@ class RentBill(AbstractBaseModel):
     fully_paid = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.tenant.user.name}"
+        return f"{self.tenant.user.name}" if self.tenant else f"{self.unit.name}"
 
     def balance(self):
         return self.amount_expected - self.amount_paid
@@ -156,7 +156,7 @@ class GarbageBill(AbstractBaseModel):
     fully_paid = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.tenant.user.name}"
+        return f"{self.tenant.user.name}" if self.tenant else f"{self.unit.name}"
     
     def balance(self):
         return self.amount_expected - self.amount_paid
@@ -170,4 +170,4 @@ class GarbageBillPayment(AbstractBaseModel):
    
 
     def __str__(self):
-        return f"{self.garbage_bill.tenant.user.name}"
+        return f"{self.garbage_bill.tenant.user.name}" if self.garbage_bill.tenant else f"{self.garbage_bill.unit.name}"
