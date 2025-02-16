@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rent Receipts</title>
+    <style>
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                padding: 0;
+                margin: 0;
+                background: none;
+            }
+            .receipts-container {
+                display: block;
+            }
+            .receipt {
+                width: 100%;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 30px;
+                page-break-after: always;
+                box-shadow: none;
+                border: 1px solid #ccc;
+                border-radius: 0;
+                /* Remove transform properties */
+                transform: none;
+            }
+            @page {
+                margin: 1cm;
+                size: A4;
+            }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .print-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .print-btn:hover {
+            background: #45a049;
+        }
+
+        .receipts-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .receipt {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            width: auto;
+        }
+
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .receipt-header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .receipt-body {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-group {
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .amount-section {
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+
+        .total-amount {
+            font-size: 18px;
+            color: #2c3e50;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .receipt-footer {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .receipt-no {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        window.onload = function() {
+            const element = document.querySelector('.receipt');
+            const opt = {
+                margin:       1,
+                filename:     'receipt.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                window.history.back(); // Redirect back to the previous page
+            });
+        };
+    </script>
+</head>
+<body>
+    <div class="controls no-print">
+        <button onclick="window.print()" class="print-btn">
+            <i class="fas fa-print"></i> Print Receipt
+        </button>
+    </div>
+
+    <div class="receipts-container">
+        <div class="receipt">
+            <div class="receipt-no">Receipt #: {{ rent_receipt.id }}</div>
+            
+            <div class="receipt-header">
+                <h1>RENT RECEIPT</h1>
+                <p style="margin: 5px 0 0;">{{ rent_receipt.unit.property.name }}</p>
+            </div>
+
+            <div class="receipt-body">
+                <div class="info-group">
+                    <div class="info-label">Tenant</div>
+                    <div class="info-value">{{ rent_receipt.tenant.user.name }}</div>
+                </div>
+
+                <div class="info-group">
+                    <div class="info-label">Unit Number</div>
+                    <div class="info-value">{{ rent_receipt.unit.name|default:"N/A" }}</div>
+                </div>
+
+                <div class="info-group">
+                    <div class="info-label">Month</div>
+                    <div class="info-value">{{ rent_receipt.month.name }} {{ rent_receipt.month.year }}</div>
+                </div>
+
+                <div class="info-group">
+                    <div class="info-label">Due Date</div>
+                    <div class="info-value">{{ rent_receipt.due_date|date:"F d, Y" }}</div>
+                </div>
+            </div>
+
+            <div class="amount-section">
+                <div class="info-group">
+                    <div class="info-label">Amount Details</div>
+                    <div class="info-value">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td>Rent Amount:</td>
+                                <td style="text-align: right;">{{ rent_receipt.amount_expected|floatformat:2 }}</td>
+                            </tr>
+                            {% if rent_receipt.water_bill %}
+                            <tr>
+                                <td>Water Bill:</td>
+                                <td style="text-align: right;">{{ rent_receipt.water_bill|floatformat:2 }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if rent_receipt.electricity_bill %}
+                            <tr>
+                                <td>Electricity Bill:</td>
+                                <td style="text-align: right;">{{ rent_receipt.electricity_bill|floatformat:2 }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+
+                <div class="total-amount">
+                    Total Amount Due: KES {{ rent_receipt.amount_expected|floatformat:2 }}
+                </div>
+            </div>
+
+            <div class="receipt-footer">
+                <p>This is an official rent receipt from {{ rent_receipt.unit.property.name }}</p>
+                <p>Thank you for your business!</p>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

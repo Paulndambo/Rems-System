@@ -1,56 +1,106 @@
-<nav id="sidebar">
-    <div class="sidebar-header d-flex align-items-center">
-        <span class="nav-label">REMS</span>
+<nav id="sidebar" class="vh-100 overflow-auto">
+    <div class="sidebar-header d-flex align-items-center position-sticky top-0 bg-primary p-3">
+        <!--
+        <img src="#" alt="REMS Logo" class="sidebar-logo me-2" width="30">
+        -->
+        <span class="nav-label text-white fw-bold">Yunukee</span>
     </div>
 
-    <ul class="list-unstyled components">
-        <li>
-            <a href="{% url 'home' %}" class="active">
-                <i class="fas fa-home"></i>
+    <ul class="list-unstyled components p-3">
+        <li class="mb-3">
+            <a href="{% url 'home' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3 {% if request.path == '/' %}active{% endif %}">
+                <i class="bi bi-grid-1x2-fill me-3"></i>
                 <span class="nav-label">Dashboard</span>
             </a>
         </li>
-        <li>
-            <a href="#propertiesSubmenu" data-bs-toggle="collapse">
-                <i class="fas fa-building"></i>
-                <span class="nav-label">Properties</span>
-                <i class="fas fa-chevron-down ms-auto"></i>
+
+        <li class="mb-3">
+            <a href="#peopleSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+                <div>
+                    <i class="bi bi-people-fill me-3"></i>
+                    <span class="nav-label">People</span>
+                </div>
+                <i class="bi bi-chevron-down fs-7"></i>
             </a>
-            <ul class="collapse list-unstyled submenu" id="propertiesSubmenu">
-                <li><a href="{% url 'properties' %}"><span class="nav-label">List</span></a></li>
-                <li><a href="{% url 'units' %}"><span class="nav-label">Units</span></a></li>
-                <li><a href="{% url 'maintenance-requests' %}"><span class="nav-label">Maintenance</span></a></li>
+            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="peopleSubmenu">
+                <li class="mb-2"><a href="{% url 'users' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Users</span></a></li>
+                <li class="mb-2"><a href="{% url 'tenants' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Tenants</span></a></li>
             </ul>
         </li>
-        <li>
-            <a href="{% url 'tenants' %}">
-                <i class="fas fa-users"></i>
-                <span class="nav-label">Tenants</span>
+        
+        <li class="mb-3">
+            <a href="#propertiesSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+                <div>
+                    <i class="bi bi-houses-fill me-3"></i>
+                    <span class="nav-label">Properties</span>
+                </div>
+                <i class="bi bi-chevron-down fs-7"></i>
+            </a>
+            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="propertiesSubmenu">
+                <li class="mb-2"><a href="{% url 'properties' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">List</span></a></li>
+                <li class="mb-2"><a href="{% url 'maintenance-requests' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Maintenance</span></a></li>
+            </ul>
+        </li>
+        
+        <li class="mb-3">
+            <a href="#paymentsSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+                <div>
+                    <i class="bi bi-receipt me-3"></i>
+                    <span class="nav-label">Bills</span>
+                </div>
+                <i class="bi bi-chevron-down fs-7"></i>
+            </a>
+            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="paymentsSubmenu">
+                <li class="mb-2"><a href="{% url 'monthly-unit-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Monthly Bills</span></a></li>
+                <li class="mb-2"><a href="{% url 'monthly-rent-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Rent Bills</span></a></li>
+
+                <li class="mb-2"><a href="{% url 'water-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Bills</span></a></li>
+                <li class="mb-2"><a href="{% url 'garbage-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Garbage Bills</span></a></li>
+                <li class="mb-2"><a href="#" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Pending Bills</span></a></li>
+            </ul>
+        </li>
+
+        <li class="mb-3">
+            <a href="{% url 'expenses' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3 {% if 'expenses' in request.path %}active{% endif %}">
+                <i class="bi bi-wallet2 me-3"></i>
+                <span class="nav-label">Expenses</span>
             </a>
         </li>
-        <li>
-            <a href="#">
-                <i class="fas fa-money-bill-wave"></i>
-                <span class="nav-label">Payments</span>
+    
+        <li class="mb-3">
+            <a href="#reportsSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+                <div>
+                    <i class="bi bi-graph-up me-3"></i>
+                    <span class="nav-label">Reports</span>
+                </div>
+                <i class="bi bi-chevron-down fs-7"></i>
             </a>
+            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="reportsSubmenu">
+                <li class="mb-2"><a href="{% url 'reports:monthly-rent-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Rent Bills</span></a></li>
+                <li class="mb-2"><a href="{% url 'reports:water-bills-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Bills</span></a></li>
+                <li class="mb-2"><a href="{% url 'reports:expenses-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Expenses</span></a></li>
+                <hr class="my-2">
+                <li class="mb-2"><a href="{% url 'reports:water-bills-payments-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Payments</span></a></li>
+                <li class="mb-2"><a href="{% url 'reports:rent-payments-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Rent Payments</span></a></li>
+                <li class="mb-2"><a href="{% url 'reports:tenant-payments-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Tenant Payments</span></a></li>
+            </ul>
         </li>
-        <li>
-            <a href="{% url 'water-bills' %}">
-                <i class="fas fa-faucet"></i>
-                <span class="nav-label">Water Bills</span>
+
+        <hr class="my-3">
+
+        <li class="mb-3">
+            <a href="#settingsSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+                <div>
+                    <i class="bi bi-gear-fill me-3"></i>
+                    <span class="nav-label">Settings</span>
+                </div>
+                <i class="bi bi-chevron-down fs-7"></i>
             </a>
-        </li>
-        <li>
-            <a href="#">
-                <i class="fas fa-chart-bar"></i>
-                <span class="nav-label">Reports</span>
-            </a>
-        </li>
-        <li>
-            <a href="#">
-                <i class="fas fa-cog"></i>
-                <span class="nav-label">Settings</span>
-            </a>
+            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="settingsSubmenu">
+                <li class="mb-2"><a href="{% url 'water-prices' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Prices</span></a></li>
+                <li class="mb-2"><a href="{% url 'years' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Years</span></a></li>
+                <li class="mb-2"><a href="{% url 'months' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Months</span></a></li>
+            </ul>
         </li>
     </ul>
 </nav>

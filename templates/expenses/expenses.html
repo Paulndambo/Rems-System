@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-md-4">
+                    <h5 class="mb-0 text-primary">
+                        <i class="fas fa-money-bill me-2"></i>Expenses
+                    </h5>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control border-start-0" 
+                               placeholder="Search expenses..." 
+                               id="searchInput" 
+                               value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 text-md-end">
+                    <button class="btn btn-primary w-100 w-md-auto" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#newExpenseModal">
+                        <i class="fas fa-plus me-2"></i>New Expense
+                    </button>   
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="loader" id="loader"></div>
+            <div class="table-responsive">
+                <table id="tenantsTable" class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>Property</th>
+                            <th>Title</th>
+                            <th>Amount</th>
+                            <th>Expense Type</th>
+                            <th>Spend On</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        {% for expense in expenses %}
+                        <tr>
+                            <td class="text-center">{{forloop.counter}}</td>
+                            <td>{{expense.property.name}}{% if expense.unit %} ({{expense.unit.name}}){% endif %}</td>
+                            <td>{{expense.title}}</td>
+                            <td>
+                                <span class="badge bg-success fs-6">
+                                    {{expense.amount}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-dark">
+                                    {{expense.expense_type}}
+                                </span>
+                            </td>
+                            <td>{{expense.spend_on}}</td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-primary btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editExpenseModal{{expense.id}}"
+                                            title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteExpenseModal{{expense.id}}"
+                                            title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            {% include "expenses/edit_expense.html" %}
+                            {% include "expenses/delete_expense.html" %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="fas fa-inbox fa-3x mb-3"></i>
+                                <p>No expenses found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block additional_scripts %}
+<script>
+    // Add responsive search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchText = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#tableBody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchText) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock additional_scripts %}

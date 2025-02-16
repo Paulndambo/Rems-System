@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Bills Receipt</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        .receipt {
+            page-break-after: always;
+            font-family: Arial, sans-serif;
+        }
+        .receipt:last-child {
+            page-break-after: avoid;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .receipt-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .details-section {
+            margin-bottom: 20px;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .bill-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .bill-table th, .bill-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .bill-table th {
+            background-color: #f5f5f5;
+        }
+        .total-section {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    {% for bill in unit_bills %}
+    <div class="receipt" id="receipt-{{ bill.id }}">
+        <div class="header">
+            <div class="company-name">{{ company_name }}</div>
+            <div class="receipt-title">MONTHLY BILL RECEIPT</div>
+            <div>Receipt No: #{{ bill.id }}-{{ bill.unit.name }}</div>
+            <div>Date: {{ bill.created_at|date:"d/m/Y" }}</div>
+        </div>
+
+        <div class="details-section">
+            <div class="details-grid">
+                <div>
+                    <h3>Tenant Details:</h3>
+                    <p>Name: {{ bill.tenant.user.first_name }} {{ bill.tenant.user.last_name }}</p>
+                    <p>Phone: {{ bill.tenant.user.phone }}</p>
+                    <p>Email: {{ bill.tenant.user.email }}</p>
+
+                </div>
+                <div>
+                    <h3>Unit Details:</h3>
+                    <p>Unit Number: {{ bill.unit.name }}</p>
+                    <p>Floor: {{ bill.unit.floor }}</p>
+                    <p>Building: {{ bill.unit.property.name }}</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <table class="bill-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Month</th>
+                    <th>Amount (KES)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Monthly Rent</td>
+                    <td>{{ bill.month.name }} (<b>{{ bill.month.year }}</b>)</td>
+                    <td>{{ bill.rent_amount|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>Water Bill</td>
+                    <td>{{ bill.month.name }} (<b>{{ bill.month.year }}</b>)</td>
+                    <td>{{ bill.water_amount|floatformat:2 }}</td>
+                </tr>
+               
+                <tr>
+                    <td>Garbage Collection</td>
+                    <td>{{ bill.month.name }} (<b>{{ bill.month.year }}</b>)</td>
+                    <td>{{ bill.garbage_amount|floatformat:2 }}</td>
+                </tr>
+            
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <h3>Total Amount: KES {{ bill.amount_expected|floatformat:2 }}</h3>
+        </div>
+
+        <hr>
+        <div class="payment_details">
+            <h3>Payment Details</h3>
+            <p>Payment Method: Mpesa Paybill</p>
+            <p>Paybill Number: 525252</p>
+            <p>Account Number: 123456543</p>
+        </div>
+
+        <div class="footer">
+            <p>This is a computer-generated receipt and does not require a signature.</p>
+            <p>For any queries, please contact: {{ company_contact }}</p>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        window.onload = function() {
+            const receipts = document.querySelectorAll('.receipt');
+            let index = 0;
+
+            function downloadNextReceipt() {
+                if (index < receipts.length) {
+                    const receipt = receipts[index];
+                    const opt = {
+                        margin:       1,
+                        filename:     `receipt-${receipt.id}.pdf`,
+                        image:        { type: 'jpeg', quality: 0.98 },
+                        html2canvas:  { scale: 2 },
+                        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                    };
+                    html2pdf().from(receipt).set(opt).save().then(() => {
+                        index++;
+                        downloadNextReceipt(); // Download the next receipt
+                    });
+                } else {
+                    window.history.back(); // Redirect back to the previous page after all downloads
+                }
+            }
+
+            downloadNextReceipt(); // Start downloading receipts
+        };
+    </script>
+</body>
+</html>

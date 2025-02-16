@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-8">
+                <h5 class="mb-0 text-primary">
+                    <i class="fas fa-tint me-2"></i>Unit Bills
+                </h5>
+
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" 
+                        placeholder="Search bills..." 
+                        id="searchInput" 
+                        value="{{ search_query }}">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="loader" id="loader"></div>
+        <div class="table-responsive">
+            <table id="tenantsTable" class="table table-hover align-middle display">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>Tenant</th>
+                        <th>Month</th>
+                        <th>Rent</th>
+                        <th>Water</th>
+                        <th>Garbage</th>
+                        <th class="text-end">Expected</th>
+                        <th class="text-end">Paid</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    {% for bill in unit_bills %}
+                    <tr>
+                        <td class="text-center">{{forloop.counter}}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm bg-light rounded-circle me-2">
+                                    <i class="fas fa-user text-primary"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-medium">{{bill.unit.tenant.user.name}}</div>
+                                    <small class="text-muted">Unit: {{bill.unit.name}}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>{{bill.month}}</div>
+                            <small class="text-muted">{{bill.year}}</small>
+                        </td>
+
+                        <td class="text-end">{{bill.rent_amount}}</td>
+                        <td class="text-end">{{bill.water_amount}}</td>
+                        <td class="text-end">{{bill.garbage_amount}}</td>
+                    
+                        <td class="text-end">{{bill.amount_expected}}</td>
+                        <td class="text-end">{{bill.amount_paid}}</td>
+                        <td class="text-center">
+
+                            {% if bill.unit_bill_status == 'Paid' %}
+                            <span class="badge bg-success-subtle text-success px-3">{{bill.unit_bill_status}}</span>
+                            {% elif bill.unit_bill_status == 'Pending' %}
+                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.unit_bill_status}}</span>
+                            {% elif bill.unit_bill_status == 'Partially Paid' %}
+
+                            <span class="badge bg-warning-subtle text-warning px-3">{{bill.unit_bill_status}}</span>
+                            {% elif bill.unit_bill_status == 'Overdue' %}
+                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.unit_bill_status}}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{% url 'unit-bill-details' bill.id %}" class="btn btn-sm btn-info">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'unit-bill-receipt' bill.id %}" class="btn btn-sm btn-secondary">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                                
+                                
+                                <button class="btn btn-sm btn-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#sendWhatsAppModal{{bill.id}}"
+
+
+                                        title="Message">
+                                        <i class="bi bi-envelope"></i>
+
+                                </button>
+                            
+                            </div>
+                        </td>
+
+
+                        {% include 'notifications/send_unit_bill_notification.html' %}
+                    </tr>
+                   
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not unit_bills %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-water fa-3x text-muted"></i>
+            </div>
+            <h6 class="text-muted">No water bills found</h6>
+            <p class="text-muted small">Add a new water bill to get started</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
+
+{% block additional_scripts %}
+<!-- Add DataTables CSS and JS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize DataTable
+    let table = $('#tenantsTable').DataTable({
+        "pageLength": 10,
+        "ordering": true,
+        "searching": true,
+        "language": {
+            "search": "",
+            "searchPlaceholder": "Search bills..."
+        },
+        "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
+        "columnDefs": [
+            { "orderable": false, "targets": [9] } // Disable sorting on action column
+        ]
+    });
+
+    // Use DataTables search instead of custom search
+    $('#searchInput').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+
+    // Integrate the existing search box with DataTables
+    $('.dataTables_filter').hide(); // Hide the default search box
+    
+    // Print functionality
+    function printWaterBill(billId) {
+        const printContent = document.getElementById('printArea' + billId);
+        const originalContent = document.body.innerHTML;
+        
+        document.body.innerHTML = printContent.innerHTML;
+        window.print();
+        document.body.innerHTML = originalContent;
+        
+        // Reload the page after printing
+        window.location.href = "{% url 'water-bills' %}";
+    }
+});
+</script>
+{% endblock additional_scripts %}

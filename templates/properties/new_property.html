@@ -10,13 +10,20 @@
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row mb-3">
-                    <div class="col-md-9">
+                    <div class="col">
                         <label for="name" class="form-label fw-bold">Name</label>
                         <input type="text" class="form-control" id="name" name="name" required>
                     </div>
-                    <div class="col-md-3">
+                  
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
                         <label for="unit" class="form-label fw-bold">Units</label>
                         <input type="number" class="form-control" id="units" name="units" required>
+                    </div>  
+                    <div class="col-md-6">
+                        <label for="garbage_charge" class="form-label fw-bold">Garbage Charge</label>
+                        <input type="number" class="form-control" id="garbage_charge" name="garbage_charge" required>
                     </div>
                 </div>
                     
@@ -37,22 +44,12 @@
                     </div>
                     
                     <div class="row mb-3">
-                        <div class="col">
-                            <label for="name" class="form-label fw-bold">Manager Name</label>
-                            <input type="text" class="form-control" id="manager_name" name="manager_name">
-                        </div>
-                        <div class="col">
-                            <label for="contact" class="form-label fw-bold">Manager Contact</label>
-                            <input type="tel" class="form-control" id="manager_phone" name="manager_phone">
-                        </div>
-                        <div class="col">
-                            <label for="gender" class="form-label fw-bold">Gender</label>
-                            <select class="form-select" id="manager_gender" name="manager_gender">
-                                <option value="" selected>Choose...</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                            </select>
-                        </div>
+                        <label for="house_manager" class="form-label fw-bold">House/Property Manager</label>
+                        <select class="form-select" id="house_manager" name="house_manager">
+                            {% for house_manager in house_managers %}
+                                <option value="{{house_manager.id}}">{{house_manager.first_name}} {{house_manager.last_name}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     
                 </div>

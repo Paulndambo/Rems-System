@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        .upload-zone {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: #0d6efd;
+            background-color: #e9ecef;
+        }
+
+        .preview-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 5px;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            padding: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .remove-image:hover {
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4">Upload Images</h3>
+                        
+                        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                            {% csrf_token %}
+                            
+                            <!-- Drag & Drop Zone -->
+                            <div class="upload-zone mb-4" id="drop-zone">
+                                <div class="upload-zone-content text-center p-5">
+                                    <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-muted"></i>
+                                    <h5>Drag and drop your images here</h5>
+                                    <p class="text-muted">or</p>
+                                    <label for="fileInput" class="btn btn-primary">
+                                        Choose Files
+                                        <input type="file" id="fileInput" name="images" multiple accept="image/*" class="d-none">
+                                    </label>
+                                    <p class="mt-2 text-muted small">Supported formats: JPG, PNG, GIF (Max 5MB each)</p>
+                                </div>
+                            </div>
+
+                            <!-- Preview Container -->
+                            <div class="preview-container row g-3" id="imagePreview"></div>
+
+                            <!-- Upload Button -->
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-success px-4" id="uploadButton">
+                                    <i class="fas fa-upload me-2"></i>Upload Images
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const uploadForm = document.getElementById('uploadForm');
+
+        // Drag and drop handlers
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('dragover');
+        }
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFiles, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles({ target: { files: files } });
+        }
+
+        function handleFiles(e) {
+            const files = [...e.target.files];
+            files.forEach(previewImage);
+        }
+
+        function previewImage(file) {
+            if (!file.type.startsWith('image/')) return;
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'col-auto preview-item';
+                div.innerHTML = `
+                    <img src="${e.target.result}" class="preview-image shadow-sm">
+                    <div class="remove-image">
+                        <i class="fas fa-times"></i>
+                    </div>
+                `;
+
+                div.querySelector('.remove-image').addEventListener('click', function() {
+                    div.remove();
+                });
+
+                imagePreview.appendChild(div);
+            }
+        }
+
+        // Update the form submission handler
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const uploadButton = document.getElementById('uploadButton');
+            
+            try {
+                // Disable the upload button and show loading state
+                uploadButton.disabled = true;
+                uploadButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+                
+                const response = await fetch('/website/upload-images/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Upload failed');
+                }
+                
+                // Clear the preview
+                document.getElementById('imagePreview').innerHTML = '';
+                
+                // Show success message
+                alert('Images uploaded successfully!');
+                
+                // Reset the form
+                this.reset();
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                // Reset the upload button
+                uploadButton.disabled = false;
+                uploadButton.innerHTML = '<i class="fas fa-upload me-2"></i>Upload Images';
+            }
+        });
+    });
+    </script>
+</body>
+</html>

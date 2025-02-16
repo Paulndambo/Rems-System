@@ -15,32 +15,13 @@
                         <input type="text" class="form-control" id="title" name="title" value="{{request.title}}" required>
                     </div>
                     
-                <div class="row mb-3">
-                    <div class="col">
-                        <label for="move_in_date" class="form-label fw-bold">Unit</label>
-                    <select class="form-select" id="unit" name="unit" required>
-                        <option value="{{request.unit.id}}" selected>{{request.unit.name}}</option>
-                        {% for unit in units %}
-                            {% if unit.id != request.unit.id %}
-                                <option value="{{unit.id}}">{{unit.name}}</option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                    </div>
-                    <div class="col">
-                        <label for="move_in_date" class="form-label fw-bold">Repair Cost</label>
-                        <input type="number" class="form-control" id="cost" name="cost" value="{{request.cost}}" min="0">
-                    </div>
-                    
-                </div>
-                    
                     <div class="mb-2">
                         <label for="description" class="form-label fw-bold">Description</label>
                         <textarea class="form-control" id="description" name="description" rows="2" required>{{request.description}}</textarea>
                     </div>
 
                 <div class="row mb-3">
-                    <div class="col">
+                    <div class="col-4">
                         <label for="move_in_date" class="form-label fw-bold">Status</label>
                     <select class="form-select" id="status" name="status" required>
                         <option value="{{request.status}}" selected>{{request.status}}</option>
@@ -51,7 +32,7 @@
                         {% endfor %}
                     </select>
                     </div>
-                    <div class="col">
+                    <div class="col-4">
                         <label for="move_in_date" class="form-label fw-bold">Priority</label>
                         <select class="form-select" id="priority" name="priority" required>
                             <option value="{{request.priority}}">{{request.priority}}</option>
@@ -62,7 +43,10 @@
                             {% endfor %}
                         </select>
                     </div>
-                    
+                    <div class="col-4">
+                        <label for="move_in_date" class="form-label fw-bold">Repair Cost</label>
+                        <input type="number" class="form-control" id="cost" name="cost" value="{{request.cost}}" min="0">
+                    </div>
                 </div>
                 </div>
                 <div class="text-center mb-3">

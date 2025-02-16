@@ -1,35 +1,238 @@
 {% extends "base.html" %}
-{% block additional_styles %}
+{% block additional_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
 <style>
+    :root {
+        --primary-color: #4f46e5;
+        --primary-hover: #4338ca;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --border-radius: 0.75rem;
+    }
+
+    /* Layout & Container Styling */
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+
+    /* Card Enhancements */
     .card {
-        transition: transform 0.2s;
+        border-radius: var(--border-radius);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background: #ffffff;
     }
+
     .card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    .property-image {
-        height: 300px;
-        object-fit: cover;
-        width: 100%;
+
+    .card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        background: transparent;
     }
+
+    /* Property Header Styling */
+    .property-header {
+        background: linear-gradient(to right, #f8fafc, #f1f5f9);
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+    }
+
+    .property-header h2 {
+        color: #1e293b;
+        font-size: 1.875rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .property-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
     .stats-card {
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        background: linear-gradient(145deg, #ffffff, #f8fafc);
         border-left: 4px solid;
     }
-    .search-form {
-        max-width: 300px;
+
+    .stats-card.occupancy {
+        border-left-color: var(--primary-color);
+    }
+
+    .stats-card.revenue {
+        border-left-color: var(--success-color);
+    }
+
+    .stats-card.maintenance {
+        border-left-color: var(--warning-color);
+    }
+
+    .stats-card h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        color: #1e293b;
+    }
+
+    .stats-card p {
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+
+    /* Table Enhancements */
+    .table-container {
+        background: #ffffff;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+
+    .table thead th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: #475569;
+        padding: 1rem 1.5rem;
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+    }
+
+    /* Payment Status Badges */
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .badge.paid {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: var(--success-color);
+    }
+
+    .badge.unpaid {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: var(--danger-color);
+    }
+
+    /* Button Styling */
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+
+    /* Search & Filter Enhancements */
+    .dataTables_filter input {
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        width: 300px;
+        transition: all 0.2s ease;
+    }
+
+    .dataTables_filter input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .property-meta {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+    }
+
+    /* Loading State */
+    .loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        z-index: 1000;
+    }
+
+    .spinner {
+        width: 2rem;
+        height: 2rem;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
-{% endblock additional_styles %}
+{% endblock additional_css %}
 {% block content %}
         <!-- Property Header -->
         <div class="card mb-4">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-8">
+            <div class="card-body property-header">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
                         <h2>{{property.name}}</h2>
                         <p class="text-muted">{{property.address}}, {{property.city}}, {{property.country}}</p>
-                        <p><strong>Property Manager:</strong> {{property.manager_name}}</p>
-                        <p><strong>Contact:</strong> {{property.manager_phone_number}}</p>
+                        
+                        <p><strong>Total Units:</strong> {{property.units}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Property Manager:</strong> {{property.house_manager}}</p>
+                        <p><strong>Contact:</strong> {{property.house_manager.phone_number}}</p>
                     </div>
                     <div class="col-md-4 text-md-end">
                         <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#editPropertyModal{{property.id}}">
@@ -43,25 +246,17 @@
 
         <!-- Analytics Cards -->
         <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card stats-card h-100" style="border-left-color: #28a745;">
-                    <div class="card-body">
-                        <h6 class="text-muted">Total Units</h6>
-                        <h3>{{property.units}}</h3>
-                        <p class="mb-0 text-success">All Units</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
+
+            <div class="col-md-4 mb-3">
                 <div class="card stats-card h-100" style="border-left-color: #17a2b8;">
                     <div class="card-body">
                         <h6 class="text-muted">Occupancy Rate</h6>
                         <h3>{{property.occupancy_rate}}%</h3>
-                        <p class="mb-0 text-info">21 Occupied Units</p>
+                        <p class="mb-0 text-info">{{occupied_units}} Occupied Units</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <div class="card stats-card h-100" style="border-left-color: #dc3545;">
                     <div class="card-body">
                         <h6 class="text-muted">Monthly Revenue</h6>
@@ -70,7 +265,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <div class="card stats-card h-100" style="border-left-color: #ffc107;">
                     <div class="card-body">
                         <h6 class="text-muted">Maintenance Requests</h6>
@@ -81,29 +276,94 @@
             </div>
         </div>
 
+            <!-- Header Section -->
+            <div class="card bg-white mb-4">
+                <div class="card-header">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <h5 class="card-title mb-0 fw-bold">Payments Overview</h5>
+                            <p class="text-muted small mb-0">Track monthly payment status for each unit</p>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="d-flex gap-2 justify-content-md-end">
+                                <div class="d-flex align-items-center me-3">
+                                    <span class="me-2"><i class="fas fa-check text-success"></i> Paid</span>
+                                    <span class="ms-3"><i class="fas fa-times text-danger"></i> Unpaid</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <div class="loader position-absolute top-50 start-50 translate-middle d-none" id="loader">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+    
+                    <table id="paymentsTable" class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="border-0 px-4 py-3 bg-light position-sticky start-0">
+                                    <strong>Month</strong>
+                                </th>
+                                {% for unit_number in unit_numbers %}
+                                    <th class="border-0 px-4 py-3 text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <strong>Unit {{ unit_number }}</strong>
+          
+                                        </div>
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            {% for row in rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                        {% if forloop.first %}
+                                            <td class="bg-light position-sticky start-0">
+                                                <strong>{{ cell }}</strong>
+                                            </td>
+                                        {% else %}
+                                            <td class="px-4 text-center">
+                                                {% if cell == True %}
+                                                    <span class="badge rounded-pill bg-success-subtle text-success">
+                                                        <i class="fas fa-check me-1"></i> Paid
+                                                    </span>
+                                                {% elif cell == False %}
+                                                    <span class="badge rounded-pill bg-danger-subtle text-danger">
+                                                        <i class="fas fa-times me-1"></i> Unpaid
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        
+
+
         <!-- Units Table -->
         <div class="card">
             <div class="card-header bg-white">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Rental Units</h5>
-                    <div class="d-flex gap-3">
-                        <form class="search-form">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Search units...">
-                                <button class="btn btn-outline-secondary" type="submit">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                        </form>
+                    <div>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUnitModal{{property.id}}">
-                            <i class="fas fa-plus"></i> Add Unit
+                            New Unit
                         </button>
                     </div>
                 </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table id="unitsTable" class="table table-hover">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -127,7 +387,17 @@
                                 <td>{{unit.size}}</td>
                                 <td>{{unit.rent}}</td>
                                 <td><span class="badge bg-success">{{unit.status}}</span></td>
-                                <td>{{unit.tenant.user.name}}</td>
+                                <td>
+                                    {% if unit.tenant %}
+                                    <a href="{% url 'tenant-detail' unit.tenant.id %}" class="text-decoration-none text-primary">
+                                        {{ unit.tenant.user.name }}
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignTenantModal{{unit.id}}">
+                                        <i class="fas fa-user-plus"></i> Assign
+                                    </button>
+                                {% endif %}
+                                </td>
                                 <td>
                                     <a href="{% url 'unit-detail' unit.id %}" class="btn btn-sm btn-outline-info" title="View Details">
                                         <i class="fas fa-eye"></i>
@@ -146,4 +416,64 @@
     <!-- New Unit Modal -->
   {% include "properties/units/new_unit.html" %}
   {% include "properties/edit_property.html" %}
+  {% for unit in units %}
+    {% include "properties/units/edit_unit_copy.html" %}
+{% endfor %}
 {% endblock %}
+
+{% block additional_scripts %}
+<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        const commonConfig = {
+            "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                   "<'row'<'col-sm-12'tr>>" +
+                   "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            "pageLength": 10,
+            "ordering": true,
+            "searching": true,
+            "responsive": true,
+            "initComplete": function() {
+                $('.dataTables_filter input').addClass('form-control form-control-sm');
+                $('.dataTables_filter label').addClass('d-flex align-items-center gap-2');
+                $('.dataTables_length select').addClass('form-select form-select-sm');
+            }
+        };
+
+        // Initialize Payments Table
+        $('#paymentsTable').DataTable({
+            ...commonConfig,
+            "language": {
+                "search": "Search payments:",
+                "searchPlaceholder": "Type to filter...",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ payments",
+                "infoEmpty": "No payments available",
+                "zeroRecords": "No matching payments found"
+            },
+            "columnDefs": [{
+                "targets": 0,
+                "orderable": true
+            }]
+        });
+
+        // Initialize Units Table
+        $('#unitsTable').DataTable({
+            ...commonConfig,
+            "language": {
+                "search": "Search units:",
+                "searchPlaceholder": "Type to filter...",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ units",
+                "infoEmpty": "No units available",
+                "zeroRecords": "No matching units found"
+            },
+            "columnDefs": [{
+                "targets": -1,
+                "orderable": false
+            }]
+        });
+    });
+</script>
+{% endblock additional_scripts %}

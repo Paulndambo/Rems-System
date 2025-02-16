@@ -1,0 +1,8 @@
+boto3
+cloudinary
+Django
+django-cors-headers
+django-filter
+djangorestframework
+djangorestframework-simplejwt
+firebase-admin

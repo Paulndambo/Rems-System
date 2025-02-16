@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% block additional_styles %}
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .unit-image {
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+        }
+        .stats-card {
+            transition: transform 0.2s;
+            border-left: 4px solid;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .table th {
+            border-top: none;
+        }
+    </style>
+{% endblock additional_styles %}
+{% block content %}
+<!-- Unit Header -->
+        <div class="card">
+            <div class="card-body">
+                <div class="container-fluid">
+                    <div class="row align-items-center gy-3">
+                        <!-- Title and Location Section -->
+                        <div class="col-12 col-lg-7">
+                            <h2 class="fs-4 fw-bold mb-2">{{listing.property_name}}</h2>
+                            <p class="text-muted mb-0 small">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                {{listing.town}} {{listing.county}}, {{listing.location_description}}
+                            </p>
+                        </div>
+                
+                        <!-- Buttons Section -->
+                        <div class="col-12 col-lg-5">
+                            <div class="d-flex gap-2 justify-content-start justify-content-lg-end">
+                                <button class="btn btn-outline-primary btn-sm d-flex align-items-center" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editUnitModal{{unit.id}}">
+                                    <i class="fas fa-edit me-2"></i>
+                                    <span>Edit</span>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm d-flex align-items-center" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteUnitModal{{unit.id}}">
+                                    <i class="fas fa-trash me-2"></i>
+                                    <span>Delete</span>
+                                </button>
+                                {% if listing.approved %}
+                                
+                                {% else %}
+                                <button class="btn btn-outline-danger btn-sm d-flex align-items-center" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#declineListingModal{{listing.id}}">
+                                <i class="fas fa-xmark me-2"></i>
+                                <span>Decline</span>
+                                </button>
+                                    <button class="btn btn-outline-success btn-sm d-flex align-items-center" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#approveListingModal{{listing.id}}">
+                                        <i class="fas fa-check me-2"></i>
+                                    <span>Approve</span>
+                                </button>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <div class="row g-4">
+                    <!-- First Column -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="p-3">
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Listing Type</small>
+                                <div class="mt-1 fw-bold">{{listing.listing_type}}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Unit Type</small>
+                                <div class="mt-1 fw-bold">{{listing.unit_type}}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Purpose</small>
+                                <div class="mt-1 fw-bold">{{listing.listing_purpose}}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Status</small>
+                                <div class="mt-1 fw-bold">{{listing.unit_status}}</div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Second Column -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="p-3">
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Notice Period</small>
+                                <div class="mt-1 fw-bold">{{listing.notice_period}}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Min. Lease Period</small>
+                                <div class="mt-1 fw-bold">{{listing.minimum_lease_period}}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Cost/Rent</small>
+                                <div class="mt-1 fw-bold">{{listing.unit_price}}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Security Deposit</small>
+                                <div class="mt-1 fw-bold">{{listing.security_deposit}}</div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Third Column -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="p-3">
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Listed By</small>
+                                <div class="mt-1 fw-bold">{{listing.lister.user.name}}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Furnished?</small>
+                                <div class="mt-1 fw-bold">{{listing.furnish_status}}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Approved</small>
+                                <div class="mt-1 fw-bold">{{listing.approved}}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted fw-semibold">Is Featured</small>
+                                <div class="mt-1 fw-bold">{{listing.security_deposit}}</div>
+                            </div>
+                        </div>
+                    </div>
+                
+            </div>
+                
+            </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="card stats-card h-100" style="border-left-color: #17a2b8;">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Leads</h6>
+                        <h3>{{total_leads}}</h3>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card stats-card h-100" style="border-left-color: #23f7a2;">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Views</h6>
+                        <h3>{{listing.views}}</h3>
+                    </div>
+                </div>
+            </div>
+          
+        </div>
+
+        <!-- Payment History -->
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Amenities</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Available</th>
+                                <th>Added On</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for amenity in amenities %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{amenity.name}}</td>
+                                <td>{% if amenity.available %}
+                                    <span class="badge bg-success">Available</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Not Available</span>
+                                    {% endif %}</td>
+                                <td>{{amenity.created_at}}</td>
+                                <td>
+                                    {% if amenity.available %}
+                                    <a href="{% url 'mark-amenity-unavailable' amenity.id %}" class="btn btn-sm btn-danger"><i class="fas fa-xmark"></i></a>
+                                    {% else %}
+                                    <a href="{% url 'mark-amenity-available' amenity.id %}" class="btn btn-sm btn-success"><i class="fas fa-check"></i></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                           {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% include "website/approve_listing.html" %}
+    </div>
+    {% include "website/decline_listing.html" %}   
+
+     
+{% endblock content %}

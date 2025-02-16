@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+    {% block additional_styles %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+     
+   
+        /* New styles for tenants table */
+        .tenant-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.875rem;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: calc(-1 * var(--sidebar-width));
+            }
+
+            #sidebar.collapsed {
+                margin-left: 0;
+            }
+
+            #content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            #content.expanded {
+                width: calc(100% - var(--sidebar-collapsed-width));
+                margin-left: var(--sidebar-collapsed-width);
+            }
+        }
+    </style>
+{% endblock additional_styles %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Years List</h5>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newYearModal">
+                <i class="fas fa-plus me-2"></i>Add New Year
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Year</th>
+                    <th>Status</th>
+                    <th>Added On</th>
+                    <th>Last Modified</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for year in years %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{year.name}}</td>
+                    <td>{% if year.is_active %}Active{% else %}Inactive{% endif %}</td>
+                    <td>{{year.created_at}}</td>
+                    <td>{{year.updated_at}}</td>
+                    <td>
+                        {%  if year.is_active %}
+                        <a href="{% url 'deactivate-year' year.id %}" class="btn btn-sm btn-danger">Deactivate</a>
+                        {% else %}
+                        <a href="{% url 'activate-year' year.id %}" class="btn btn-sm btn-primary me-1">Activate</a>
+                        {% endif %}
+                    </td>
+                   
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}
+

@@ -30,16 +30,14 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-3 text-center">
-                                <img src="/api/placeholder/150/150" alt="Tenant Photo" class="tenant-photo mb-3">
-                            </div>
-                            <div class="col-md-9">
-                                <h2 class="mb-3">{{tenant.user.name}}</h2>
+                            <h2 class="mb-3 text-center">{{tenant.user.name}}</h2>
+                            <hr>
+                            <div class="col-md-12">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <p><strong>Email:</strong> {{tenant.user.email}}</p>
                                         <p><strong>Phone:</strong> {{tenant.user.phone}}</p>
-                                        <p><strong>Occupation:</strong> {{tenant.occupation}}</p>
+                                        <p><strong>Marital Status:</strong> {{tenant.user.marital_status}}</p>
                                     </div>
                                     <div class="col-md-6">
                                         <p><strong>Move-in Date:</strong> {{tenant.move_in_date}}</p>
@@ -53,15 +51,14 @@
                 </div>
             </div>
         </div>
-
         <!-- Analytics Cards -->
         <div class="row mb-4">
             <div class="col-md-4">
                 <div class="card stats-card bg-primary text-white">
                     <div class="card-body">
                         <h6 class="card-title">Total Rent Paid</h6>
-                        <h3 class="card-text">$24,000</h3>
-                        <p class="mb-0"><small>Last payment: July 1, 2023</small></p>
+                        <h3 class="card-text">{{total_rent_paid}}</h3>
+                  
                     </div>
                 </div>
             </div>
@@ -69,18 +66,17 @@
             <div class="col-md-4">
                 <div class="card stats-card bg-info text-white">
                     <div class="card-body">
-                        <h6 class="card-title">Water Bill Average</h6>
-                        <h3 class="card-text">{{average_water_bill}}</h3>
-                        <p class="mb-0"><small>Monthly average</small></p>
+                        <h6 class="card-title">Total Water Bill Paid</h6>
+                        <h3 class="card-text">{{total_water_paid}}</h3>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card stats-card bg-warning text-white">
+                <div class="card stats-card bg-danger text-white">
                     <div class="card-body">
-                        <h6 class="card-title">Lease Duration</h6>
-                        <h3 class="card-text">{{tenant.lease_duration}}</h3>
-                        <p class="mb-0"><small>Renews in {{tenant.lease_duration}}</small></p>
+                        <h6 class="card-title">Total Debt</h6>
+                        <h3 class="card-text">{{total_debt}}</h3>
+                        
                     </div>
                 </div>
             </div>
@@ -139,7 +135,7 @@
                             <td>{{ forloop.counter }}</td>
                             <td>{{bill.unit.name}}</td>
                             <td>{{ bill.month }}(<b>{{bill.year}}</b>)</td>
-                            <td>{{bill.units}}</td>
+                            <td>{{bill.current_reading}}</td>
                             <td>{{bill.amount}}</td>
                             
                         </tr>
@@ -157,22 +153,20 @@
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
-                            <th>Date Expected</th>
-                            <th>Amount Expected</th>
+                            <th>Date Paid</th>
+                            <th>Payment For</th>
                             <th>Amount Paid</th>
-                            <th>Status</th>
-                            <th>Reference</th>
+                            <th>Month</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for payment in payments %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ payment.date_expected }}</td>
-                            <td>{{ payment.amount_exptected }}</td>
+                            <td>{{ payment.created_at.date }}</td>
+                            <td>{{ payment.payment_type }}</td>
                             <td>{{ payment.amount_paid }}</td>
-                            <td><span class="badge bg-success">{{payment.status}}</span></td>
-                            <td>{{ payment.reference }}</td>
+                            <td>{{ payment.month.name }}(<b>{{payment.year.name}}</b>)</td>
                         </tr>
                        {% endfor %}
                     </tbody>

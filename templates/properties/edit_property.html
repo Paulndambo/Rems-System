@@ -11,20 +11,26 @@
                     {% csrf_token %}
                     <input type="number" name="property_id" id="property_id" value="{{property.id}}" readonly hidden>
                     <div class="row mb-3">
-                    <div class="col-md-9">
+                    <div class="col">
                         <label for="name" class="form-label fw-bold">Name</label>
                         <input type="text" class="form-control" id="name" name="name" value="{{property.name}}" required>
                     </div>
-                    <div class="col-md-3">
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
                         <label for="unit" class="form-label fw-bold">Units</label>
                         <input type="number" class="form-control" id="units" name="units" value="{{property.units}}" required>
+                    </div>  
+                    <div class="col-md-6">
+                        <label for="garbage_charge" class="form-label fw-bold">Garbage Charge</label>
+                        <input type="number" class="form-control" id="garbage_charge" name="garbage_charge" value="{{property.garbage_charge}}" required>
                     </div>
                 </div>
                     
-                        <div class="mb-3">
-                            <label for="move_in_date" class="form-label fw-bold">Address/Location</label>
-                            <input type="text" class="form-control" id="address" name="address" value="{{property.address}}" required>
-                        </div>
+                <div class="mb-3">
+                    <label for="move_in_date" class="form-label fw-bold">Address/Location</label>
+                    <input type="text" class="form-control" id="address" name="address" value="{{property.address}}" required>
+                </div>
                     
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -38,21 +44,11 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col">
-                            <label for="name" class="form-label fw-bold">Manager Name</label>
-                            <input type="text" class="form-control" id="manager_name" name="manager_name" value="{{property.manager_name}}">
-                        </div>
-                        <div class="col">
-                            <label for="contact" class="form-label fw-bold">Manager Contact</label>
-                            <input type="tel" class="form-control" id="manager_phone" name="manager_phone" value="{{property.manager_phone_number}}">
-                        </div>
-                        <div class="col">
-                            <label for="gender" class="form-label fw-bold">Gender</label>
-                            <select class="form-select" id="manager_gender" name="manager_gender">
-                                <option value="{{property.manager_gender}}" selected>{{property.manager_gender}}</option>
-                                {% for gender in gender_choices %}
-                                    {% if gender != property.manager_gender %}
-                                        <option value="{{gender}}">{{gender}}</option>
-                                    {% endif %}
+                            <label for="house_manager" class="form-label fw-bold">House/Property Manager</label>
+                            <select class="form-select" id="house_manager" name="house_manager">
+                                <option value=""></option>
+                                {% for house_manager in house_managers %}
+                                <option value="{{house_manager.id}}">{{house_manager.first_name}} {{house_manager.last_name}}</option>
                                 {% endfor %}
                             </select>
                         </div>

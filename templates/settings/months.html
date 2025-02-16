@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+    {% block additional_styles %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+     
+   
+        /* New styles for tenants table */
+        .tenant-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.875rem;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: calc(-1 * var(--sidebar-width));
+            }
+
+            #sidebar.collapsed {
+                margin-left: 0;
+            }
+
+            #content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            #content.expanded {
+                width: calc(100% - var(--sidebar-collapsed-width));
+                margin-left: var(--sidebar-collapsed-width);
+            }
+        }
+    </style>
+{% endblock additional_styles %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Months List</h5>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Year</th>
+                    <th>Status</th>
+                    <th>Added On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for month in months %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{month.name}}</td>
+                    <td>{{month.year}}</td>
+                    <td>{% if month.is_active %}Active{% else %}Inactive{% endif %}</td>
+                    <td>{{month.created_at}}</td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}
+

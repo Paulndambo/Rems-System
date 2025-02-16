@@ -26,7 +26,7 @@
                         </div>
                         <div class="col">
                             <label for="email" class="form-label fw-bold">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" name="email">
                         </div>
                         <div class="col">
                             <label for="id_number" class="form-label fw-bold">ID Number</label>
@@ -36,11 +36,11 @@
                     <div class="row mb-3">
                         <div class="col">
                             <label for="move_in_date" class="form-label fw-bold">Lease Date</label>
-                            <input type="date" class="form-control" id="lease_date" name="lease_date" required>
+                            <input type="date" class="form-control" id="lease_date" name="lease_date">
                         </div>
                         <div class="col">
                             <label for="move_in_date" class="form-label fw-bold">Move-in Date</label>
-                            <input type="date" class="form-control" id="move_in_date" name="move_in_date" required>
+                            <input type="date" class="form-control" id="move_in_date" name="move_in_date">
                         </div>
                         <div class="col">
                             <label for="rent" class="form-label fw-bold">Gender</label>
@@ -64,8 +64,13 @@
                         </div>
                        
                         <div class="col">
-                            <label for="rent" class="form-label fw-bold">Occupation</label>
-                            <input type="text" class="form-control" id="occupation" name="occupation" />
+                            <label for="rent" class="form-label fw-bold">Marital Status</label>
+                            <select class="form-select" id="marital_status" name="marital_status">
+                                <option value="" selected>Choose...</option>
+                                {% for status in marital_statuses %}
+                                    <option value="{{status}}">{{status}}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
                    

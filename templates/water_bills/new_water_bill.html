@@ -1,6 +1,6 @@
 <!-- Add this modal HTML after the table in your template -->
 <div class="modal fade" id="newWaterBillModal" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="tenantModalLabel">Add Water Bill</h5>
@@ -9,14 +9,21 @@
             <form id="tenantForm" method="POST" action="{% url 'new-water-bill' %}">
                 <div class="modal-body">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="name" class="form-label fw-bold">Unit</label>
-                        <select class="form-select" id="unit" name="unit">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="name" class="form-label fw-bold">Unit</label>
+                        <select class="form-select select2" id="unit" name="unit">
                             <option value="" selected>Choose...</option>
                             {% for unit in units %}
-                                <option value="{{unit.id}}">{{unit.name}}({{unit.property}})</option>
+                                <option value="{{unit.id}}">{{unit.name}} ({{unit.property}})</option>
                             {% endfor %}
                         </select>
+                        </div>
+                        <div class="col">
+                            <label for="reading_date" class="form-label fw-bold">Reading Date</label>
+                            <input type="date" class="form-control" id="reading_date" name="reading_date" />
+                        </div>
+                        
                     </div>
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -33,7 +40,7 @@
                         <select class="form-select" id="year" name="year">
                             <option value="" selected>Choose...</option>
                             {% for year in years %}
-                                <option value="{{year}}">{{year}}</option>
+                                <option value="{{year.id}}">{{year.name}}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -41,14 +48,25 @@
                 <div class="row mb-3">
                     <div class="col">
                         <label for="unit" class="form-label fw-bold">Previous Reading</label>
-                        <input type="number" class="form-control" id="previous_reading" name="previous_reading" required/>
+                        <input type="number" class="form-control" min="0.0000" step="0.0001" value="0.0000" id="previous_reading" name="previous_reading" required/>
                     </div>
                     <div class="col">
-                        <label for="unit" class="form-label fw-bold">Units</label>
-                        <input type="number" class="form-control" id="units" name="units" required/>
+                        <label for="unit" class="form-label fw-bold">Current Reading</label>
+                        <input type="number" class="form-control" id="current_reading" name="current_reading" step="0.0001" value="0.0000" required/>
+                    </div>
+                </div>
+                <div class="row mb-3">  
+                    <div class="col">
+                        <label for="unit" class="form-label fw-bold">Unpaid Balanaces</label>
+                        <input type="number" class="form-control" id="previous_balance" name="previous_balance" min="0.00" value="0.00" step="0.01" />
+                    </div>
+                    <div class="col">
+                        <label for="unit" class="form-label fw-bold">Due Date</label>
+                        <input type="date" class="form-control" id="due_date" name="due_date" />
                     </div>
                 </div>
                     
+
                 </div>
                 <div class="text-center mb-3">
                     <button type="submit" class="btn btn-primary">Save Water Bill</button>
@@ -57,3 +75,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#unit').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            dropdownParent: $('#newWaterBillModal'),
+            placeholder: 'Choose...',
+            allowClear: true
+        });
+    });
+</script>

@@ -1,0 +1,28 @@
+<!-- Add this modal HTML after the table in your template -->
+<div class="modal fade" id="editWaterPriceModal{{water_price.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tenantModalLabel">Edit Water Price</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="tenantForm" method="POST" action="{% url 'edit-water-price' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="number" name="water_price_id" id="water_price_id" value="{{water_price.id}}" readonly hidden>
+                    <div class="row mb-3">
+                    <div class="">
+                        <label for="unit" class="form-label fw-bold">Unit Price</label>
+                        <input type="number" class="form-control" id="unit_price" name="unit_price" value="{{water_price.unit_price}}" required>
+                    </div>
+                </div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Edit Water Price</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

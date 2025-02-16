@@ -1,0 +1,59 @@
+<!-- Add this modal HTML after the table in your template -->
+<div class="modal fade" id="payWaterBillModal{{bill.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tenantModalLabel">Pay Water Bill</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="tenantForm" method="POST" action="{% url 'pay-water-bill' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="number" name="water_bill_id" id="water_bill_id" value="{{bill.id}}" readonly hidden>
+                <div class="row mb-3">
+                    <div class="col">
+                        <p><b>Tenant: </b>{{bill.tenant.user.name}}</p>
+                        <p><b>Unit: </b>{{bill.unit.name}}</p>
+                        <p><b>Month: </b>{{bill.month.name}}</p>
+                        <p><b>Year: </b>{{bill.year.name}}</p>
+                        <p><b>Unpaid Balanaces: </b>{{bill.previous_balance}}</p>
+                    </div>
+                    <div class="col">
+                        <p><b>Previous Reading: </b>{{bill.previous_reading}}</p>
+                        <p><b>Current Reading: </b>{{bill.current_reading}}</p>
+                        <p><b>Amount Expected: </b>{{bill.amount}}</p>
+                        <p><b>Amount Paid: </b>{{bill.amount_paid}}</p>
+                        <p><b>Balance: </b>{{bill.balance}}</p>
+                    </div>
+                </div>
+                {% if bill.status == "Paid" %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <p>Bill has been paid</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% else %}
+                <hr>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="unit" class="form-label fw-bold">Amount Paying</label>
+                        <input type="number" class="form-control" id="amount_paying" name="amount_paying" step="0.01" min="0" max="{{bill.balance}}" placeholder="Type amount to pay" required/>
+                    </div>
+                    <div class="col">
+                        <label for="unit" class="form-label fw-bold">Payment Method</label>
+                        <select class="form-select" id="payment_method" name="payment_method">
+                            <option value="" selected>Choose...</option>
+                            {% for method in payment_methods %}
+                                <option value="{{method}}">{{method}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                </div>
+                <div class="text-center mb-3">
+                    <button type="submit" class="btn btn-primary">Pay Water Bill</button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>

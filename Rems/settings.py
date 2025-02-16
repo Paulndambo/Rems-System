@@ -37,18 +37,25 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "django_filters",
+    "corsheaders",
 
     "apps.core",
     "apps.users",
     "apps.tenants",
     "apps.properties",
     "apps.payments",
-    
+    "apps.reports",
+    "apps.notifications",
+    "website",
+    "apis",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -122,7 +129,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -132,3 +146,46 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "/users/login/"
 LOGOUT_REDIRECT_URL = "/users/login/"
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+
+# FIREBASE CONFIGURATION
+import firebase_admin
+from firebase_admin import credentials
+
+
+FIREBASE_STORAGE_BUCKET = "rem-s-storage"
+FIREBASE_DATABASE_URL = "https://rem-s-default-rtdb.firebaseio.com"
+
+cred = credentials.Certificate("Rems/firebase_adminsdk.json")
+
+firebase_admin.initialize_app(cred, {
+    'storageBucket': FIREBASE_STORAGE_BUCKET,
+    'databaseURL': FIREBASE_DATABASE_URL,
+})
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'apps.users.firebase_auth.FirebaseAuthentication',
+    ),
+}
+
+
+CLOUDINARY_CLOUD_NAME = "dc4dykv8e"
+CLOUDINARY_API_KEY = "125761823436352"
+CLOUDINARY_API_SECRET = "RQUr1O1_KhylcnYFvBGw5d1IbUk"
+
+
+SMS_API_KEY = "be1a1f74f8c3e33db3446550989edd4fd36a7bfb"
+
+# WhatsApp API Settings
+WAAPI_API_KEY = "C7IIxKdmdKHHNL7f59vILufmYDyEDa5VnRZlzyHM0e4db375"
+WAAPI_INSTANCE_KEY = "44329"
+
+if DEBUG:
+    BACKEND_BASE_URL = "http://localhost:8000"
+else:
+    BACKEND_BASE_URL = "https://yunukee.com"

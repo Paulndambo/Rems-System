@@ -51,23 +51,24 @@
                         </div>
                     </div>
                     <div class="col-md-4 text-md-end">
-                        <button class="btn btn-primary me-2">
+                        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#editUnitModal{{unit.id}}">
                             <i class="fas fa-edit"></i> Edit Unit
                         </button>
-                        <button class="btn btn-danger">
+                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUnitModal{{unit.id}}">
                             <i class="fas fa-trash"></i> Delete Unit
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+        
         <!-- Quick Stats -->
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
                 <div class="card stats-card h-100" style="border-left-color: #17a2b8;">
                     <div class="card-body">
                         <h6 class="text-muted">Total Revenue</h6>
-                        <h3>$16,500</h3>
+                        <h3>{{total_rent}}</h3>
                         <p class="mb-0 text-info">Year to date</p>
                     </div>
                 </div>
@@ -95,7 +96,7 @@
         <!-- Payment History -->
         <div class="card">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Payment History</h5>
+                <h5 class="mb-0">Rent History</h5>
                 <button class="btn btn-sm btn-outline-primary">
                     <i class="fas fa-download"></i> Export
                 </button>
@@ -105,39 +106,25 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>#</th>
                                 <th>Date</th>
-                                <th>Payment Type</th>
+                                <th>Payment Method</th>
                                 <th>Amount</th>
-                                <th>Status</th>
-                                <th>Reference</th>
-                                <th>Actions</th>
+                                <th>Paid On</th>
+                                <th>Payer</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {% for payment in payments %}
                             <tr>
-                                <td>Mar 1, 2024</td>
-                                <td>Rent</td>
-                                <td>$1,500</td>
-                                <td><span class="badge bg-success">Paid</span></td>
-                                <td>PAY-2024-001</td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-receipt"></i>
-                                    </button>
-                                </td>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{payment.payment_date}}</td>
+                                <td>{{payment.payment_method}}</td>
+                                <td>{{payment.amount_paid}}</td>
+                                <td>{{payment.created_at}}</td>
+                                <td>{{payment.rent_bill.tenant.user.name}}</td>
                             </tr>
-                            <tr>
-                                <td>Feb 1, 2024</td>
-                                <td>Rent</td>
-                                <td>$1,500</td>
-                                <td><span class="badge bg-success">Paid</span></td>
-                                <td>PAY-2024-002</td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-receipt"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                           {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -214,7 +201,7 @@
                                 <td>{{forloop.counter}}</td>
                                 <td>{{bill.month}}(<b>{{bill.year}}</b>)</td>
                                 <td>{{bill.previous_reading}}</td>
-                                <td>{{bill.units}}</td>
+                                <td>{{bill.current_reading}}</td>
                                 <td>{{bill.amount}}</td>
                                 <td><span class="badge bg-warning">{{bill.status}}</span></td>
                             </tr>
@@ -224,4 +211,8 @@
                 </div>
             </div>
         </div>
+
+        {% include "properties/units/edit_unit.html" %}
+        {% include "properties/units/edit_unit_copy.html" %}
+        {% include "properties/units/delete_unit.html" %}
 {% endblock content %}

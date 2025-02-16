@@ -12,7 +12,7 @@
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label fw-bold">Tenant</label>
-                            <select class="form-select" name="tenant" id="tenant" required>
+                            <select class="form-select select2" name="tenant" id="tenant" required>
                                 <option value="">Select Tenant</option>
                                 {% for tenant in tenants %}
                                     <option value="{{tenant.id}}">{{tenant.user.name}}</option>
@@ -32,3 +32,18 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+    $('.select2').each(function() {
+        $(this).select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            dropdownParent: $(this).closest('.modal'),
+            placeholder: 'Choose...',
+            allowClear: true
+        });
+    });
+});
+
+</script>

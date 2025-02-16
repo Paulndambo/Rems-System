@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="col">
+                <h5 class="mb-0">Water Bills Report</h5>
+            </div>
+            <div class="col-9">
+                <form method="GET" class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <select name="tenant" class="form-select">
+                            <option value="">Select Tenant</option>
+                            {% for tenant in tenants %}
+                                <option value="{{ tenant.id }}" {% if selected_tenant == tenant.id %}selected{% endif %}>
+                                    {{ tenant.user.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <select name="month" class="form-select">
+                            <option value="">Select Month</option>
+                            {% for month in months %}
+                                <option value="{{ month }}" {% if selected_month == month %}selected{% endif %}>
+                                    {{ month }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <select name="year" class="form-select">
+                            <option value="">Select Year</option>
+                            {% for year in years %}
+                                <option value="{{ year.id }}" {% if selected_year == year.id %}selected{% endif %}>
+                                    {{ year.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-2"></i>
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <a href="?{{ request.GET.urlencode }}&export=csv" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="loader" id="loader"></div>
+        <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tenant</th>
+                    <th>House No.</th>
+                    <th>Month</th>
+                    <th>Units</th>
+                    <th>Amount</th>
+                    <th>Amount Paid</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for bill in water_bills %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{bill.unit.tenant.user.name}}</td>
+                    <td>{{bill.unit.name}}</td>
+                    <td>{{bill.month}}(<b>{{bill.year}}</b>)</td>
+                    <td>{{bill.current_reading}}</td>
+                    <td>{{bill.amount}}</td>
+                    <td>{{bill.amount_paid}}</td>
+                    <td>
+                        {% if bill.status == 'Paid' %}
+                        <span class="badge bg-success">{{bill.status}}</span>
+                        {% elif bill.status == 'Pending' %}
+                        <span class="badge bg-danger">{{bill.status}}</span>
+                        {% elif bill.status == 'Partially Paid' %}
+                        <span class="badge bg-warning">{{bill.status}}</span>
+                        {% elif bill.status == 'Overdue' %}
+                        <span class="badge bg-danger">{{bill.status}}</span>
+                        {% endif %}
+                    </td>
+                    
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}
+{% block additional_scripts %}
+
+{% endblock additional_scripts %}
