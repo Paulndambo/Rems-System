@@ -4,8 +4,8 @@ class WhatsAppNotification:
     def __init__(self, message: str, recipient: str = "254745491093"):
         self.message = message
         self.phone_number = recipient
-        self.instance_key = settings.WAAPI_TESTING_INSTANCE_KEY
-        self.api_key = settings.WAAPI_TESTING_API_KEY
+        self.instance_key = settings.WAAPI_INSTANCE_KEY
+        self.api_key = settings.WAAPI_API_KEY
 
     def send_message(self):
         """Send WhatsApp message using WaAPI."""

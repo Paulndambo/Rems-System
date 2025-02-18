@@ -86,7 +86,8 @@ def update_bill_status(bill, amount_paid, expected_amount):
         bill.fully_paid = True
         bill.status = PaymentStatuses.PAID.value
         whatsapp_notification = WhatsAppNotification(
-            message=format_unit_bill_message(bill.tenant.user.first_name, bill.month.name, bill.year.name)
+            message=format_unit_bill_message(bill.tenant.user.first_name, bill.month.name, bill.year.name),
+            recipient=bill.tenant.user.phone_number
         )
         whatsapp_notification.send_message()
     elif amount_paid > 0:
@@ -139,7 +140,8 @@ def collect_unit_bill_payment(request):
             )
 
             whatsapp_notification = WhatsAppNotification(
-                message=format_rent_bill_message(unit_bill.tenant.user.first_name, rent_amount)
+                message=format_rent_bill_message(unit_bill.tenant.user.first_name, rent_amount),
+                recipient=unit_bill.tenant.user.phone_number
             )
             whatsapp_notification.send_message()
 
@@ -176,7 +178,8 @@ def collect_unit_bill_payment(request):
             )
 
             whatsapp_notification = WhatsAppNotification(
-                message=format_water_bill_message(unit_bill.tenant.user.first_name, water_amount)
+                message=format_water_bill_message(unit_bill.tenant.user.first_name, water_amount),
+                recipient=unit_bill.tenant.user.phone_number
             )
             whatsapp_notification.send_message()
 
@@ -210,7 +213,8 @@ def collect_unit_bill_payment(request):
             )
 
             whatsapp_notification = WhatsAppNotification(
-                message=format_garbage_bill_message(unit_bill.tenant.user.first_name, garbage_amount)
+                message=format_garbage_bill_message(unit_bill.tenant.user.first_name, garbage_amount),
+                recipient=unit_bill.tenant.user.phone_number
             )
             whatsapp_notification.send_message()
 

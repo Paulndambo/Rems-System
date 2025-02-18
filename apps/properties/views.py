@@ -189,11 +189,11 @@ def property_unit_detail(request, id):
         'unit': unit,
         'maintenance_requests': maintenance_requests,
         'water_bills': water_bills,
-        "average_water_bill": average_water_bill if average_water_bill else 0,
-        "maintenance_cost": maintenance_cost,
+        "average_water_bill": round(average_water_bill, 2) if average_water_bill else 0,
+        "maintenance_cost": round(maintenance_cost, 2) if maintenance_cost else 0,
         "unit_statuses": UNIT_STATUSES,
         "payments": payments,
-        "total_rent": round(total_rent, 0) if total_rent else 0
+        "total_rent": round(total_rent, 2) if total_rent else 0
     }
     return render(request, 'properties/units/unit_details.html', context)
 
