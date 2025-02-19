@@ -17,12 +17,13 @@ from apps.properties.views import (
     delete_maintenance_request,
     assign_tenant,
     view_water_bill,
-    new_water_bill,
+   
     edit_water_bill,
     delete_water_bill,
     WaterBillListView,
     PropertyUnitListView
 )
+from apps.properties.water_bills.views import new_water_bill
 
 urlpatterns = [
     path('', properties, name='properties'),

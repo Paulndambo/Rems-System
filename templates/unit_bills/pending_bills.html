@@ -40,7 +40,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    {% for bill in unit_bills %}
+                    {% for bill in pending_bills %}
                     <tr>
                         <td class="text-center">{{forloop.counter}}</td>
                         <td>
@@ -106,7 +106,7 @@
             </table>
         </div>
 
-        {% if not unit_bills %}
+        {% if not pending_bills %}
         <div class="text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-water fa-3x text-muted"></i>
@@ -132,13 +132,14 @@ document.addEventListener('DOMContentLoaded', function() {
         "pageLength": 10,
         "ordering": true,
         "searching": true,
+        "paging": true,
         "language": {
             "search": "",
             "searchPlaceholder": "Search bills..."
         },
         "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
         "columnDefs": [
-            { "orderable": false, "targets": [9] } // Disable sorting on action column
+            { "orderable": false, "targets": [6] }
         ]
     });
 
@@ -148,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Integrate the existing search box with DataTables
-    $('.dataTables_filter').hide(); // Hide the default search box
+    $('.dataTables_filter').hide();
     
     // Print functionality
     function printWaterBill(billId) {

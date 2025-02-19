@@ -1,5 +1,7 @@
 from decimal import Decimal
 from django.db import models
+from datetime import date, timedelta
+import calendar
 
 
 from apps.core.models import AbstractBaseModel, WaterPrice
@@ -89,6 +91,7 @@ class WaterBill(AbstractBaseModel):
     previous_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     previous_reading = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
     current_reading = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
+    units_counsumed = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
@@ -98,17 +101,53 @@ class WaterBill(AbstractBaseModel):
     def __str__(self):
         return self.unit.name
     
-
     def total_amount(self):
         water_price = self.unit.water_price
-        return (Decimal(water_price) * Decimal(self.current_reading)) + Decimal(self.previous_balance)
+        return (Decimal(water_price) * Decimal(self.units_counsumed)) + Decimal(self.previous_balance)
+    
 
     def save(self, *args, **kwargs):
-        
+        # Set tenant if not already set
         if not self.tenant and self.unit:
             self.tenant = self.unit.tenant
+        
+        # Set previous_reading from the last WaterBill for the unit
+        last_water_bill = WaterBill.objects.filter(unit=self.unit).order_by('-created_at').first()
+        if last_water_bill:
+            self.previous_reading = last_water_bill.current_reading
+        else:
+            self.previous_reading = 0.00
+
+        # Calculate reading_date and due_date
+        if self.month and self.year:
+            # Extract month number from month name
+            month_number = list(calendar.month_name).index(self.month.name)
+            year_number = int(self.year.name)
+
+            # Get the first day of the next month
+            first_day_next_month = date(year_number, month_number, 1) + timedelta(days=calendar.monthrange(year_number, month_number)[1])
+            self.reading_date = first_day_next_month
+            # Set due_date to the 5th of the next month
+            self.due_date = first_day_next_month.replace(day=5)
+
+        # Call the superclass save method
+        self.units_counsumed = Decimal(self.current_reading) - Decimal(self.previous_reading)
+
         self.amount = self.total_amount()
         super().save(*args, **kwargs)
+    
+    
+    def refresh_bill(self):
+        self.units_counsumed = Decimal(self.current_reading) - Decimal(self.previous_reading)
+        self.amount = self.total_amount()
+        
+        # Save the updated bill
+        self.save()
+        self.unit_bill.water_amount = self.amount
+        self.unit_bill.save()
+        self.unit_bill.update_amount_expected()
+        self.unit_bill.save()
+        self.save()
 
     def balance(self):
         return self.amount - self.amount_paid

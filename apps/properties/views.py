@@ -7,6 +7,7 @@ from django.views.generic import ListView
 from django.http import JsonResponse
 from django.db.models import Q
 from django.db import transaction
+from django.core.paginator import Paginator
 
 from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
 from apps.core.models import Month, Year
@@ -391,9 +392,15 @@ class WaterBillListView(ListView):
 def water_bills(request):
     water_bills = WaterBill.objects.all().order_by("-created_at")
 
+    # Add pagination
+    paginator = Paginator(water_bills, 10)  # Show 10 bills per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     units = PropertyUnit.objects.filter(is_occupied=True).order_by("-created_at")
 
     context = {
+        "page_obj": page_obj,
         "water_bills": water_bills,
         "months": MONTHS_LIST,
         "years": years,
