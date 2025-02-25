@@ -8,7 +8,6 @@ from django.conf import settings
 BACKEND_BASE_URL = settings.BACKEND_BASE_URL
 # Create your models here.
 class UnitMonthBill(AbstractBaseModel):
-
     unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True)
     tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True)
     month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
@@ -126,7 +125,6 @@ class RentPayment(AbstractBaseModel):
     payment_date = models.DateField()
     payment_method = models.CharField(max_length=255, choices=PaymentMethods.choices(), null=True, blank=True)
     
-
 
 class TenantPayment(AbstractBaseModel):
     unit_bill = models.ForeignKey("UnitMonthBill", on_delete=models.CASCADE, null=True, blank=True)

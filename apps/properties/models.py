@@ -105,7 +105,6 @@ class WaterBill(AbstractBaseModel):
         water_price = self.unit.water_price
         return (Decimal(water_price) * Decimal(self.units_counsumed)) + Decimal(self.previous_balance)
     
-
     def save(self, *args, **kwargs):
         # Set tenant if not already set
         if not self.tenant and self.unit:
