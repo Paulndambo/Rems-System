@@ -9,11 +9,11 @@ from django.http import JsonResponse
 from django.db.models import Q
 import json
 
-from apps.payments.models import (WaterBillPayment, Expense, RentPayment, 
+from apps.payments.models import (WaterBillPayment, RentPayment, 
                                    RentBill, TenantPayment, GarbageBill, 
                                    GarbageBillPayment, UnitMonthBill)
-from apps.properties.models import WaterBill, PropertyUnit, Property
-from apps.core.models import Month, Year
+from apps.properties.models import WaterBill
+from apps.core.models import Month
 from apps.core.constants import PaymentStatuses, PAYMENT_METHODS
 from apps.notifications.whatsapp import WhatsAppNotification
 from apps.notifications.message_templates import format_water_bill_message, format_rent_bill_message, format_garbage_bill_message, format_unit_bill_message
