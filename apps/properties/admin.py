@@ -13,5 +13,5 @@ class PropertyUnitAdmin(admin.ModelAdmin):
 
 @admin.register(WaterBill)
 class WaterBillAdmin(admin.ModelAdmin):
-    list_display = ('id', 'unit', 'month', 'year', 'previous_reading', 'current_reading', 'units_counsumed', 'reading_date', 'due_date', 'amount', 'status')
+    list_display = ('id', 'unit', 'month', 'year', 'previous_reading', 'current_reading', 'units_consumed', 'reading_date', 'due_date', 'amount', 'status')
     list_filter = ('year', 'unit')

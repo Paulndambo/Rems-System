@@ -43,7 +43,7 @@ class UnitListingListView(generics.ListCreateAPIView):
         filter_conditions = Q()
         if town:
             town = town.strip()
-            filter_conditions &= Q(town__icontains=town) | Q(county__icontains=town)
+            filter_conditions &= Q(city__name__icontains=town) | Q(city__county__icontains=town)
 
         if unit_type:
             unit_type = unit_type.strip()
@@ -220,3 +220,4 @@ class CollectListingViewsAPIView(generics.CreateAPIView):
                 return Response({ "message": "Listing views increased by 1" }, status=status.HTTP_201_CREATED)
             return Response({ "failed": "Listing views could not be increased by 1" }, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

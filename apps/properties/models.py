@@ -91,7 +91,7 @@ class WaterBill(AbstractBaseModel):
     previous_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     previous_reading = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
     current_reading = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
-    units_counsumed = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
+    units_consumed = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
@@ -103,7 +103,7 @@ class WaterBill(AbstractBaseModel):
     
     def total_amount(self):
         water_price = self.unit.water_price
-        return (Decimal(water_price) * Decimal(self.units_counsumed)) + Decimal(self.previous_balance)
+        return (Decimal(water_price) * Decimal(self.units_consumed)) + Decimal(self.previous_balance)
     
     def save(self, *args, **kwargs):
         # Set tenant if not already set
@@ -130,14 +130,14 @@ class WaterBill(AbstractBaseModel):
             self.due_date = first_day_next_month.replace(day=5)
 
         # Call the superclass save method
-        self.units_counsumed = Decimal(self.current_reading) - Decimal(self.previous_reading)
+        self.units_consumed = self.units_consumed #Decimal(self.current_reading) - Decimal(self.previous_reading)
 
         self.amount = self.total_amount()
         super().save(*args, **kwargs)
     
     
     def refresh_bill(self):
-        self.units_counsumed = Decimal(self.current_reading) - Decimal(self.previous_reading)
+        self.units_consumed = Decimal(self.current_reading) - Decimal(self.previous_reading)
         self.amount = self.total_amount()
         
         # Save the updated bill

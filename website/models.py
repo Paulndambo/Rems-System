@@ -115,6 +115,15 @@ class Lister(AbstractBaseModel):
         return self.listings.all().count()
 
 
+class ListingCity(AbstractBaseModel):
+    name = models.CharField(max_length=255)
+    county = models.CharField(max_length=255)
+    cover_image = models.ImageField(upload_to='listing_cities/', null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
 class UnitListing(AbstractBaseModel):
     lister = models.ForeignKey(Lister, on_delete=models.CASCADE, related_name='listings', null=True, blank=True)
     property_name = models.CharField(max_length=255)
@@ -155,8 +164,9 @@ class UnitListing(AbstractBaseModel):
     is_trending = models.BooleanField(default=False)
     is_new = models.BooleanField(default=False) 
     owner = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True)
-    town = models.CharField(max_length=255, null=True, blank=True)
-    county = models.CharField(max_length=255, null=True, blank=True)
+    #town = models.CharField(max_length=255, null=True, blank=True)
+    #county = models.CharField(max_length=255, null=True, blank=True)
+    city = models.ForeignKey(ListingCity, on_delete=models.SET_NULL, null=True, blank=True, related_name='listingsincity')
     location_description = models.TextField(null=True, blank=True)
     approved = models.BooleanField(default=False)
     commission = models.DecimalField(max_digits=100, decimal_places=2, default=0)

@@ -26,7 +26,10 @@ def new_water_bill(request):
         year_id = request.POST.get('year')
         month_name = request.POST.get('month')
         previous_balance = request.POST.get('previous_balance')
-        current_reading = request.POST.get('current_reading')
+        #current_reading = request.POST.get('current_reading')
+        units_consumed = Decimal(request.POST.get('units_consumed'))
+
+        
 
         unit = PropertyUnit.objects.get(id=unit_id)
         year = Year.objects.get(id=year_id)
@@ -43,7 +46,7 @@ def new_water_bill(request):
             )
 
     
-        unit_bill.water_amount = (Decimal(unit.water_price) * Decimal(current_reading)) + Decimal(previous_balance)
+        unit_bill.water_amount = (Decimal(unit.water_price) * Decimal(units_consumed)) + Decimal(previous_balance)
         unit_bill.update_amount_expected()
         unit_bill.save()
 
@@ -54,10 +57,13 @@ def new_water_bill(request):
             tenant=unit.tenant,
             year=year,
             month=month,
-            previous_balance=previous_balance,
-            current_reading=current_reading,
+            previous_balance=0,
+            current_reading=0,
             meter_number=unit.water_meter_number,
+            units_consumed=units_consumed,
+            amount=unit_bill.water_amount
         )
+        
 
         rent_bill = RentBill.objects.filter(unit=unit, unit_bill=unit_bill).first()
         if not rent_bill:

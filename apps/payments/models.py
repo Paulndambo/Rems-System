@@ -61,7 +61,7 @@ class UnitMonthBill(AbstractBaseModel):
     def unit_bill_status(self):
         if self.rent_fully_paid() and self.water_fully_paid() and self.garbage_fully_paid():
             return PaymentStatuses.PAID.value
-        elif self.rent_fully_paid() or self.water_fully_paid() or self.garbage_fully_paid():
+        elif not self.rent_fully_paid() or not self.water_fully_paid() or not self.garbage_fully_paid():
             return PaymentStatuses.PARTIALLY_PAID.value
         else:
             return PaymentStatuses.PENDING.value
