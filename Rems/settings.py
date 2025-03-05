@@ -171,6 +171,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'apps.users.firebase_auth.FirebaseAuthentication',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
 }
 
 
@@ -184,6 +186,10 @@ SMS_API_KEY = "be1a1f74f8c3e33db3446550989edd4fd36a7bfb"
 # WhatsApp API Settings
 WAAPI_API_KEY = "C7IIxKdmdKHHNL7f59vILufmYDyEDa5VnRZlzyHM0e4db375"
 WAAPI_INSTANCE_KEY = "44329"
+
+WAAPI_TESTING_PHONE_NUMBER = "254745491093"
+WAAPI_TESTING_API_KEY = "7ca3Q3Hhoj4GIYGvuGOAibG6rO1AE89jR1cKN3iV9a0b8f5e"
+WAAPI_TESTING_INSTANCE_KEY = "45639"
 
 if DEBUG:
     BACKEND_BASE_URL = "http://localhost:8000"

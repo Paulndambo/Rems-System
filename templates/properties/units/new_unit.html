@@ -11,11 +11,11 @@
                     <input type="number" name="property_id" id="property_id" value="{{property.id}}" readonly hidden>
                     <div class="row mb-3">
                         <div class="col">
-                            <label class="form-label">Unit Number</label>
+                            <label class="form-label fw-bold">Unit Number</label>
                             <input type="text" class="form-control" name="unit_number" id="unit_number" required>
                         </div>
                         <div class="col">
-                            <label class="form-label">Unit Type</label>
+                            <label class="form-label fw-bold">Unit Type</label>
                             <select class="form-select" name="unit_type" id="unit_type" required>
                                 <option value="">Select type...</option>
                                 {% for unit_type in unit_types %}
@@ -26,29 +26,24 @@
                     </div>
                     
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col">
                             <div class="mb-3">
-                                <label class="form-label">Floor</label>
+                                <label class="form-label fw-bold">Floor</label>
                                 <input type="text" class="form-control" name="floor" id="floor" required>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Size (sq ft)</label>
-                                <input type="number" class="form-control" name="size" id="size" required>
-                            </div>
-                        </div>
+                        
                     </div>
                     <div class="row mb-3">
                         <div class="col">
-                            <label class="form-label">Monthly Rent</label>
+                            <label class="form-label fw-bold">Monthly Rent</label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
                                 <input type="number" class="form-control" name="rent" id="rent" required>
                             </div>
                         </div>
                         <div class="col">
-                            <label class="form-label">Security Deposit</label>
+                            <label class="form-label fw-bold">Security Deposit</label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
                                 <input type="number" class="form-control" name="security_deposit" id="security_deposit" required>
@@ -57,14 +52,14 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col">
-                            <label class="form-label">Water Price</label>
+                            <label class="form-label fw-bold">Water Price</label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
                                 <input type="number" class="form-control" name="water_price" id="water_price" value="200" required>
                             </div>
                         </div>
                         <div class="col">
-                            <label class="form-label">Status</label>
+                            <label class="form-label fw-bold">Status</label>
                             <select class="form-select" name="status" id="status" required>
                                 <option value="">Select status...</option>
                                 {% for status in unit_statuses %}

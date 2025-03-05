@@ -1,7 +1,7 @@
 from django.urls import path, include
 from .listings.views import UnitListingListView, UnitListingDetailView, UploadListingImageAPIView, CollectListingViewsAPIView, PropertyViewInterestsAPIView, ListingImageListView, ClientRequestsAPIView, ClientRequestDetailAPIView
 from apis.views import PaystackWebhookView, MetricsView
-
+from apis.cities.views import ListingCityListView, ListingCityListingsView
 
 urlpatterns = [
     path('listings/', UnitListingListView.as_view()),
@@ -14,5 +14,7 @@ urlpatterns = [
     path('paystack-webhook/', PaystackWebhookView.as_view(), name='paystack-webhook'),
     path('metrics/', MetricsView.as_view(), name='metrics'),
     path('upload-listing-images/<int:listing_id>/', UploadListingImageAPIView.as_view(), name='upload-listing-images'),
+    path('cities/', ListingCityListView.as_view(), name='cities'),
+    path('cities/<int:id>/listings/', ListingCityListingsView.as_view(), name='city-listings'),
 ]
 

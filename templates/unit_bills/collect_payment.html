@@ -20,7 +20,7 @@
                         
                         <div class="col">
                             <label for="unit" class="form-label fw-bold">Amount Paying</label>
-                            <input type="number" class="form-control" id="rent_amount" name="rent_amount" max="{{unit_bill.rent_balance}}" min="0" value="0">
+                            <input type="number" class="form-control" id="rent_amount" name="rent_amount" max="{{unit_bill.rent_balance}}" min="0" step="0.01" value="0.00">
                         </div>
                     </div>
                     <hr/>
@@ -34,7 +34,7 @@
                         
                         <div class="col">
                             <label for="unit" class="form-label fw-bold">Amount Paying</label>
-                            <input type="number" class="form-control" id="water_amount" name="water_amount" max="{{unit_bill.water_balance}}" min="0" value="0">
+                            <input type="number" class="form-control" id="water_amount" name="water_amount" max="{{unit_bill.water_balance}}" min="0" step="0.01" value="0.00">
                         </div>
                     </div>
                     <hr/>
@@ -49,7 +49,7 @@
                         
                         <div class="col">   
                             <label for="unit" class="form-label fw-bold">Amount Paying</label>
-                            <input type="number" class="form-control" id="garbage_amount" name="garbage_amount" max="{{unit_bill.garbage_balance}}" min="0" value="0">
+                            <input type="number" class="form-control" id="garbage_amount" name="garbage_amount" max="{{unit_bill.garbage_balance}}" min="0" step="0.01" value="0.00">
                         </div>
                     </div>
                     {% endif %}

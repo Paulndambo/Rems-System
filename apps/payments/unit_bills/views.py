@@ -9,13 +9,14 @@ from django.http import JsonResponse
 from django.db.models import Q
 import json
 
-from apps.payments.models import (WaterBillPayment, Expense, RentPayment, 
+from apps.payments.models import (WaterBillPayment, RentPayment, 
                                    RentBill, TenantPayment, GarbageBill, 
                                    GarbageBillPayment, UnitMonthBill)
-from apps.properties.models import WaterBill, PropertyUnit, Property
-from apps.core.models import Month, Year
+from apps.properties.models import WaterBill
+from apps.core.models import Month
 from apps.core.constants import PaymentStatuses, PAYMENT_METHODS
-
+from apps.notifications.whatsapp import WhatsAppNotification
+from apps.notifications.message_templates import format_water_bill_message, format_rent_bill_message, format_garbage_bill_message, format_unit_bill_message
 
 class MonthlyUnitBillsView(ListView):
     model = Month
@@ -84,6 +85,13 @@ def update_bill_status(bill, amount_paid, expected_amount):
     if amount_paid >= expected_amount:
         bill.fully_paid = True
         bill.status = PaymentStatuses.PAID.value
+        """
+        whatsapp_notification = WhatsAppNotification(
+            message=format_unit_bill_message(bill.tenant.user.first_name, bill.month.name, bill.year.name),
+            recipient=bill.tenant.user.phone_number
+        )
+        whatsapp_notification.send_message()
+        """
     elif amount_paid > 0:
         bill.status = PaymentStatuses.PARTIALLY_PAID.value
     else:
@@ -133,6 +141,14 @@ def collect_unit_bill_payment(request):
                 year=unit_bill.year
             )
 
+            """
+            whatsapp_notification = WhatsAppNotification(
+                message=format_rent_bill_message(unit_bill.tenant.user.first_name, rent_amount),
+                recipient=unit_bill.tenant.user.phone_number
+            )
+            whatsapp_notification.send_message()
+            """
+
         if water_amount > 0:
             water_bill = WaterBill.objects.get(unit_bill=unit_bill)
             water_bill.amount_paid += water_amount
@@ -164,6 +180,13 @@ def collect_unit_bill_payment(request):
                 month=unit_bill.month,
                 year=unit_bill.year
             )
+            """
+            whatsapp_notification = WhatsAppNotification(
+                message=format_water_bill_message(unit_bill.tenant.user.first_name, water_amount),
+                recipient=unit_bill.tenant.user.phone_number
+            )
+            whatsapp_notification.send_message()
+            """
 
         if garbage_amount > 0:
             garbage_bill = GarbageBill.objects.get(unit_bill=unit_bill)
@@ -194,7 +217,40 @@ def collect_unit_bill_payment(request):
                 year=unit_bill.year
             )
 
+            """
+            whatsapp_notification = WhatsAppNotification(
+                message=format_garbage_bill_message(unit_bill.tenant.user.first_name, garbage_amount),
+                recipient=unit_bill.tenant.user.phone_number
+            )
+            whatsapp_notification.send_message()
+            """
+
         update_bill_status(unit_bill, unit_bill.amount_paid, unit_bill.amount_expected)
 
         return redirect("unit-bill-details", pk=unit_bill_id)
     return render(request, "unit_bills/collect_payment.html")
+
+
+class PendingBillsView(ListView):
+    model = UnitMonthBill
+    template_name = "unit_bills/pending_bills.html"
+    context_object_name = "pending_bills"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+    
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query) |
+                Q(unit__name__icontains=search_query) |
+                Q(unit__property__name__icontains=search_query) |
+                Q(tenant__user__first_name__icontains=search_query) |
+                Q(tenant__user__last_name__icontains=search_query)
+            )
+        return queryset.filter(fully_paid=False).order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

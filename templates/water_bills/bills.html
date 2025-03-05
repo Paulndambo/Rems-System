@@ -47,7 +47,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    {% for bill in water_bills %}
+                    {% for bill in page_obj %}
                     <tr>
                         <td class="text-center">{{forloop.counter}}</td>
                         <td>
@@ -65,7 +65,7 @@
                             <div>{{bill.month}}</div>
                             <small class="text-muted">{{bill.year}}</small>
                         </td>
-                        <td class="text-center">{{bill.current_reading}}</td>
+                        <td class="text-center">{{bill.units_consumed}}</td>
                         <td class="text-end">{{bill.amount}}</td>
                         <td class="text-end">{{bill.amount_paid}}</td>
                         <td class="text-center">
@@ -110,7 +110,7 @@
             </table>
         </div>
 
-        {% if not water_bills %}
+        {% if not page_obj %}
         <div class="text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-water fa-3x text-muted"></i>
@@ -119,6 +119,43 @@
             <p class="text-muted small">Add a new water bill to get started</p>
         </div>
         {% endif %}
+
+        <!-- Pagination controls -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
     </div>
 </div>
 {% endblock content %}

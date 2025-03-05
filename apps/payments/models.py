@@ -8,7 +8,6 @@ from django.conf import settings
 BACKEND_BASE_URL = settings.BACKEND_BASE_URL
 # Create your models here.
 class UnitMonthBill(AbstractBaseModel):
-
     unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True)
     tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True)
     month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
@@ -62,7 +61,7 @@ class UnitMonthBill(AbstractBaseModel):
     def unit_bill_status(self):
         if self.rent_fully_paid() and self.water_fully_paid() and self.garbage_fully_paid():
             return PaymentStatuses.PAID.value
-        elif self.rent_fully_paid() or self.water_fully_paid() or self.garbage_fully_paid():
+        elif not self.rent_fully_paid() or not self.water_fully_paid() or not self.garbage_fully_paid():
             return PaymentStatuses.PARTIALLY_PAID.value
         else:
             return PaymentStatuses.PENDING.value
@@ -115,7 +114,7 @@ class RentBill(AbstractBaseModel):
     fully_paid = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.tenant.user.name}"
+        return f"{self.tenant.user.name}" if self.tenant else f"{self.unit.name}"
 
     def balance(self):
         return self.amount_expected - self.amount_paid
@@ -126,7 +125,6 @@ class RentPayment(AbstractBaseModel):
     payment_date = models.DateField()
     payment_method = models.CharField(max_length=255, choices=PaymentMethods.choices(), null=True, blank=True)
     
-
 
 class TenantPayment(AbstractBaseModel):
     unit_bill = models.ForeignKey("UnitMonthBill", on_delete=models.CASCADE, null=True, blank=True)
@@ -156,7 +154,7 @@ class GarbageBill(AbstractBaseModel):
     fully_paid = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.tenant.user.name}"
+        return f"{self.tenant.user.name}" if self.tenant else f"{self.unit.name}"
     
     def balance(self):
         return self.amount_expected - self.amount_paid
@@ -170,4 +168,4 @@ class GarbageBillPayment(AbstractBaseModel):
    
 
     def __str__(self):
-        return f"{self.garbage_bill.tenant.user.name}"
+        return f"{self.garbage_bill.tenant.user.name}" if self.garbage_bill.tenant else f"{self.garbage_bill.unit.name}"

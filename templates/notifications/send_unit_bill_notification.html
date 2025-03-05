@@ -11,7 +11,7 @@
                     {% csrf_token %}
                     <input type="number" name="unit_bill_id" id="unit_bill_id" value="{{bill.id}}" readonly hidden>
                     <div class="row mb-2">
-                        <p>Are you sure you want to send unit bill notification to tenant named: <b>{{bill.tenant.user.name}}</b>?</p>
+                        <p>Are you sure you want to send unit bill notification to tenant named: <b>{{bill.tenant.user.first_name}} {{bill.tenant.user.last_name}}</b>?</p>
                    </div>
                     
                 <div class="text-center mb-2">

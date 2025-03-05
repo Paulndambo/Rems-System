@@ -21,10 +21,10 @@
                 </div>
             </div>
             <div class="col-12 col-md-4 text-md-end">
-                <button class="btn btn-primary w-100 w-md-auto" 
+                <button class="btn btn-primary w-md-auto" 
                         data-bs-toggle="modal" 
                         data-bs-target="#newPropertyModal">
-                    <i class="fas fa-plus me-2"></i>Add New Property
+                    <i class="fas fa-plus me-2"></i>Add New
                 </button>
             </div>
         </div>
@@ -40,7 +40,7 @@
                         <th>City</th>
                         <th>Country</th>
                         <th>Status</th>
-                        <th class="text-end pe-3">Actions</th>
+                        <th colspan="2"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,20 +59,22 @@
                                 {{property.status}}
                             </span>
                         </td>
-                        <td class="text-end pe-3">
-                            <div class="btn-group">
+                        <td class="text-end">
+                            <div class="btn-group text-white fw-bold">
                                 <a href="{% url 'property-detail' property.id %}" 
-                                   class="btn btn-sm btn-outline-primary"
+                                   class="btn btn-sm btn-primary"
                                    title="View Details">
-                                    <i class="fas fa-eye"></i>
+                                    See Details
                                 </a>
-                                <button class="btn btn-sm btn-outline-danger" 
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#deletePropertyModal{{property.id}}"
                                         title="Delete Property">
                                     <i class="fas fa-trash"></i>
                                 </button>
-                            </div>
                         </td>
                     </tr>
                     {% include "properties/delete_property.html" %}
@@ -80,6 +82,65 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="card-footer bg-white py-3">
+        <nav aria-label="Properties pagination">
+            <ul class="pagination justify-content-center mb-0">
+                {% if properties.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ properties.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;&laquo;</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
+                {% endif %}
+
+                {% for num in properties.paginator.page_range %}
+                    {% if properties.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > properties.number|add:'-3' and num < properties.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if properties.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ properties.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ properties.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;&raquo;</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
     </div>
 </div>
 

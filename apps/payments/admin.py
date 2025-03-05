@@ -5,7 +5,8 @@ from .models import RentPayment, TenantPayment, RentBill, WaterBillPayment, Expe
 
 @admin.register(UnitMonthBill)
 class UnitMonthBillAdmin(admin.ModelAdmin):
-    list_display = ["id", "unit", "tenant", "rent_amount", "water_amount", "garbage_amount", "amount_expected"]
+    list_display = ["id", "unit", 'month', 'year', "tenant", "rent_amount", "water_amount", "garbage_amount", "amount_expected", "amount_paid", "balance", "fully_paid"]
+    list_filter = ('year', 'month', 'unit')
 
 @admin.register(RentPayment)
 class RentPaymentAdmin(admin.ModelAdmin):
@@ -15,6 +16,7 @@ class RentPaymentAdmin(admin.ModelAdmin):
 @admin.register(RentBill)
 class RentBillAdmin(admin.ModelAdmin):
     list_display = ["id", "tenant", "unit", "amount_expected", "amount_paid", "due_date", "status", "fully_paid"]
+    list_filter = ("year", "month", "unit")
     
 
 @admin.register(TenantPayment)

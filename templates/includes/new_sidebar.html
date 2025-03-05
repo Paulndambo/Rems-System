@@ -1,0 +1,119 @@
+<div class="sidebar-wrapper">
+    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+        <div class="position-sticky pt-3">
+            <!-- Company Logo/Name -->
+            <div class="sidebar-header px-3 mb-4">
+                <h5 class="text-light">Property Manager</h5>
+            </div>
+
+            <!-- Navigation Items -->
+            <ul class="nav flex-column">
+                <!-- Dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link text-light {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                       href="#">
+                        <i class="fas fa-home me-2"></i>
+                        Dashboard
+                    </a>
+                </li>
+
+                <!-- Properties -->
+                <li class="nav-item">
+                    <a class="nav-link text-light {% if 'properties' in request.path %}active{% endif %}" 
+                       href="{% url 'properties' %}">
+                        <i class="fas fa-building me-2"></i>
+                        Properties
+                    </a>
+                </li>
+
+                <!-- Tenants -->
+                <li class="nav-item">
+                    <a class="nav-link text-light {% if 'tenants' in request.path %}active{% endif %}" 
+                       href="{% url 'tenants' %}">
+                        <i class="fas fa-users me-2"></i>
+                        Tenants
+                    </a>
+                </li>
+
+                <!-- Bills -->
+                <li class="nav-item">
+                    <a class="nav-link text-light {% if 'bills' in request.path %}active{% endif %}" 
+                       href="{% url 'pending-bills' %}">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>
+                        Bills
+                    </a>
+                </li>
+
+                <!-- Maintenance -->
+                <li class="nav-item">
+                    <a class="nav-link text-light {% if 'maintenance' in request.path %}active{% endif %}" 
+                       href="#">
+                        <i class="fas fa-tools me-2"></i>
+                        Maintenance
+                    </a>
+                </li>
+
+                <!-- Settings -->
+                <li class="nav-item mt-4">
+                    <a class="nav-link text-light {% if 'settings' in request.path %}active{% endif %}" 
+                       href="#">
+                        <i class="fas fa-cog me-2"></i>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+
+            <!-- User Profile Section -->
+            <div class="position-absolute bottom-0 mb-3 px-3 w-100">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-light text-decoration-none dropdown-toggle" 
+                       id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="{{ request.user.profile_picture.url|default:'/static/images/default-avatar.png' }}" 
+                             alt="Profile" width="32" height="32" class="rounded-circle me-2">
+                        <strong>{{ request.user.get_full_name }}</strong>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser">
+                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<style>
+    .sidebar-wrapper {
+        min-height: 100vh;
+    }
+
+    #sidebar {
+        min-height: 100vh;
+        transition: all 0.3s;
+    }
+
+    .nav-link {
+        padding: 0.5rem 1rem;
+        transition: all 0.3s;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    @media (max-width: 767.98px) {
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            padding: 0;
+            width: 250px;
+        }
+    }
+</style>

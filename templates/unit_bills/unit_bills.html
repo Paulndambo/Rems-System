@@ -33,11 +33,9 @@
                         <th class="text-center">#</th>
                         <th>Tenant</th>
                         <th>Month</th>
-                        <th>Rent</th>
-                        <th>Water</th>
-                        <th>Garbage</th>
-                        <th class="text-end">Expected</th>
-                        <th class="text-end">Paid</th>
+                       
+                        <th class="text-end">Total Amount</th>
+                        <th class="text-end">Total Paid</th>
                         <th class="text-center">Status</th>
                         <th class="text-center"></th>
                     </tr>
@@ -61,13 +59,9 @@
                             <div>{{bill.month}}</div>
                             <small class="text-muted">{{bill.year}}</small>
                         </td>
-
-                        <td class="text-end">{{bill.rent_amount}}</td>
-                        <td class="text-end">{{bill.water_amount}}</td>
-                        <td class="text-end">{{bill.garbage_amount}}</td>
-                    
-                        <td class="text-end">{{bill.amount_expected}}</td>
-                        <td class="text-end">{{bill.amount_paid}}</td>
+    
+                        <td class="text-center">{{bill.amount_expected}}</td>
+                        <td class="text-center">{{bill.amount_paid}}</td>
                         <td class="text-center">
 
                             {% if bill.unit_bill_status == 'Paid' %}
@@ -95,7 +89,6 @@
                                 <button class="btn btn-sm btn-primary" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#sendWhatsAppModal{{bill.id}}"
-
 
                                         title="Message">
                                         <i class="bi bi-envelope"></i>
