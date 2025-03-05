@@ -3,6 +3,9 @@ from .listings.views import UnitListingListView, UnitListingDetailView, UploadLi
 from apis.views import PaystackWebhookView, MetricsView
 from apis.cities.views import ListingCityListView, ListingCityListingsView
 
+from apis.subscriptions.views import SubscriptionAPIView, SubscriptionDetailAPIView
+from apis.listers.views import ListerAPIView, ListerDetailAPIView
+
 urlpatterns = [
     path('listings/', UnitListingListView.as_view()),
     path('listings/<int:id>/', UnitListingDetailView.as_view()),
@@ -16,5 +19,9 @@ urlpatterns = [
     path('upload-listing-images/<int:listing_id>/', UploadListingImageAPIView.as_view(), name='upload-listing-images'),
     path('cities/', ListingCityListView.as_view(), name='cities'),
     path('cities/<int:id>/listings/', ListingCityListingsView.as_view(), name='city-listings'),
+    path("subscriptions/", SubscriptionAPIView.as_view(), name="subscriptions"),
+    path("subscriptions/<int:pk>/", SubscriptionDetailAPIView.as_view(), name="subscription-details"),
+    path("listers/", ListerAPIView.as_view(), name="listers"),
+    path("listers/<int:pk>/", ListerDetailAPIView.as_view(), name="lister-details"),
 ]
 
