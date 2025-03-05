@@ -1,0 +1,93 @@
+[
+    {
+      "id": 1,
+      "question": "How do I file a claim?",
+      "answers": [
+        "You can file a claim in three ways: 1) Through our mobile app 2) On our website www.insurance.com/claims 3) Call our 24/7 claims hotline at 1-800-XXX-XXXX",
+        "To file a claim, please log into your account and click on 'File a Claim' or contact our claims department directly",
+        "Filing a claim is easy! Just use our mobile app, website, or call us anytime"
+      ]
+    },
+    {
+      "id": 2,
+      "question": "What documents do I need to submit for a claim?",
+      "answers": [
+        "For most claims, you'll need: 1) Policy number 2) Photos of damage 3) Police report (if applicable) 4) Medical records (for health claims)",
+        "Required documents typically include your policy number, incident documentation, and relevant photos or reports",
+        "Please have your policy number and incident documentation ready when submitting a claim"
+      ]
+    },
+    {
+      "id": 3,
+      "question": "How long does it take to process a claim?",
+      "answers": [
+        "Most claims are processed within 5-7 business days, though complex cases may take longer",
+        "We strive to process claims as quickly as possible, typically within a week",
+        "Claim processing time varies, but standard claims usually take 5-7 business days"
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Can I change my coverage online?",
+      "answers": [
+        "Yes, you can modify your coverage through our online portal. Log in to your account and select 'Modify Coverage'",
+        "Coverage changes can be made online through your account dashboard",
+        "Visit our website and log in to your account to adjust your coverage options"
+      ]
+    },
+    {
+      "id": 5,
+      "question": "What payment methods do you accept?",
+      "answers": [
+        "We accept credit/debit cards, bank transfers, checks, and automatic payments through your bank account",
+        "You can pay using any major credit card, bank transfer, or set up automatic payments",
+        "Multiple payment options are available including credit cards, ACH, and checks"
+      ]
+    },
+    {
+      "id": 6,
+      "question": "How can I get a copy of my policy?",
+      "answers": [
+        "You can download your policy documents from your online account or request a copy by email",
+        "Log into your account to access all policy documents, or contact us to have them emailed to you",
+        "Policy documents are available in your online account or by request through customer service"
+      ]
+    },
+    {
+      "id": 7,
+      "question": "What discounts are available?",
+      "answers": [
+        "We offer multiple discounts including: multi-policy, safe driver, good student, and home security system discounts",
+        "Available discounts include bundling policies, maintaining a clean driving record, and home safety features",
+        "Ask about our various discount programs - you might qualify for several!"
+      ]
+    },
+    {
+      "id": 8,
+      "question": "How do I update my personal information?",
+      "answers": [
+        "You can update your information through your online account or by calling our customer service team",
+        "Personal information updates can be made online or by contacting us directly",
+        "Log into your account to update your contact details, address, or other personal information"
+      ]
+    },
+    {
+      "id": 9,
+      "question": "What is covered under my home insurance policy?",
+      "answers": [
+        "Standard home insurance typically covers structure damage, personal property, liability, and additional living expenses",
+        "Your policy includes coverage for your home's structure, belongings, liability protection, and temporary living costs if needed",
+        "Home insurance protects against damage to your house, personal belongings, and provides liability coverage"
+      ]
+    },
+    {
+      "id": 10,
+      "question": "How do I cancel my policy?",
+      "answers": [
+        "To cancel your policy, please contact our customer service team or submit a cancellation request through your online account",
+        "Policy cancellation requests can be submitted online or by speaking with a representative",
+        "Contact us to discuss policy cancellation options and any potential refunds"
+      ]
+    }
+  ]
+
