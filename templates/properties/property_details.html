@@ -187,6 +187,10 @@
         .table-container {
             overflow-x: auto;
         }
+
+        #paymentsOverviewTable {
+            overflow-x: auto;
+        }
     }
 
     /* Loading State */
@@ -216,6 +220,19 @@
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
+    }
+
+    /* Payment Status Icons */
+    .fully-paid i {
+        color: var(--success-color);
+    }
+
+    .partially-paid i {
+        color: var(--warning-color);
+    }
+
+    .unpaid i {
+        color: var(--danger-color);
     }
 </style>
 {% endblock additional_css %}
@@ -277,6 +294,7 @@
         </div>
 
             <!-- Header Section -->
+             <!--
             <div class="card bg-white mb-4">
                 <div class="card-header">
                     <div class="row g-3 align-items-center">
@@ -346,6 +364,56 @@
                     </table>
                 </div>
             </div>
+        -->
+
+        <div class="card bg-white mb-4" id="paymentsOverviewTable">
+            <div class="card-header bg-white">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <h5 class="card-title mb-0 fw-bold">Payments Overview</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table id="paymentsOverviewDataTable" class="table table-hover table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Unit</th>
+                            {% for month in months %}
+                                <th>{{ month }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody class="border">
+                        {% for row in rows %}
+                            <tr>
+                                {% for cell in row %}
+                                    {% if forloop.first %}
+                                        <td><strong>{{ cell }}</strong></td> <!-- Unit number -->
+                                    {% else %}
+                                        <td>
+                                            {% if cell == "Fully Paid" %}
+                                            <div class="bg-success text-white p-2 rounded d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-check-circle me-2"></i>
+                                            </div>
+                                            {% elif cell == "Partially Paid" %}
+                                            <div class="bg-warning text-dark p-2 rounded d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-exclamation-circle me-2"></i>
+                                            </div>
+                                            {% else %}
+                                            <div class="bg-danger text-white p-2 rounded d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-times-circle me-2"></i>
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
         
 
 
@@ -367,10 +435,9 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Number.</th>
+                                <th>Unit No:.</th>
                                 <th>Type</th>
                                 <th>Floor</th>
-                                <th>Size (sq ft)</th>
                                 <th>Rent</th>
                                 <th>Status</th>
                                 <th>Tenant</th>
@@ -384,19 +451,28 @@
                                 <td>{{unit.name}}</td>
                                 <td>{{unit.unit_type}}</td>
                                 <td>{{unit.floor}}</td>
-                                <td>{{unit.size}}</td>
                                 <td>{{unit.rent}}</td>
-                                <td><span class="badge bg-success">{{unit.status}}</span></td>
+                                <td>
+                                    {% if unit.status == "Occupied" %}
+                                    <span class="badge bg-success">Occupied</span>
+                                    {% elif unit.status == "Vacant" %}
+                                    <span class="badge bg-danger">Vacant</span>
+                                    {% elif unit.status == "Under Maintenance" %}
+                                    <span class="badge bg-warning">Under Maintenance</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{unit.status}}</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if unit.tenant %}
                                     <a href="{% url 'tenant-detail' unit.tenant.id %}" class="text-decoration-none text-primary">
                                         {{ unit.tenant.user.name }}
                                     </a>
-                                {% else %}
+                                    {% else %}
                                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignTenantModal{{unit.id}}">
                                         <i class="fas fa-user-plus"></i> Assign
                                     </button>
-                                {% endif %}
+                                    {% endif %}
                                 </td>
                                 <td>
                                     <a href="{% url 'unit-detail' unit.id %}" class="btn btn-sm btn-outline-info" title="View Details">
@@ -405,7 +481,6 @@
                                 </td>
                             </tr>
                             {% endfor %}
-                           
                         </tbody>
                     </table>
                 </div>
@@ -441,8 +516,8 @@
             }
         };
 
-        // Initialize Payments Table
-        $('#paymentsTable').DataTable({
+        // Initialize Payments Overview Table
+        $('#paymentsOverviewDataTable').DataTable({
             ...commonConfig,
             "language": {
                 "search": "Search payments:",
