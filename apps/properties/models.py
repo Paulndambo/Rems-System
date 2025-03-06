@@ -56,7 +56,7 @@ class PropertyUnit(AbstractBaseModel):
     unit_type = models.CharField(max_length=255, null=True, blank=True)
     tenant = models.ForeignKey('tenants.Tenant', on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=255, null=True, blank=True)
-    size = models.FloatField(default=0)
+    #size = models.FloatField(default=0)
     security_deposit = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     water_meter_number = models.CharField(max_length=255, null=True, blank=True)
     electricity_meter_number = models.CharField(max_length=255, null=True, blank=True)

@@ -12,7 +12,7 @@
                     <input type="number" name="water_bill_id" id="water_bill_id" value="{{bill.id}}" readonly hidden>
                     <div class="row mb-3">
                         <div class="col">
-                            <label for="name" class="form-label fw-bold">Unit</label>
+                            <label for="name" class="form-label fw-bold">RentalUnit</label>
                         <select class="form-select" id="unit" name="unit">
                             <option value="{{bill.unit.id}}" selected>{{bill.unit.name}}</option>
                             {% for unit in units %}
@@ -55,23 +55,13 @@
 
                 <div class="row mb-3">
                     <div class="col">
-                        <label for="units_consumed" class="form-label fw-bold">Units Consumed</label>
-                        <input type="number" class="form-control" id="units_consumed" name="units_consumed" value="{{bill.units_consumed}}" step="0.0000" required/>
-                    </div>
-                    <!--
-                    <div class="col">
-                        <label for="unit" class="form-label fw-bold">Unpaid Balanaces</label>
-                        <input type="number" class="form-control" id="previous_balance" name="previous_balance" value="{{bill.previous_balance}}" step="0.01" />
-                    </div>
-                    <div class="col">
                         <label for="unit" class="form-label fw-bold">Previous Reading</label>
-                        <input type="number" class="form-control" id="previous_reading" name="previous_reading" value="{{bill.previous_reading}}" step="0.01" required/>
+                        <input type="number" class="form-control" id="previous_reading" name="previous_reading" min="0.0001" value="{{bill.previous_reading}}" step="0.0001" required />
                     </div>
                     <div class="col">
                         <label for="unit" class="form-label fw-bold">Current Reading</label>
-                        <input type="number" class="form-control" id="current_reading" name="current_reading" value="{{bill.current_reading}}" step="0.01" required/>
+                        <input type="number" class="form-control" id="current_reading" name="current_reading" step="0.0001" value="{{bill.current_reading}}" required/>
                     </div>
-                    -->
                 </div>
                 </div>
                 <div class="text-center mb-3">

@@ -30,7 +30,7 @@
                         </div>
                         <div class="col">
                             <label for="id_number" class="form-label fw-bold">ID Number</label>
-                            <input type="text" class="form-control" id="id_number" name="id_number" required>
+                            <input type="text" class="form-control" id="id_number" name="id_number">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -69,6 +69,18 @@
                                 <option value="" selected>Choose...</option>
                                 {% for status in marital_statuses %}
                                     <option value="{{status}}">{{status}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="rental_unit" class="form-label fw-bold">Rental Unit</label>
+                            <select class="form-select" id="rental_unit" name="rental_unit">
+                                <option value="" selected>Choose...</option>
+                                {% for unit in units %}
+                                    <option value="{{unit.id}}">{{unit.property.name}} - (<b>{{unit.name}}</b>)</option>
                                 {% endfor %}
                             </select>
                         </div>

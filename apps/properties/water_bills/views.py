@@ -1,21 +1,53 @@
+from datetime import datetime
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import Avg
-from datetime import datetime
 from decimal import Decimal
-from django.views.generic import ListView
-from django.http import JsonResponse
 from django.db.models import Q
 from django.db import transaction
+from django.views.generic import ListView
 
-from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
+from apps.properties.models import PropertyUnit, WaterBill
 from apps.core.models import Month, Year
-from apps.tenants.models import Tenant
-from apps.payments.models import TenantPayment, RentPayment, RentBill, UnitMonthBill, GarbageBill
-from apps.users.models import User
+from apps.payments.models import RentBill, UnitMonthBill, GarbageBill
+from apps.core.constants import MONTHS_LIST, PAYMENT_METHODS
 
-from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST, MONTHS_LIST, PAYMENT_METHODS
+
 # Create your views here.
+"""Water Bills"""
+class WaterBillListView(ListView):
+    model = WaterBill
+    template_name = "water_bills/bills.html"
+    context_object_name = "water_bills"
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+
+        print(f"You are searching for {search_query}")
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query)
+                | Q(unit__name__icontains=search_query)
+                | Q(month__name__icontains=search_query)
+                | Q(year__name__icontains=search_query)
+                | Q(tenant__user__first_name__icontains=search_query)
+                | Q(tenant__user__last_name__icontains=search_query)
+            )
+
+        return queryset.order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = self.request.GET.get("search", "")
+        context["months"] = MONTHS_LIST
+        context["years"] = Year.objects.filter(is_active=True)
+        context["payment_methods"] = PAYMENT_METHODS
+        context["units"] = PropertyUnit.objects.filter(is_occupied=True).order_by("-created_at")
+        return context
+
 
 @login_required
 @transaction.atomic
@@ -25,11 +57,9 @@ def new_water_bill(request):
         
         year_id = request.POST.get('year')
         month_name = request.POST.get('month')
-        previous_balance = request.POST.get('previous_balance')
-        #current_reading = request.POST.get('current_reading')
-        units_consumed = Decimal(request.POST.get('units_consumed'))
-
-        
+        previous_reading = request.POST.get('previous_reading')
+        current_reading = request.POST.get('current_reading')
+        units_consumed = Decimal(current_reading) - Decimal(previous_reading)
 
         unit = PropertyUnit.objects.get(id=unit_id)
         year = Year.objects.get(id=year_id)
@@ -45,8 +75,7 @@ def new_water_bill(request):
                 year=year
             )
 
-    
-        unit_bill.water_amount = (Decimal(unit.water_price) * Decimal(units_consumed)) + Decimal(previous_balance)
+        unit_bill.water_amount = (Decimal(unit.water_price) * Decimal(units_consumed))
         unit_bill.update_amount_expected()
         unit_bill.save()
 
@@ -57,14 +86,13 @@ def new_water_bill(request):
             tenant=unit.tenant,
             year=year,
             month=month,
-            previous_balance=0,
-            current_reading=0,
+            previous_reading=previous_reading,
+            current_reading=current_reading,
             meter_number=unit.water_meter_number,
             units_consumed=units_consumed,
             amount=unit_bill.water_amount
         )
         
-
         rent_bill = RentBill.objects.filter(unit=unit, unit_bill=unit_bill).first()
         if not rent_bill:
             RentBill.objects.create(
@@ -88,7 +116,6 @@ def new_water_bill(request):
                 tenant=unit.tenant,
                 amount_expected=unit.property.garbage_charge,
                 due_date=water_bill.due_date,
-             
             )
 
         unit_bill.rent_amount = unit.rent
@@ -99,3 +126,57 @@ def new_water_bill(request):
         return redirect("water-bills")
 
     return render(request, 'water_bills/new_water_bill.html')
+
+
+
+@login_required
+def view_water_bill(request, id):
+    water_bill = WaterBill.objects.get(id=id)
+    date_today = datetime.now().strftime("%Y-%m-%d")
+    return render(request, 'water_bills/view_bill.html', {'bill': water_bill, 'date_today': date_today})
+
+
+@login_required
+def edit_water_bill(request):
+    if request.method == "POST":
+        water_bill_id = request.POST.get('water_bill_id')
+    
+
+        previous_reading = request.POST.get('previous_reading')
+        current_reading = request.POST.get('current_reading')
+        reading_date = request.POST.get('reading_date')
+        units_consumed = Decimal(current_reading) - Decimal(previous_reading)
+
+        month_name = request.POST.get('month')
+        year_id = request.POST.get('year')
+
+        year = Year.objects.get(id=year_id)
+        month = Month.objects.get(name=month_name, year=year)
+
+        water_bill = WaterBill.objects.get(id=water_bill_id)
+        water_bill.previous_reading = previous_reading
+        water_bill.current_reading = current_reading
+        water_bill.units_consumed = units_consumed
+        water_bill.month = month
+        water_bill.year = year
+        water_bill.reading_date = reading_date
+        water_bill.save()
+
+        water_bill.amount = water_bill.total_amount()
+        water_bill.save()
+
+        water_bill.unit_bill.water_amount = water_bill.amount
+        water_bill.unit_bill.update_amount_expected()
+        water_bill.unit_bill.save()
+
+        return redirect("water-bills")
+    return render(request, 'water_bills/edit_bill.html')
+
+
+@login_required
+def delete_water_bill(request):
+    if request.method == "POST":
+        water_bill_id = request.POST.get('water_bill_id')
+        WaterBill.objects.get(id=water_bill_id).delete()
+        return redirect("water-bills")
+    return render(request, 'water_bills/delete_bill.html')

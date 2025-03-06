@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.db.models import Avg, Sum
 from django.views.generic import ListView
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
 
 from apps.tenants.models import Tenant, TenantNextOfKin
 from apps.properties.models import PropertyUnit
@@ -9,18 +11,6 @@ from apps.users.models import User
 from apps.core.constants import LEASE_DURATIONS, MARITAL_STATUSES
 #from apps.payments.models import WaterBill, TenantMonthlyBill
 # Create your views here.
-def tenants(request):
-    tenants = Tenant.objects.all().order_by('-created_at')
-    units = PropertyUnit.objects.filter(is_occupied=False)
-    context = {
-        'tenants': tenants,
-        'units': units,
-        'lease_durations': LEASE_DURATIONS,
-        'marital_statuses': MARITAL_STATUSES
-    }
-    return render(request, 'tenants/tenants.html', context)
-
-
 class TenantListView(ListView):
     model = Tenant
     template_name = "tenants/tenants.html"
@@ -31,7 +21,6 @@ class TenantListView(ListView):
         queryset = super().get_queryset()
         search_query = self.request.GET.get("search", "")
 
-        print(f"You are searching for {search_query}")
 
         if search_query:
             queryset = queryset.filter(
@@ -49,17 +38,17 @@ class TenantListView(ListView):
                 | Q(status__icontains=search_query)
             )
 
-        return queryset.order_by("-created_at")
+        return queryset.order_by("propertyunit__name")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['lease_durations'] = LEASE_DURATIONS
         context['marital_statuses'] = MARITAL_STATUSES
+        context['units'] = PropertyUnit.objects.filter(is_occupied=False)
         return context
 
 
 def tenant_detail(request, pk):
-
     tenant = Tenant.objects.get(pk=pk)
     next_of_kin = TenantNextOfKin.objects.filter(tenant=tenant)
 
@@ -87,16 +76,17 @@ def tenant_detail(request, pk):
         'units': units,
         'water_bills': water_bills,
         'payments': payments,
-        'total_water_bill': total_water_bill if total_water_bill else 0,
-        'total_rent_paid': total_rent_paid if total_rent_paid else 0,
-        'total_water_paid': total_water_paid if total_water_paid else 0,
+        'total_water_bill': round(total_water_bill, 2) if total_water_bill else 0,
+        'total_rent_paid': round(total_rent_paid, 2) if total_rent_paid else 0,
+        'total_water_paid': round(total_water_paid, 2) if total_water_paid else 0,
         'total_bill': round(total_bill, 2) if total_bill else 0,
         'total_paid': round(total_paid, 2) if total_paid else 0,
         'total_debt': round(total_debt, 2) if total_debt else 0
     }
     return render(request, 'tenants/tenant_details.html', context)
 
-
+@login_required
+@transaction.atomic
 def new_tenant(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -109,6 +99,9 @@ def new_tenant(request):
         lease_duration = request.POST.get('lease_duration')
         lease_date = request.POST.get('lease_date')
         marital_status = request.POST.get('marital_status')
+
+        rental_unit = request.POST.get('rental_unit')
+        unit = PropertyUnit.objects.get(id=rental_unit)
 
         user = User.objects.create(
             first_name=first_name, 
@@ -125,7 +118,7 @@ def new_tenant(request):
         user.set_password('1234')
         user.save()
 
-        Tenant.objects.create(
+        tenant = Tenant.objects.create(
             user=user,
             move_in_date=move_in_date,
             lease_duration=lease_duration,
@@ -133,6 +126,9 @@ def new_tenant(request):
             status='Active',
             renews_every=lease_duration
         )
+        unit.tenant = tenant
+        unit.is_occupied = True
+        unit.save()
         return redirect('tenants')
     return render(request, 'tenants/new_tenant.html')
 
@@ -151,7 +147,9 @@ def edit_tenant(request):
         lease_duration = request.POST.get('lease_duration')
         lease_date = request.POST.get('lease_date')
         marital_status = request.POST.get('marital_status')
-        
+
+        rental_unit = request.POST.get('rental_unit')
+        unit = PropertyUnit.objects.filter(id=rental_unit).first()
 
         tenant.user.first_name = first_name
         tenant.user.last_name = last_name
@@ -165,9 +163,13 @@ def edit_tenant(request):
         tenant.renews_every = lease_duration
         tenant.lease_date = lease_date
 
-
         tenant.user.save()
         tenant.save()
+
+        if unit:
+            unit.tenant = tenant
+            unit.is_occupied = True
+            unit.save()
         return redirect('tenants')
     return render(request, 'tenants/edit_tenant.html', {'tenant': tenant})
 
@@ -175,6 +177,11 @@ def edit_tenant(request):
 def delete_tenant(request):
     if request.method == "POST":
         tenant_id = request.POST.get("tenant_id")
+        unit = PropertyUnit.objects.filter(tenant=tenant_id).first()
+        if unit:
+            unit.tenant = None
+            unit.is_occupied = False
+            unit.save()
         Tenant.objects.get(id=tenant_id).delete()
         return redirect("tenants")
     return render(request, 'tenants/delete_tenant.html')

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.tenants.views import tenants, TenantListView, tenant_detail, new_tenant, edit_tenant, delete_tenant
+from apps.tenants.views import TenantListView, tenant_detail, new_tenant, edit_tenant, delete_tenant
 
 urlpatterns = [
     path('', TenantListView.as_view(), name='tenants'),

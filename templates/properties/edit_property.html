@@ -46,9 +46,11 @@
                         <div class="col">
                             <label for="house_manager" class="form-label fw-bold">House/Property Manager</label>
                             <select class="form-select" id="house_manager" name="house_manager">
-                                <option value=""></option>
+                                <option value="{{property.house_manager.id}}">{{property.house_manager.first_name}} {{property.house_manager.last_name}} - (<b>{{property.house_manager.role}}</b>)</option>
                                 {% for house_manager in house_managers %}
-                                <option value="{{house_manager.id}}">{{house_manager.first_name}} {{house_manager.last_name}}</option>
+                                    {% if house_manager.id != property.house_manager.id %}
+                                        <option value="{{house_manager.id}}">{{house_manager.first_name}} {{house_manager.last_name}} - (<b>{{house_manager.role}}</b>)</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>

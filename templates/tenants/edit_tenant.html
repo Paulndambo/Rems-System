@@ -31,7 +31,7 @@
                         </div>
                         <div class="col">
                             <label for="id_number" class="form-label fw-bold">ID Number</label>
-                            <input type="text" class="form-control" id="id_number" name="id_number" value="{{tenant.user.id_number}}" required>
+                            <input type="text" class="form-control" id="id_number" name="id_number" value="{{tenant.user.id_number}}">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -76,6 +76,19 @@
                                 {% for status in marital_statuses %}
                                     {% if status != tenant.user.marital_status %}
                                         <option value="{{status}}">{{status}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="rental_unit" class="form-label fw-bold">Rental Unit</label>
+                            <select class="form-select" id="rental_unit" name="rental_unit">
+                                <option value="{{tenant.unit.id}}" selected>{{tenant.unit.property.name}} - (<b>{{tenant.unit.name}}</b>)</option>
+                                {% for unit in units %}
+                                    {% if unit.id != tenant.unit.id %}
+                                        <option value="{{unit.id}}">{{unit.property.name}} - (<b>{{unit.name}}</b>)</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>

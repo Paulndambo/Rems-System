@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
 from apps.core.models import Month, Year
 from apps.tenants.models import Tenant
-from apps.payments.models import TenantPayment, RentPayment, RentBill, UnitMonthBill, GarbageBill
+from apps.payments.models import RentPayment, RentBill
 from apps.users.models import User
 
 from apps.core.constants import UNIT_TYPES, UNIT_STATUSES, GENDER_LIST, MONTHS_LIST, PAYMENT_METHODS
@@ -22,7 +22,7 @@ years = Year.objects.filter(is_active=True)
 @login_required
 def properties(request):
     properties = Property.objects.all().order_by("-created_at")
-    house_managers = User.objects.filter(role="House Manager")
+    house_managers = User.objects.filter(role__in=["Landlord", "House Manager", "Caretaker"])
     context = {
         "properties": properties,
         "gender_choices": GENDER_LIST,
@@ -61,7 +61,8 @@ def property_detail(request, id):
 
     occupied_units = PropertyUnit.objects.filter(property=property, is_occupied=True).count()
     tenants = Tenant.objects.all()
-    house_managers = User.objects.filter(role="House Manager")
+
+    house_managers = User.objects.filter(role__in=["Landlord", "House Manager", "Caretaker"])
     context = {
         'property': property,
         'units': units,
@@ -120,8 +121,6 @@ def edit_property(request):
         house_manager = request.POST.get('house_manager')
         user = User.objects.get(id=house_manager)
 
-        print(f"House Manager: {house_manager}")
-       
         
         property = Property.objects.get(id=property_id)
 
@@ -207,7 +206,6 @@ def new_property_unit(request):
         property = Property.objects.get(id=property_id)
         name = request.POST.get('unit_number')
         rent = request.POST.get('rent')
-        size = request.POST.get('size')
         unit_type = request.POST.get('unit_type')
         status = request.POST.get('status')
         floor = request.POST.get('floor')
@@ -220,7 +218,6 @@ def new_property_unit(request):
             name=name, 
             water_price=water_price,
             rent=rent, 
-            size=size,
             unit_type=unit_type,
             status=status,
             is_occupied=True if status == "Occupied" else False,
@@ -237,7 +234,6 @@ def edit_property_unit(request):
         unit_id = request.POST.get('unit_id')
         name = request.POST.get('unit_number')
         rent = request.POST.get('rent')
-        size = request.POST.get('size')
         unit_type = request.POST.get('unit_type')
         status = request.POST.get('status')
         floor = request.POST.get('floor')
@@ -247,7 +243,6 @@ def edit_property_unit(request):
         unit=PropertyUnit.objects.get(id=unit_id)
         unit.name=name 
         unit.rent=rent 
-        unit.size=size
         unit.unit_type=unit_type
         unit.status=status
         unit.floor=floor
@@ -283,181 +278,3 @@ def assign_tenant(request):
         unit.save()
         return redirect("property-detail", id=unit.property.id)
     return render(request, 'properties/units/assign_tenant.html')
-
-"""Maintenance Requests"""
-@login_required
-def maintenance_requests(request):
-    maintenance_requests = MaintenanceRequest.objects.all().order_by("-created_at")
-    units = PropertyUnit.objects.all().order_by("-created_at")
-
-    priority_levels = ["High", "Medium", "Low"]
-    maintenance_statuses = ["Pending", "In Progress", "Completed"]
-
-    context = {
-        "maintenance_requests": maintenance_requests,
-        "units": units,
-        "priority_levels": priority_levels,
-        "maintenance_statuses": maintenance_statuses
-    }
-    return render(request, 'properties/maintenance_requests/maintenance_requests.html', context)
-
-
-@login_required
-def new_maintenance_request(request):
-    if request.method == "POST":
-        unit_id = request.POST.get('unit')
-        unit = PropertyUnit.objects.get(id=unit_id)
-
-        title = request.POST.get('title')
-        priority = request.POST.get('priority')
-        description = request.POST.get('description')
-
-        MaintenanceRequest.objects.create(
-            title=title,
-            property=unit.property, 
-            unit=unit, 
-            description=description,
-            priority=priority
-        )
-        return redirect("unit-detail", id=unit_id)
-    return render(request, 'properties/maintenance_requests/new_maintenance_request.html')
-
-
-@login_required
-def edit_maintenance_request(request):
-    if request.method == "POST":
-        maintenance_request_id = request.POST.get('request_id')
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        status = request.POST.get('status')
-       
-        priority = request.POST.get('priority')
-        cost = request.POST.get('cost')
-
-        maintenance_request = MaintenanceRequest.objects.get(id=maintenance_request_id)
-        maintenance_request.title = title
-        maintenance_request.description = description
-        maintenance_request.status = status
-        maintenance_request.priority = priority
-        maintenance_request.cost = cost
-        maintenance_request.save()
-        return redirect("maintenance-requests")
-    return render(request, 'properties/maintenance_requests/edit_maintenance_request.html')
-
-
-@login_required
-def delete_maintenance_request(request):
-    if request.method == "POST":
-        maintenance_request_id = request.POST.get('request_id')
-        MaintenanceRequest.objects.get(id=maintenance_request_id).delete()
-        return redirect("maintenance-requests")
-    return render(request, 'properties/maintenance_requests/delete_maintenance_request.html')
-
-
-"""Water Bills"""
-class WaterBillListView(ListView):
-    model = WaterBill
-    template_name = "water_bills/bills.html"
-    context_object_name = "water_bills"
-    paginate_by = 9
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        search_query = self.request.GET.get("search", "")
-
-        print(f"You are searching for {search_query}")
-
-        if search_query:
-            queryset = queryset.filter(
-                Q(id__icontains=search_query)
-                | Q(unit__name__icontains=search_query)
-                | Q(month__name__icontains=search_query)
-                | Q(year__name__icontains=search_query)
-                | Q(tenant__user__first_name__icontains=search_query)
-                | Q(tenant__user__last_name__icontains=search_query)
-            )
-
-        return queryset.order_by("-created_at")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["search_query"] = self.request.GET.get("search", "")
-        context["months"] = MONTHS_LIST
-        context["years"] = Year.objects.filter(is_active=True)
-        context["payment_methods"] = PAYMENT_METHODS
-        context["units"] = PropertyUnit.objects.filter(is_occupied=True).order_by("-created_at")
-        return context
-
-@login_required
-def water_bills(request):
-    water_bills = WaterBill.objects.all().order_by("-created_at")
-
-    # Add pagination
-    paginator = Paginator(water_bills, 10)  # Show 10 bills per page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    units = PropertyUnit.objects.filter(is_occupied=True).order_by("-created_at")
-
-    context = {
-        "page_obj": page_obj,
-        "water_bills": water_bills,
-        "months": MONTHS_LIST,
-        "years": years,
-        "units": units
-    }
-    return render(request, 'water_bills/bills.html', context)
-
-
-@login_required
-def view_water_bill(request, id):
-    water_bill = WaterBill.objects.get(id=id)
-    date_today = datetime.now().strftime("%Y-%m-%d")
-    return render(request, 'water_bills/view_bill.html', {'bill': water_bill, 'date_today': date_today})
-
-
-@login_required
-def edit_water_bill(request):
-    if request.method == "POST":
-        water_bill_id = request.POST.get('water_bill_id')
-    
-        #previous_balance = request.POST.get('previous_balance')
-        #previous_reading = request.POST.get('previous_reading')
-        #current_reading = request.POST.get('current_reading')
-        reading_date = request.POST.get('reading_date')
-        units_consumed = Decimal(request.POST.get('units_consumed'))
-
-        month_name = request.POST.get('month')
-        year_id = request.POST.get('year')
-
-        year = Year.objects.get(id=year_id)
-        month = Month.objects.get(name=month_name, year=year)
-
-        water_bill = WaterBill.objects.get(id=water_bill_id)
-        water_bill.previous_balance = 0 #previous_balance
-        water_bill.previous_reading = 0 #previous_reading
-        water_bill.current_reading = 0 #current_reading
-        water_bill.units_consumed = units_consumed
-        water_bill.month = month
-        water_bill.year = year
-        water_bill.reading_date = reading_date
-        water_bill.save()
-
-        water_bill.amount = water_bill.total_amount()
-        water_bill.save()
-
-        water_bill.unit_bill.water_amount = water_bill.amount
-        water_bill.unit_bill.update_amount_expected()
-        water_bill.unit_bill.save()
-
-        return redirect("water-bills")
-    return render(request, 'water_bills/edit_bill.html')
-
-
-@login_required
-def delete_water_bill(request):
-    if request.method == "POST":
-        water_bill_id = request.POST.get('water_bill_id')
-        WaterBill.objects.get(id=water_bill_id).delete()
-        return redirect("water-bills")
-    return render(request, 'water_bills/delete_bill.html')
