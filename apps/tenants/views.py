@@ -1,12 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Avg, Sum
 from django.views.generic import ListView
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.core.paginator import Paginator
 
 from apps.tenants.models import Tenant, TenantNextOfKin
-from apps.properties.models import PropertyUnit
+from apps.properties.models import PropertyUnit, WaterBill
+from apps.payments.models import TenantPayment
 from apps.users.models import User
 from apps.core.constants import LEASE_DURATIONS, MARITAL_STATUSES
 #from apps.payments.models import WaterBill, TenantMonthlyBill
@@ -49,40 +51,47 @@ class TenantListView(ListView):
 
 
 def tenant_detail(request, pk):
-    tenant = Tenant.objects.get(pk=pk)
-    next_of_kin = TenantNextOfKin.objects.filter(tenant=tenant)
-
-    units = PropertyUnit.objects.filter(tenant=tenant)
-    water_bills = tenant.tenantwaterbills.all().order_by('-created_at')
-    #payments = TenantMonthlyBill.objects.filter(tenant=tenant).order_by('-created_at')
-    print(water_bills)
-    payments = tenant.tenantpayments.all().order_by('-created_at')
-
-
-    total_expected_rent = tenant.tenantrentpayments.aggregate(total_expected=Sum('amount_expected'))['total_expected'] if len(tenant.tenantrentpayments.all()) > 0 else 0
-    total_water_bill = water_bills.aggregate(total_amount=Sum('amount'))['total_amount'] if len(water_bills) > 0 else 0
-
-
-    total_water_paid = water_bills.aggregate(total_amount=Sum('amount_paid'))['total_amount'] if len(water_bills) > 0 else 0
-    total_rent_paid = tenant.tenantrentpayments.aggregate(total_amount=Sum('amount_paid'))['total_amount'] if len(tenant.tenantrentpayments.all()) > 0 else 0
-
-    total_bill = total_expected_rent + total_water_bill if (total_expected_rent and total_expected_rent ) else 0
-    total_paid = total_rent_paid + total_water_paid if (total_rent_paid and total_water_paid) else 0
-    total_debt = total_bill - total_paid if (total_bill and total_paid) else 0
+    tenant = get_object_or_404(Tenant, pk=pk)
+    
+    # Get all the data
+    all_units = PropertyUnit.objects.filter(tenant=tenant)
+    all_water_bills = WaterBill.objects.filter(unit__tenant=tenant)
+    all_payments = TenantPayment.objects.filter(tenant=tenant).order_by('-created_at')
+    
+    # Set up pagination
+    units_paginator = Paginator(all_units, 5)  # Show 10 units per page
+    water_bills_paginator = Paginator(all_water_bills, 5)  # Show 10 water bills per page
+    payments_paginator = Paginator(all_payments, 5)  # Show 10 payments per page
+    
+    # Get page numbers from request
+    units_page = request.GET.get('units_page', 1)
+    water_page = request.GET.get('water_page', 1)
+    payments_page = request.GET.get('payments_page', 1)
+    
+    # Get the page objects
+    units = units_paginator.get_page(units_page)
+    water_bills = water_bills_paginator.get_page(water_page)
+    payments = payments_paginator.get_page(payments_page)
+    
+    # Calculate totals (assuming these calculations were already present)
+    total_expected_rent = tenant.tenantrentpayments.aggregate(total_expected=Sum('amount_expected'))['total_expected'] or 0
+    total_water_bill = all_water_bills.aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+    total_rent_paid = tenant.tenantrentpayments.aggregate(total_amount=Sum('amount_paid'))['total_amount'] or 0
+    total_water_paid = all_water_bills.aggregate(total_amount=Sum('amount_paid'))['total_amount'] or 0
+    total_debt = total_expected_rent + total_water_bill - (total_rent_paid + total_water_paid) if (total_expected_rent and total_water_bill) else 0
 
     context = {
         'tenant': tenant,
-        'next_of_kin': next_of_kin,
         'units': units,
         'water_bills': water_bills,
         'payments': payments,
-        'total_water_bill': round(total_water_bill, 2) if total_water_bill else 0,
         'total_rent_paid': round(total_rent_paid, 2) if total_rent_paid else 0,
         'total_water_paid': round(total_water_paid, 2) if total_water_paid else 0,
-        'total_bill': round(total_bill, 2) if total_bill else 0,
-        'total_paid': round(total_paid, 2) if total_paid else 0,
-        'total_debt': round(total_debt, 2) if total_debt else 0
+        'total_debt': round(total_debt, 2) if total_debt else 0,
+        'total_water_bill': round(total_water_bill, 2) if total_water_bill else 0,
+        'total_expected_rent': round(total_expected_rent, 2) if total_expected_rent else 0
     }
+    
     return render(request, 'tenants/tenant_details.html', context)
 
 @login_required
