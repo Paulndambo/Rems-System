@@ -176,23 +176,39 @@ class PropertyUnitListView(ListView):
 def property_unit_detail(request, id):
     unit = PropertyUnit.objects.get(id=id)
 
-    maintenance_requests = MaintenanceRequest.objects.filter(unit=unit)
-    water_bills = unit.unitwaterbills.all().order_by('-created_at')
+    # Get all data
+    all_maintenance_requests = MaintenanceRequest.objects.filter(unit=unit).order_by('-created_at')
+    all_water_bills = unit.unitwaterbills.all().order_by('-created_at')
+    all_payments = RentPayment.objects.filter(rent_bill__unit=unit).order_by('-created_at')
 
-    average_water_bill = water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
-    maintenance_cost = sum(list(maintenance_requests.values_list('cost', flat=True)))
+    # Paginate maintenance requests - 10 items per page
+    maintenance_paginator = Paginator(all_maintenance_requests, 5)
+    maintenance_page = request.GET.get('maintenance_page', 1)
+    maintenance_requests = maintenance_paginator.get_page(maintenance_page)
 
-    payments = RentPayment.objects.filter(rent_bill__unit=unit)
-    total_rent = RentPayment.objects.filter(rent_bill__unit=unit).aggregate(total_amount=Avg('amount_paid'))['total_amount']
+    # Paginate water bills - 10 items per page
+    water_bills_paginator = Paginator(all_water_bills, 5)
+    water_bills_page = request.GET.get('water_bills_page', 1)
+    water_bills = water_bills_paginator.get_page(water_bills_page)
+
+    # Paginate payments - 10 items per page
+    payments_paginator = Paginator(all_payments, 5)
+    payments_page = request.GET.get('payments_page', 1)
+    payments = payments_paginator.get_page(payments_page)
+
+    # Calculate statistics
+    average_water_bill = all_water_bills.aggregate(avg_amount=Avg('amount'))['avg_amount']
+    maintenance_cost = sum(list(all_maintenance_requests.values_list('cost', flat=True)))
+    total_rent = all_payments.aggregate(total_amount=Avg('amount_paid'))['total_amount']
 
     context = {
         'unit': unit,
         'maintenance_requests': maintenance_requests,
         'water_bills': water_bills,
+        'payments': payments,
         "average_water_bill": round(average_water_bill, 2) if average_water_bill else 0,
         "maintenance_cost": round(maintenance_cost, 2) if maintenance_cost else 0,
         "unit_statuses": UNIT_STATUSES,
-        "payments": payments,
         "total_rent": round(total_rent, 2) if total_rent else 0
     }
     return render(request, 'properties/units/unit_details.html', context)
