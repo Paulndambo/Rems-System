@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+
 from django.db.models import Avg
 from datetime import datetime
 from decimal import Decimal
@@ -31,50 +32,80 @@ def properties(request):
     return render(request, 'properties/properties.html', context)
 
 
+MONTHS = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+]
+
 @login_required
 def property_detail(request, id):
-    property = Property.objects.get(id=id)
+    property = get_object_or_404(Property, id=id)
     units = PropertyUnit.objects.filter(property=property)
-
     maintenance_requests = MaintenanceRequest.objects.filter(unit__property=property, status="Pending").count()
 
     unit_numbers = [unit.name for unit in units]
 
-    # Fetch rent data grouped by month, year, and unit
-    rent_data = {}
-    bills = RentBill.objects.select_related("unit", "month", "year")
+    # Fetch rent data grouped by month and unit
+    rent_data = {unit: {month: "Unpaid" for month in MONTHS} for unit in unit_numbers}
+
+    bills = RentBill.objects.filter(unit__property=property)
     for bill in bills:
-        month_key = f"{bill.year.name}-{bill.month.name}"  # e.g., "2025-January"
-        if month_key not in rent_data:
-            rent_data[month_key] = {}
-        rent_data[month_key][bill.unit.name] = bill.fully_paid  # Store fully_paid status
+        month_name = bill.month.name  # Assuming 'month' is a related field with a name attribute
+        if month_name in MONTHS:
+            status = "Fully Paid" if bill.fully_paid else ("Partially Paid" if bill.amount_paid > 0 else "Unpaid")
+            rent_data[bill.unit.name][month_name] = status
 
     # Generate rows for the table
     rows = []
-    for month_key in sorted(rent_data.keys()):  # Sort by year-month
-        month_display = month_key.split("-")[1]  # Extract month name
-        year_display = month_key.split("-")[0]  # Extract year
-        row = [f"{month_display} {year_display}"]  # Month and year as the first column
-        for unit in unit_numbers:
-            row.append(rent_data[month_key].get(unit, None))  # Get fully_paid or None
+    for unit in unit_numbers:
+        row = [unit] + [rent_data[unit][month] for month in MONTHS]
         rows.append(row)
 
-    occupied_units = PropertyUnit.objects.filter(property=property, is_occupied=True).count()
+    occupied_units = units.filter(is_occupied=True).count()
     tenants = Tenant.objects.all()
-    house_managers = User.objects.filter(role="House Manager")
+    house_managers = User.objects.filter(role__in=["House Manager", "Landlord", "Caretaker"])
+
     context = {
         'property': property,
         'units': units,
-        "unit_types": UNIT_TYPES,
-        "unit_statuses": UNIT_STATUSES,
-        "maintenance_requests": maintenance_requests,
         "unit_numbers": unit_numbers,
+        "months": MONTHS,  # Used for column headers
         "rows": rows,
+        "maintenance_requests": maintenance_requests,
         "occupied_units": occupied_units,
         "tenants": tenants,
         "house_managers": house_managers
     }
     return render(request, 'properties/property_details.html', context)
+
+
+@login_required
+def new_property(request):
+    if request.method == "POST":
+        owner = request.user
+        name = request.POST.get('name')
+        address = request.POST.get('address')
+        city = request.POST.get('city')
+        
+        country = request.POST.get('country')
+        units = request.POST.get('units')
+        house_manager = request.POST.get('house_manager')
+        user = User.objects.get(id=house_manager)
+
+        garbage_charge = request.POST.get('garbage_charge')
+        Property.objects.create(
+            owner=owner, 
+            name=name,  
+            garbage_charge=garbage_charge,
+            address=address, 
+            city=city, 
+            country=country, 
+            units=units,
+            is_active=True,
+            house_manager=user
+        )
+        return redirect("properties")
+    return render(request, 'properties/new_property.html')
 
 
 @login_required
