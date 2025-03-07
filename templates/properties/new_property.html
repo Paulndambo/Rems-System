@@ -44,12 +44,14 @@
                     </div>
                     
                     <div class="row mb-3">
-                        <label for="house_manager" class="form-label fw-bold">House/Property Manager</label>
+                        <div class="col">
+                            <label for="house_manager" class="form-label fw-bold">House/Property Manager</label>
                         <select class="form-select" id="house_manager" name="house_manager">
                             {% for house_manager in house_managers %}
-                                <option value="{{house_manager.id}}">{{house_manager.first_name}} {{house_manager.last_name}}</option>
+                                <option value="{{house_manager.id}}">{{house_manager.first_name}} {{house_manager.last_name}} - (<b>{{house_manager.role}}</b>)</option>
                             {% endfor %}
                         </select>
+                        </div>
                     </div>
                     
                 </div>

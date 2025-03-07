@@ -11,19 +11,22 @@ from apps.properties.views import (
     edit_property_unit, 
     delete_property_unit, 
     property_unit_detail,
-    maintenance_requests,
+    assign_tenant,
+    PropertyUnitListView
+)
+from apps.properties.water_bills.views import (
+    new_water_bill,
+    view_water_bill,
+    edit_water_bill,
+    delete_water_bill,
+    WaterBillListView
+)
+from apps.properties.maintenance_requests.views import (
     new_maintenance_request,
     edit_maintenance_request,
     delete_maintenance_request,
-    assign_tenant,
-    view_water_bill,
-   
-    edit_water_bill,
-    delete_water_bill,
-    WaterBillListView,
-    PropertyUnitListView
+    MaintenanceListView
 )
-from apps.properties.water_bills.views import new_water_bill
 
 urlpatterns = [
     path('', properties, name='properties'),
@@ -44,7 +47,7 @@ urlpatterns = [
     path('water-bills/', WaterBillListView.as_view(), name='water-bills'),
     path('view-water-bill/<int:id>/', view_water_bill, name='view-water-bill'),
 
-    path('maintenance-requests/', maintenance_requests, name='maintenance-requests'),
+    path('maintenance-requests/', MaintenanceListView.as_view(), name='maintenance-requests'),
     path('new-maintenance-request/', new_maintenance_request, name='new-maintenance-request'),
     path('edit-maintenance-request/', edit_maintenance_request, name='edit-maintenance-request'),
     path('delete-maintenance-request/', delete_maintenance_request, name='delete-maintenance-request'),

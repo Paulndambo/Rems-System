@@ -9,7 +9,6 @@ from apps.users.models import User
 from django.db.models import Count, Sum
 
 
-
 # Create your views here.
 class PaystackWebhookView(APIView):
 
