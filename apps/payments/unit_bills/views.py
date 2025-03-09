@@ -8,6 +8,7 @@ from django.views.generic import ListView
 from django.http import JsonResponse
 from django.db.models import Q
 import json
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from apps.payments.models import (WaterBillPayment, RentPayment, 
                                    RentBill, TenantPayment, GarbageBill, 
@@ -18,7 +19,7 @@ from apps.core.constants import PaymentStatuses, PAYMENT_METHODS
 from apps.notifications.whatsapp import WhatsAppNotification
 from apps.notifications.message_templates import format_water_bill_message, format_rent_bill_message, format_garbage_bill_message, format_unit_bill_message
 
-class MonthlyUnitBillsView(ListView):
+class MonthlyUnitBillsView(LoginRequiredMixin, ListView):
     model = Month
     template_name = "unit_bills/monthly_unit_bills.html"
     context_object_name = "months"
@@ -35,7 +36,7 @@ class MonthlyUnitBillsView(ListView):
         return queryset.filter(id__in=month_ids).order_by("-created_at")
 
 
-class UnitMonthBillsView(ListView):
+class UnitMonthBillsView(LoginRequiredMixin, ListView):
     model = UnitMonthBill
     template_name = "unit_bills/unit_bills.html"
     context_object_name = "unit_bills"
@@ -61,6 +62,7 @@ class UnitMonthBillsView(ListView):
         return context
 
 
+@login_required
 def unit_bill_details(request, pk):
     unit_bill = UnitMonthBill.objects.get(id=pk)
     payments = TenantPayment.objects.filter(unit_bill=unit_bill)
@@ -73,6 +75,7 @@ def unit_bill_details(request, pk):
     return render(request, "unit_bills/unit_bill_details.html", context)
 
 
+@login_required
 def unit_bill_receipt(request, unit_bill_id):
     bill = UnitMonthBill.objects.get(id=unit_bill_id)
     context = {
@@ -81,6 +84,7 @@ def unit_bill_receipt(request, unit_bill_id):
     return render(request, "unit_bills/unit_bill_receipt.html", context)
 
 
+@login_required
 def update_bill_status(bill, amount_paid, expected_amount):
     if amount_paid >= expected_amount:
         bill.fully_paid = True
@@ -231,7 +235,7 @@ def collect_unit_bill_payment(request):
     return render(request, "unit_bills/collect_payment.html")
 
 
-class PendingBillsView(ListView):
+class PendingBillsView(LoginRequiredMixin, ListView):
     model = UnitMonthBill
     template_name = "unit_bills/pending_bills.html"
     context_object_name = "pending_bills"

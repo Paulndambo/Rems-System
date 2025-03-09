@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.db import transaction
 from django.core.paginator import Paginator
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
 from apps.core.models import Month, Year
@@ -175,7 +176,7 @@ def delete_property(request):
     return render(request, 'properties/delete_property.html')
 
 
-class PropertyUnitListView(ListView):
+class PropertyUnitListView(LoginRequiredMixin, ListView):
     model = PropertyUnit
     template_name = "properties/units/units.html"
     context_object_name = "units"

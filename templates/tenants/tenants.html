@@ -128,7 +128,7 @@
                     <tr>
                         <td>{{forloop.counter}}</td>
                         <td>{{tenant.user.name}}</td>
-                        <td>{{tenant.unit.property}} - {{tenant.unit.name}}</td>
+                        <td>{{tenant.unit.property}} (<b>{{tenant.unit.name}}</b>)</td>
                         <td>{{tenant.user.phone}}</td>
                         <td>{{tenant.move_in_date|date:"M d, Y"}}</td>
                         <td><span class="tenant-status status-{{tenant.status|lower}}">{{tenant.status}}</span></td>

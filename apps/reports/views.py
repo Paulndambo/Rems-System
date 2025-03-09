@@ -6,6 +6,8 @@ from django.db.models import Sum
 from django.core.paginator import Paginator
 import json
 from django.db.models.functions import ExtractMonth, ExtractYear
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 from apps.payments.models import RentBill, WaterBillPayment, Expense, TenantPayment, RentPayment
 from apps.properties.models import WaterBill, Property
@@ -16,6 +18,8 @@ from apps.core.constants import MONTHS_LIST
 
 # Create your views here.
 date_today = datetime.now().date()
+
+@login_required
 def monthly_rent_report(request):
     # Get filter parameters
     selected_month = request.GET.get('month')
@@ -122,6 +126,7 @@ def monthly_rent_report(request):
         
 
 
+@login_required
 def water_payments_report(request):
     # Get filter parameters
     year = request.GET.get('year')

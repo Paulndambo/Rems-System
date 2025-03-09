@@ -3,6 +3,7 @@ from django.db.models import Avg, Sum
 from django.views.generic import ListView
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.core.paginator import Paginator
 
@@ -13,11 +14,15 @@ from apps.users.models import User
 from apps.core.constants import LEASE_DURATIONS, MARITAL_STATUSES
 #from apps.payments.models import WaterBill, TenantMonthlyBill
 # Create your views here.
-class TenantListView(ListView):
+
+class TenantListView(LoginRequiredMixin, ListView):
     model = Tenant
     template_name = "tenants/tenants.html"
     context_object_name = "tenants"
     paginate_by = 9
+    
+    # Optional: You can specify where to redirect if user is not logged in
+    #login_url = '/login/'  # Add this if you want to specify a custom login URL
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -50,6 +55,7 @@ class TenantListView(ListView):
         return context
 
 
+@login_required
 def tenant_detail(request, pk):
     tenant = get_object_or_404(Tenant, pk=pk)
     
@@ -142,6 +148,8 @@ def new_tenant(request):
     return render(request, 'tenants/new_tenant.html')
 
 
+@login_required
+@transaction.atomic
 def edit_tenant(request):
     if request.method == 'POST':
         tenant_id = request.POST.get('tenant_id')
@@ -183,6 +191,8 @@ def edit_tenant(request):
     return render(request, 'tenants/edit_tenant.html', {'tenant': tenant})
 
 
+@login_required
+@transaction.atomic
 def delete_tenant(request):
     if request.method == "POST":
         tenant_id = request.POST.get("tenant_id")

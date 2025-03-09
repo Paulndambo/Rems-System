@@ -6,6 +6,7 @@ from decimal import Decimal
 from django.db.models import Q
 from django.db import transaction
 from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from apps.properties.models import PropertyUnit, WaterBill
 from apps.core.models import Month, Year
@@ -15,7 +16,7 @@ from apps.core.constants import MONTHS_LIST, PAYMENT_METHODS
 
 # Create your views here.
 """Water Bills"""
-class WaterBillListView(ListView):
+class WaterBillListView(LoginRequiredMixin, ListView):
     model = WaterBill
     template_name = "water_bills/bills.html"
     context_object_name = "water_bills"
