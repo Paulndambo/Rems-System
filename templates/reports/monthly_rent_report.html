@@ -1,12 +1,29 @@
 {% extends "base.html" %}
 
+{% block additional_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+{% endblock additional_css %}
+
+
 {% block content %}
 <div class="card mb-3">
     <div class="card-header">
         <h3 class="card-title">Monthly Rent Analysis: <b>{{year.name}}</b></h3>
     </div>
     <div class="card-body">
-        <canvas id="rentChart" style="height: 300px;"></canvas>
+        <div class="row">
+            <div class="col-md-8">
+                <div style="height: 400px;">
+                    <canvas id="rentChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div style="height: 400px;">
+                    <canvas id="rentPieChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="card shadow-sm">
@@ -26,6 +43,17 @@
                             {% for property in properties %}
                                 <option value="{{ property.id }}" {% if selected_property == property.id %}selected{% endif %}>
                                     {{ property.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label small mb-1">Tenant</label>
+                        <select name="tenant" class="form-select form-select-sm select2" style="width: 200px;">
+                            <option value="">All Tenants</option>
+                            {% for tenant in tenants %}
+                                <option value="{{ tenant.id }}" {% if selected_tenant == tenant.id %}selected{% endif %}>
+                                    {{ tenant.user.name }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -54,12 +82,12 @@
                     </div>
                     <div class="col-auto d-flex align-items-end">
                         <button type="submit" class="btn btn-primary btn-sm" title="Filter">
-                            <i class="fas fa-filter me-2"></i>Filter
+                            <i class="fas fa-filter me-2"></i>
                         </button>
                     </div>
                     <div class="col-auto d-flex align-items-end">
                         <a href="?{{ request.GET.urlencode }}&export=csv" class="btn btn-success btn-sm" title="Export to CSV">
-                            <i class="fas fa-download me-2"></i>Export
+                            <i class="fas fa-download me-2"></i>
                         </a>
                     </div>
                 </form>
@@ -88,30 +116,60 @@
                         <td class="text-center">{{forloop.counter}}</td>
                         <td>{{rent_bill.tenant.user.name}} - (<b>{{rent_bill.unit.name}}</b>)</td>
                         <td>{{rent_bill.month.name}} ({{rent_bill.year.name}})</td>
-                        <td class="text-end">{{rent_bill.amount_expected}}</td>
-                        <td class="text-end">{{rent_bill.amount_paid}}</td>
+                        <td class="text-center">{{rent_bill.amount_expected}}</td>
+                        <td class="text-center">{{rent_bill.amount_paid}}</td>
                         <td>{{rent_bill.due_date}}</td>
                         
                     </tr>
                     {% endfor %}
                 </tbody>
-                <tfoot class="table-light">
-                    <tr>
-                        <td colspan="4" class="text-end fw-bold">Totals:</td>
-                        <td class="text-end fw-bold">{{ total_expected }}</td>
-                        <td class="text-end fw-bold">{{ total_paid }}</td>
-                        <td colspan="2"></td>
-                    </tr>
-                </tfoot>
+               
             </table>
         </div>
+        {% if rent_bills.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if rent_bills.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ rent_bills.previous_page_number }}&month={{ selected_month|default:'' }}&year={{ selected_year|default:'' }}&property={{ selected_property|default:'' }}&tenant={{ selected_tenant|default:'' }}">&laquo; Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo; Previous</span>
+                    </li>
+                {% endif %}
+
+                {% for num in rent_bills.paginator.page_range %}
+                    {% if rent_bills.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&month={{ selected_month|default:'' }}&year={{ selected_year|default:'' }}&property={{ selected_property|default:'' }}&tenant={{ selected_tenant|default:'' }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if rent_bills.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ rent_bills.next_page_number }}&month={{ selected_month|default:'' }}&year={{ selected_year|default:'' }}&property={{ selected_property|default:'' }}&tenant={{ selected_tenant|default:'' }}">Next &raquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next &raquo;</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
 </div>
-
 
 {% endblock content %}
 
 {% block additional_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
         $('#tenantsTable').DataTable({
@@ -126,6 +184,14 @@
                 "info": "Showing _START_ to _END_ of _TOTAL_ entries"
             }
         });
+
+        // Initialize Select2 for tenant dropdown
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Select a tenant',
+            allowClear: true,
+            width: '100%'
+        });
     });
 
     
@@ -137,7 +203,7 @@
         const ctx = document.getElementById('rentChart').getContext('2d');
         
         // Get the data from the template context
-        const monthlyData = {{ monthly_data|safe }};
+        const monthlyData = JSON.parse('{{ monthly_data|safe }}');
         
         // Prepare data for the chart
         const months = monthlyData.map(item => item.month);
@@ -167,6 +233,7 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     title: {
                         display: true,
@@ -189,6 +256,48 @@
                         title: {
                             display: true,
                             text: 'Month'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Add pie chart
+        const pieCtx = document.getElementById('rentPieChart').getContext('2d');
+        
+        // Calculate totals
+        const totalExpected = expectedAmounts.reduce((a, b) => a + b, 0);
+        const totalPaid = paidAmounts.reduce((a, b) => a + b, 0);
+        const totalUnpaid = totalExpected - totalPaid;
+
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Paid', 'Unpaid'],
+                datasets: [{
+                    data: [totalPaid, totalUnpaid],
+                    backgroundColor: [
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 99, 132)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Total Rent Collection Status'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${context.label}: KES ${value.toLocaleString()} (${percentage}%)`;
+                            }
                         }
                     }
                 }

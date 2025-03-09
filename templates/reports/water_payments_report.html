@@ -55,13 +55,37 @@
     </div>
     
     <div class="card-body">
+        <!-- Add graphs section -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Monthly Water Consumption</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="waterConsumptionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Expected vs Paid Amount</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="paymentComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing table section -->
         <div class="loader" id="loader"></div>
         <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
             <thead>
                 <tr>
                     <th>#</th>
                     <th>Tenant</th>
-                    <th>House No.</th>
                     <th>Month</th>
                     <th>Amount Paid</th>
                     <th>Date Paid</th>
@@ -71,8 +95,7 @@
                 {% for payment in water_payments %}
                 <tr>
                     <td>{{forloop.counter}}</td>
-                    <td>{{payment.water_bill.unit.tenant.user.name}}</td>
-                    <td>{{payment.water_bill.unit.name}}</td>
+                    <td>{{payment.water_bill.unit.tenant.user.name}} - (<b>{{payment.water_bill.unit.name}}</b>)</td>
                     <td>{{payment.water_bill.month}}(<b>{{payment.water_bill.year}}</b>)</td>
                     <td>{{payment.amount_paid}}</td>
                     <td>{{payment.created_at}}</td>
@@ -81,9 +104,144 @@
                 
             </tbody>
         </table>
+
+        <!-- Add pagination controls -->
+        {% if water_payments.paginator.num_pages > 1 %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if water_payments.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_tenant %}&tenant={{ selected_tenant }}{% endif %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ water_payments.previous_page_number }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_tenant %}&tenant={{ selected_tenant }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in water_payments.paginator.page_range %}
+                    {% if water_payments.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > water_payments.number|add:'-3' and num < water_payments.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_tenant %}&tenant={{ selected_tenant }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if water_payments.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ water_payments.next_page_number }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_tenant %}&tenant={{ selected_tenant }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ water_payments.paginator.num_pages }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_tenant %}&tenant={{ selected_tenant }}{% endif %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
 </div>
 {% endblock content %}
 {% block additional_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Common options to prevent shrinking on hover
+    const commonOptions = {
+        responsive: false,
+        maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        hover: {
+            mode: null  // Disable hover mode completely
+        }
+    };
 
+    // Set fixed dimensions for charts
+    const chartWidth = document.querySelector('.card-body').offsetWidth * 0.45;  // 45% of card width
+    const chartHeight = 300;  // Fixed height
+
+    // Water Consumption Chart
+    const consumptionCtx = document.getElementById('waterConsumptionChart');
+    consumptionCtx.width = chartWidth;
+    consumptionCtx.height = chartHeight;
+    
+    new Chart(consumptionCtx, {
+        type: 'line',
+        data: {
+            labels: {{ months_labels|safe }},
+            datasets: [{
+                label: 'Units Consumed',
+                data: {{ units_consumed|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1,
+                fill: false
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Units'
+                    }
+                }
+            }
+        }
+    });
+
+    // Payment Comparison Chart
+    const paymentCtx = document.getElementById('paymentComparisonChart');
+    paymentCtx.width = chartWidth;
+    paymentCtx.height = chartHeight;
+    
+    new Chart(paymentCtx, {
+        type: 'line',
+        data: {
+            labels: {{ months_labels|safe }},
+            datasets: [{
+                label: 'Expected Amount',
+                data: {{ expected_amounts|safe }},
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1,
+                fill: false
+            },
+            {
+                label: 'Paid Amount',
+                data: {{ paid_amounts|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1,
+                fill: false
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Amount (KES)'
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock additional_scripts %}

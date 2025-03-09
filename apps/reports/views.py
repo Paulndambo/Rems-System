@@ -3,6 +3,9 @@ import csv
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Sum
+from django.core.paginator import Paginator
+import json
+from django.db.models.functions import ExtractMonth, ExtractYear
 
 from apps.payments.models import RentBill, WaterBillPayment, Expense, TenantPayment, RentPayment
 from apps.properties.models import WaterBill, Property
@@ -18,7 +21,9 @@ def monthly_rent_report(request):
     selected_month = request.GET.get('month')
     selected_year = request.GET.get('year')
     selected_property = request.GET.get('property')
+    selected_tenant = request.GET.get('tenant')
     export = request.GET.get('export')
+    page = request.GET.get('page', 1)  # Get the page number, default to 1
 
     selected_year = selected_year if selected_year else Year.objects.get(name=str(date_today.year)).id
     # Base queryset
@@ -31,9 +36,15 @@ def monthly_rent_report(request):
         rent_bills = rent_bills.filter(year_id=selected_year)
     if selected_property:
         rent_bills = rent_bills.filter(unit__property_id=selected_property)
+    if selected_tenant:
+        rent_bills = rent_bills.filter(tenant_id=selected_tenant)
         
     # Order by due date
     rent_bills = rent_bills.order_by('due_date')
+    
+    # Add pagination
+    paginator = Paginator(rent_bills, 10)  # Show 10 rent bills per page
+    page_obj = paginator.get_page(page)
     
     # Get all years for the filter dropdowns
     years = Year.objects.all().order_by('-name')
@@ -89,17 +100,21 @@ def monthly_rent_report(request):
         writer.writerow(['', '', '', '', "Total Due", total_amount_due, '', ''])
         return response
 
+    
 
     # Regular template response
+    tenants = Tenant.objects.all().select_related('user')
     context = {
-        'rent_bills': rent_bills,
+        'rent_bills': page_obj,
         'months': MONTHS_LIST,
         'years': years,
         'properties': Property.objects.all(),
+        'tenants': tenants,
         'selected_month': selected_month if selected_month else None,
         'selected_year': int(selected_year) if selected_year else None,
         'selected_property': int(selected_property) if selected_property else None,
-        'monthly_data': monthly_data,  # Add the monthly data to context
+        'selected_tenant': int(selected_tenant) if selected_tenant else None,
+        'monthly_data': json.dumps(monthly_data),
         'year': year,
     }
     
@@ -142,7 +157,6 @@ def expenses_report(request):
     }
 
     return render(request, 'reports/expenses_report.html', context)
-
 
 
 def water_bills_report(request):
@@ -197,7 +211,6 @@ def water_bills_report(request):
 
         return response
     
-
     context = {
         'water_bills': water_bills,
         'years': Year.objects.all(),
@@ -210,33 +223,67 @@ def water_bills_report(request):
     return render(request, 'reports/water_bills_report.html', context)
 
 
-def water_bills_payments_report(request):
+def water_payments_report(request):
     # Get filter parameters
     year = request.GET.get('year')
     month = request.GET.get('month')
     export = request.GET.get('export')
     tenant = request.GET.get('tenant')
+    page = request.GET.get('page', 1)  # Get the page number, default to 1
 
     water_payments = WaterBillPayment.objects.all()
+    chart_data_query = WaterBill.objects.all()
 
+    # Apply filters to both queries
     if year and month and tenant:
-        water_payments = water_payments.filter(year_id=year, month__name=month, tenant_id=tenant)
+        water_payments = water_payments.filter(water_bill__year_id=year, water_bill__month__name=month, water_bill__tenant_id=tenant)
+        chart_data_query = chart_data_query.filter(year_id=year, month__name=month, tenant_id=tenant)
     
     elif year and month:
-        water_payments = water_payments.filter(year_id=year, month__name=month)
+        water_payments = water_payments.filter(water_bill__year_id=year, water_bill__month__name=month)
+        chart_data_query = chart_data_query.filter(year_id=year, month__name=month)
     
     elif month and tenant:
-        water_payments = water_payments.filter(month__name=month, tenant_id=tenant)
+        water_payments = water_payments.filter(water_bill__month__name=month, water_bill__tenant_id=tenant)
+        chart_data_query = chart_data_query.filter(month__name=month, tenant_id=tenant)
 
     elif tenant:
-        water_payments = water_payments.filter(tenant_id=tenant)
+        water_payments = water_payments.filter(water_bill__tenant_id=tenant)
+        chart_data_query = chart_data_query.filter(tenant_id=tenant)
 
     elif year:
-        water_payments = water_payments.filter(year_id=year)
+        water_payments = water_payments.filter(water_bill__year_id=year)
+        chart_data_query = chart_data_query.filter(year_id=year)
 
     elif month:
-        water_payments = water_payments.filter(month__name=month)
+        water_payments = water_payments.filter(water_bill__month__name=month)
+        chart_data_query = chart_data_query.filter(month__name=month)
 
+    # Prepare data for charts
+    chart_data = chart_data_query.values('month__name', 'year__name').annotate(
+        total_units=Sum('units_consumed'),
+        total_expected=Sum('amount'),
+        total_paid=Sum('waterbillpayment__amount_paid')
+    ).order_by('year__name', 'month__name')
+
+    months_labels = []
+    units_consumed = []
+    expected_amounts = []
+    paid_amounts = []
+
+    for data in chart_data:
+        month_label = f"{data['month__name']} {data['year__name']}"
+        months_labels.append(month_label)
+        units_consumed.append(float(data['total_units'] or 0))
+        expected_amounts.append(float(data['total_expected'] or 0))
+        paid_amounts.append(float(data['total_paid'] or 0))
+
+    # Add pagination
+    paginator = Paginator(water_payments, 10)  # Show 10 payments per page
+    try:
+        water_payments_page = paginator.page(page)
+    except:
+        water_payments_page = paginator.page(1)
 
     if export == 'csv':
         response = HttpResponse(content_type='text/csv')
@@ -245,7 +292,7 @@ def water_bills_payments_report(request):
         writer = csv.writer(response)
         writer.writerow(['Recorded On', 'Tenant', 'House No.', 'Amount Paid', 'Payment Method', 'Payment Date', 'Month'])
 
-        for water_payment in water_payments:
+        for water_payment in water_payments_page:
             writer.writerow([
                 water_payment.created_at.strftime('%Y-%m-%d'),
                 f"{water_payment.tenant.user.first_name} {water_payment.tenant.user.last_name}",
@@ -260,13 +307,17 @@ def water_bills_payments_report(request):
     
 
     context = {
-        'water_payments': water_payments,
+        'water_payments': water_payments_page,  # Changed to paginated queryset
         'years': Year.objects.all(),
         'months': MONTHS_LIST,
         'tenants': Tenant.objects.all(),
         'selected_year': year,
         'selected_month': month,
         'selected_tenant': tenant,
+        'months_labels': json.dumps(months_labels),
+        'units_consumed': json.dumps(units_consumed),
+        'expected_amounts': json.dumps(expected_amounts),
+        'paid_amounts': json.dumps(paid_amounts),
     }
     return render(request, 'reports/water_payments_report.html', context)
 
