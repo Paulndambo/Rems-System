@@ -11,7 +11,6 @@ from django.db.models import Count, Sum
 
 # Create your views here.
 class PaystackWebhookView(APIView):
-
     def post(self, request, *args, **kwargs):
         data = request.data
         

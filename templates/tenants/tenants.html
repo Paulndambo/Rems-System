@@ -20,61 +20,76 @@
         /* Table styles */
         .table {
             margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
         }
 
         .table thead th {
             background-color: #f8f9fa;
-            border-bottom: none;
+            border-bottom: 2px solid #e9ecef;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             letter-spacing: 0.5px;
+            padding: 1rem;
+            color: #495057;
         }
 
         .table tbody td {
             vertical-align: middle;
-            padding: 1rem 0.75rem;
+            padding: 1.15rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
+            font-size: 0.875rem;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transition: background-color 0.2s ease;
         }
 
         /* Status badge styles */
         .tenant-status {
-            padding: 6px 12px;
+            padding: 6px 16px;
             border-radius: 20px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .status-active {
-            background-color: #e6f4ea;
-            color: #1e7e34;
+            background-color: #dcf5e3;
+            color: #0a6b26;
         }
 
         .status-inactive {
-            background-color: #fde7e9;
-            color: #dc3545;
+            background-color: #ffe8e8;
+            color: #cf0000;
         }
 
         .status-pending {
-            background-color: #fff4e5;
-            color: #ff9800;
+            background-color: #fff3e0;
+            color: #e65100;
         }
 
         /* Action buttons */
         .btn-action {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             padding: 0;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             border-radius: 8px;
             transition: all 0.2s;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
         }
 
         .btn-action:hover {
             transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         /* Add New Tenant button */
@@ -165,6 +180,33 @@
                 font-size: 0.875rem;
             }
         }
+
+        /* Add styles for the tenant name and contact info */
+        .tenant-name {
+            font-weight: 500;
+            color: #2c3345;
+            margin-bottom: 0;
+        }
+
+        .contact-email {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        .contact-phone {
+            font-size: 0.875rem;
+            color: #495057;
+        }
+
+        /* Property unit style */
+        .unit-badge {
+            background-color: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #495057;
+        }
     </style>
 {% endblock additional_styles %}
 
@@ -217,38 +259,43 @@
                         <td>{{forloop.counter}}</td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <div class="avatar-sm me-2">
+                                <div class="avatar-sm me-3">
                                     {% if tenant.user.profile_picture %}
-                                        <img src="{{ tenant.user.profile_picture.url }}" alt="Profile" class="rounded-circle" width="32">
+                                        <img src="{{ tenant.user.profile_picture.url }}" alt="Profile" class="rounded-circle" width="40" height="40">
                                     {% else %}
-                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                             <i class="fas fa-user text-secondary"></i>
                                         </div>
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <span class="fw-medium">{{tenant.user.name}}</span>
+                                    <p class="tenant-name mb-0">{{tenant.user.name}}</p>
                                 </div>
                             </div>
                         </td>
-                        <td>{{tenant.unit.property}}(<b>{{tenant.unit.name}}</b>)</td>
+                        <td>
+                            <div>
+                                <span>{{tenant.unit.property}}</span>
+                                <span class="unit-badge ms-2">{{tenant.unit.name}}</span>
+                            </div>
+                        </td>
                         <td>
                             <div class="d-flex flex-column">
-                                <span>{{tenant.user.phone}}</span>
-                                <small class="text-muted">{{tenant.user.email}}</small>
+                                <span class="contact-phone">{{tenant.user.phone}}</span>
+                                <span class="contact-email">{{tenant.user.email}}</span>
                             </div>
                         </td>
                         <td>{{tenant.move_in_date|date:"M d, Y"}}</td>
                         <td><span class="tenant-status status-{{tenant.status|lower}}">{{tenant.status}}</span></td>
                         <td>
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="{% url 'tenant-detail' tenant.id %}" class="btn btn-action btn-light" title="View Details">
-                                    <i class="fas fa-eye"></i>
+                                <a href="{% url 'tenant-detail' tenant.id %}" class="btn btn-action" title="View Details">
+                                    <i class="fas fa-eye text-primary"></i>
                                 </a>
-                                <button class="btn btn-action btn-light" data-bs-toggle="modal" data-bs-target="#editTenantModal{{tenant.id}}" title="Edit">
+                                <button class="btn btn-action" data-bs-toggle="modal" data-bs-target="#editTenantModal{{tenant.id}}" title="Edit">
                                     <i class="fas fa-edit text-primary"></i>
                                 </button>
-                                <button class="btn btn-action btn-light" data-bs-toggle="modal" data-bs-target="#deleteTenantModal{{tenant.id}}" title="Delete">
+                                <button class="btn btn-action" data-bs-toggle="modal" data-bs-target="#deleteTenantModal{{tenant.id}}" title="Delete">
                                     <i class="fas fa-trash text-danger"></i>
                                 </button>
                             </div>
