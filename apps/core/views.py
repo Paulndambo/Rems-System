@@ -84,7 +84,7 @@ def home(request):
     # Add available years for the filter
     # You might want to get this from your database
     current_year = datetime.now().year
-    available_years = list(range(current_year - 5, current_year + 1))
+    available_years = list(range(current_year - 3, current_year + 1))
     
     context = {
         'properties_count': properties_count,
@@ -222,9 +222,13 @@ def chart_data_api(request):
     # Get occupancy data for the selected year
     occupancy_data = get_occupancy_data_for_year(year)
     
+    # Calculate total revenue for the selected year
+    total_revenue = calculate_total_revenue_for_year(year)
+    
     return JsonResponse({
         'revenue': revenue_data,
-        'occupancy': occupancy_data
+        'occupancy': occupancy_data,
+        'total_revenue': f"Kes {total_revenue:,.2f}"  # Format as currency
     })
 
 def get_revenue_data_for_year(year):
@@ -267,3 +271,13 @@ def get_occupancy_data_for_year(year):
         'occupied': occupied_units,  # Number of occupied units for the selected year
         'vacant': vacant_units      # Number of vacant units for the selected year
     }
+
+def calculate_total_revenue_for_year(year):
+    # Your logic to calculate total revenue for the given year
+    # For example:
+    
+    total = RentBill.objects.filter(
+        year__name=str(year)
+    ).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+    
+    return total

@@ -291,9 +291,9 @@
             paid_amounts: JSON.parse('{{ chart_data.paid_amounts|safe }}')
         },
         occupancy: {
-            occupied: {{ occupancy_data.occupied }},
-            vacant: {{ occupancy_data.vacant }}
-        }
+            occupied: {{ occupancy_data.occupied|default:0 }},
+            vacant: {{ occupancy_data.vacant|default:0 }}
+        },
     };
 
     // Initialize charts with initial data
@@ -308,7 +308,13 @@
             fetch(`/api/chart-data/?year=${selectedYear}`)
                 .then(response => response.json())
                 .then(data => {
+                    // Update charts
                     initCharts(data);
+                    
+                    // Update total revenue display
+                    if (data.total_revenue !== undefined) {
+                        document.querySelector('.bg-warning h2.fw-bold').textContent = data.total_revenue;
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching chart data:', error);
