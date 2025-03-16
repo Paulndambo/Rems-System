@@ -100,7 +100,6 @@ class Expense(AbstractBaseModel):
         return self.property.name
     
 
-
 class RentBill(AbstractBaseModel):
     unit_bill = models.ForeignKey("UnitMonthBill", on_delete=models.CASCADE, null=True, blank=True)
     tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantrentpayments")
