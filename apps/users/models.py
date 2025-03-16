@@ -7,7 +7,7 @@ from apps.core.clean_phone_number import clean_phone_number
 # Create your models here.
 
 class User(AbstractUser, AbstractBaseModel):
-    role = models.CharField(max_length=255, choices=UserRoles.choices(), default='Landlord')
+    role = models.CharField(max_length=255, choices=UserRoles.choices(), default='Tenant')
     phone = models.CharField(max_length=255, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     city = models.CharField(max_length=255, blank=True, null=True)

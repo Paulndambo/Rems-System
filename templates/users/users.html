@@ -2,135 +2,72 @@
 {% block additional_styles %}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <style>
-        /* Card styles */
+        /* Simple card styles */
         .card {
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
         }
 
         .card-header {
-            background-color: #fff;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            padding: 1.25rem;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
         }
 
-        /* Table styles */
+        /* Simple table styles */
         .table {
             margin-bottom: 0;
         }
 
         .table thead th {
             background-color: #f8f9fa;
-            border-bottom: none;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.5px;
         }
 
-        .table tbody td {
-            vertical-align: middle;
-            padding: 1rem 0.75rem;
-        }
-
-        /* Status badge styles */
-        .tenant-status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        /* Simple status badge */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
         }
 
         .status-active {
-            background-color: #e6f4ea;
-            color: #1e7e34;
+            background-color: #d1e7dd;
+            color: #0f5132;
         }
 
         .status-inactive {
-            background-color: #fde7e9;
-            color: #dc3545;
+            background-color: #f8d7da;
+            color: #842029;
         }
 
         .status-pending {
-            background-color: #fff4e5;
-            color: #ff9800;
+            background-color: #fff3cd;
+            color: #664d03;
         }
 
-        /* Action buttons */
+        /* Simple action buttons */
         .btn-action {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            transition: all 0.2s;
+            padding: 4px 8px;
+            margin: 0 2px;
         }
 
-        .btn-action:hover {
-            transform: translateY(-1px);
+        /* Search bar */
+        .search-wrapper {
+            max-width: 300px;
         }
 
-        /* Add New Tenant button */
-        .btn-add-tenant {
-            padding: 0.5rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.2s;
+        /* Pagination styles */
+        .pagination-wrapper {
+            padding: 1rem;
+            background-color: #fff;
+            border-top: 1px solid #dee2e6;
         }
 
-        .btn-add-tenant:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        /* Responsive styles */
-        @media (max-width: 992px) {
-            .card {
-                margin: 0.5rem;
-            }
-
-            .table-responsive {
-                border: none;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .card-header {
-                padding: 1rem;
-            }
-
-            .btn-add-tenant {
-                padding: 0.4rem 1rem;
-                font-size: 0.9rem;
-            }
-
-            .table thead th {
-                font-size: 0.75rem;
-            }
-
-            .table tbody td {
-                padding: 0.75rem 0.5rem;
-                font-size: 0.9rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .tenant-status {
-                padding: 4px 8px;
-                font-size: 0.7rem;
-            }
-
-            .btn-action {
-                width: 28px;
-                height: 28px;
-            }
+        .pagination {
+            margin-bottom: 0;
         }
     </style>
 {% endblock additional_styles %}
@@ -138,35 +75,25 @@
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <div class="row d-flex justify-content-between align-items-center gap-3">
-            <div class="col-auto">
-                <h5 class="mb-0 fw-bold">Users</h5>
-            </div>
-            <div class="col-md-4">
-                <div class="search-wrapper flex-grow-1 max-w-md">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0" 
-                            placeholder="Search bills..." 
-                            id="searchInput" 
-                            value="{{ search_query }}">
-                    </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Users</h5>
+            <div class="d-flex gap-3">
+                <div class="search-wrapper">
+                    <input type="text" class="form-control" 
+                        placeholder="Search users..." 
+                        id="searchInput" 
+                        value="{{ search_query }}">
                 </div>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-primary btn-add-tenant" data-bs-toggle="modal" data-bs-target="#newUserModal">
-                    <i class="fas fa-plus me-2"></i>New User
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUserModal">
+                    <i class="fas fa-plus me-1"></i>New User
                 </button>
             </div>
         </div>
     </div>
 
     <div class="card-body p-0">
-        <div class="loader" id="loader"></div>
         <div class="table-responsive">
-            <table id="tenantsTable" class="table table-hover" style="width:100%">
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -184,27 +111,71 @@
                         <td>{{user.name}}</td>
                         <td>{{user.phone}}</td>
                         <td>{{user.role}}</td>
-                    
-                        <td><span class="tenant-status status-{{user.status|lower}}">{{user.status}}</span></td>
-                        <td>
-                            <div class="d-flex justify-content-end gap-2">
-                                <button class="btn btn-action btn-light" data-bs-toggle="modal" data-bs-target="#editUserModal{{user.id}}" title="Edit">
-                                    <i class="fas fa-edit text-primary"></i>
-                                </button>
-                                <button class="btn btn-action btn-light" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{user.id}}" title="Delete">
-                                    <i class="fas fa-trash text-danger"></i>
-                                </button>
-                            </div>
+                        <td><span class="status-badge status-{{user.status|lower}}">{{user.status}}</span></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-light btn-action" data-bs-toggle="modal" data-bs-target="#editUserModal{{user.id}}" title="Edit">
+                                <i class="fas fa-edit text-primary"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light btn-action" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{user.id}}" title="Delete">
+                                <i class="fas fa-trash text-danger"></i>
+                            </button>
                         </td>
                         {% include "users/edit_user.html" %}
                     </tr>
-                   
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        
+        <div class="pagination-wrapper">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
+                </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </div>
 </div>
-
 {% endblock content %}
 

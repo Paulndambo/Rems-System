@@ -3,6 +3,11 @@ import csv
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Sum
+from django.core.paginator import Paginator
+import json
+from django.db.models.functions import ExtractMonth, ExtractYear
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 from apps.payments.models import RentBill, WaterBillPayment, Expense, TenantPayment, RentPayment
 from apps.properties.models import WaterBill, Property
@@ -13,12 +18,16 @@ from apps.core.constants import MONTHS_LIST
 
 # Create your views here.
 date_today = datetime.now().date()
+
+@login_required
 def monthly_rent_report(request):
     # Get filter parameters
     selected_month = request.GET.get('month')
     selected_year = request.GET.get('year')
     selected_property = request.GET.get('property')
+    selected_tenant = request.GET.get('tenant')
     export = request.GET.get('export')
+    page = request.GET.get('page', 1)  # Get the page number, default to 1
 
     selected_year = selected_year if selected_year else Year.objects.get(name=str(date_today.year)).id
     # Base queryset
@@ -31,9 +40,15 @@ def monthly_rent_report(request):
         rent_bills = rent_bills.filter(year_id=selected_year)
     if selected_property:
         rent_bills = rent_bills.filter(unit__property_id=selected_property)
+    if selected_tenant:
+        rent_bills = rent_bills.filter(tenant_id=selected_tenant)
         
     # Order by due date
     rent_bills = rent_bills.order_by('due_date')
+    
+    # Add pagination
+    paginator = Paginator(rent_bills, 10)  # Show 10 rent bills per page
+    page_obj = paginator.get_page(page)
     
     # Get all years for the filter dropdowns
     years = Year.objects.all().order_by('-name')
@@ -89,17 +104,21 @@ def monthly_rent_report(request):
         writer.writerow(['', '', '', '', "Total Due", total_amount_due, '', ''])
         return response
 
+    
 
     # Regular template response
+    tenants = Tenant.objects.all().select_related('user')
     context = {
-        'rent_bills': rent_bills,
+        'rent_bills': page_obj,
         'months': MONTHS_LIST,
         'years': years,
         'properties': Property.objects.all(),
+        'tenants': tenants,
         'selected_month': selected_month if selected_month else None,
         'selected_year': int(selected_year) if selected_year else None,
         'selected_property': int(selected_property) if selected_property else None,
-        'monthly_data': monthly_data,  # Add the monthly data to context
+        'selected_tenant': int(selected_tenant) if selected_tenant else None,
+        'monthly_data': json.dumps(monthly_data),
         'year': year,
     }
     
@@ -107,136 +126,67 @@ def monthly_rent_report(request):
         
 
 
-def expenses_report(request):
-    # Get filter parameters
-    expense_type = request.GET.get('expense_type')
-    export = request.GET.get('export')
-
-    # Base queryset
-    expenses = Expense.objects.all()
-
-    # Apply filters if selected
-    if expense_type:
-        expenses = expenses.filter(expense_type=expense_type)
-
-    # Order by date
-    expenses = expenses.order_by('spend_on')
-
-    # Handle CSV export
-    if export == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="expenses.csv"'  
-
-        writer = csv.writer(response)
-        writer.writerow(['Recorded On', 'Name', 'Description', 'Amount', 'Category', 'Spend On'])
-
-        for expense in expenses:
-            writer.writerow([expense.created_at.strftime('%Y-%m-%d'), expense.title, expense.description, expense.amount, expense.expense_type, expense.spend_on.strftime('%Y-%m-%d')])
-
-        return response
-    
-    # Regular template response
-    context = {
-        'expenses': expenses,
-        'expense_types': ["Electricity", "Water", "Gas", "Internet", "Maintenance", "Other"],
-    }
-
-    return render(request, 'reports/expenses_report.html', context)
-
-
-
-def water_bills_report(request):
+@login_required
+def water_payments_report(request):
     # Get filter parameters
     year = request.GET.get('year')
     month = request.GET.get('month')
     export = request.GET.get('export')
     tenant = request.GET.get('tenant')
+    page = request.GET.get('page', 1)  # Get the page number, default to 1
 
-    water_bills = WaterBill.objects.all()
-
-    if year and month and tenant:
-        water_bills = water_bills.filter(year_id=year, month__name=month, tenant_id=tenant)
-    
-    elif year and month:
-        water_bills = water_bills.filter(year_id=year, month__name=month)
-    
-    elif month and tenant:
-        water_bills = water_bills.filter(month__name=month, tenant_id=tenant)
-
-    elif tenant and year:
-        water_bills = water_bills.filter(tenant_id=tenant, year_id=year)
-
-    elif tenant:
-        water_bills = water_bills.filter(tenant_id=tenant)
-
-    elif year:
-        water_bills = water_bills.filter(year_id=year)
-
-    elif month:
-        water_bills = water_bills.filter(month__name=month)
-
-    if export == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="water_bills.csv"'  
-
-        writer = csv.writer(response)
-        writer.writerow(['Recorded On', 'Tenant', 'House No.', 'Month', 'Previous Reading', 'Month Reading', 'Amount Expected', 'Amount Paid', 'Status'])
-
-        for water_bill in water_bills:
-            writer.writerow([
-                water_bill.created_at.strftime('%Y-%m-%d'),
-                f"{water_bill.tenant.user.first_name} {water_bill.tenant.user.last_name}",
-                f"{water_bill.unit.name} ({water_bill.unit.property.name})",
-                f"{water_bill.month.name} ({water_bill.year.name})",
-                water_bill.previous_reading,
-                water_bill.current_reading,
-                water_bill.amount,
-                water_bill.amount_paid,
-                water_bill.status
-            ])
-
-        return response
-    
-
-    context = {
-        'water_bills': water_bills,
-        'years': Year.objects.all(),
-        'months': MONTHS_LIST,
-        'tenants': Tenant.objects.all(),
-        'selected_year': year,
-        'selected_month': month,
-        'selected_tenant': tenant,
-    }
-    return render(request, 'reports/water_bills_report.html', context)
-
-
-def water_bills_payments_report(request):
-    # Get filter parameters
-    year = request.GET.get('year')
-    month = request.GET.get('month')
-    export = request.GET.get('export')
-    tenant = request.GET.get('tenant')
+    # Set default year to current year if not specified
+    current_year = str(date_today.year)
+    default_year = Year.objects.get(name=current_year).id
+    year = year if year else default_year
 
     water_payments = WaterBillPayment.objects.all()
+    chart_data_query = WaterBill.objects.all()
 
-    if year and month and tenant:
-        water_payments = water_payments.filter(year_id=year, month__name=month, tenant_id=tenant)
+    # Apply filters to both queries
+    if month and tenant:
+        water_payments = water_payments.filter(water_bill__year_id=year, water_bill__month__name=month, water_bill__tenant_id=tenant)
+        chart_data_query = chart_data_query.filter(year_id=year, month__name=month, tenant_id=tenant)
     
-    elif year and month:
-        water_payments = water_payments.filter(year_id=year, month__name=month)
-    
-    elif month and tenant:
-        water_payments = water_payments.filter(month__name=month, tenant_id=tenant)
-
-    elif tenant:
-        water_payments = water_payments.filter(tenant_id=tenant)
-
-    elif year:
-        water_payments = water_payments.filter(year_id=year)
-
     elif month:
-        water_payments = water_payments.filter(month__name=month)
+        water_payments = water_payments.filter(water_bill__year_id=year, water_bill__month__name=month)
+        chart_data_query = chart_data_query.filter(year_id=year, month__name=month)
+    
+    elif tenant:
+        # When only tenant is selected, filter by tenant and current year
+        water_payments = water_payments.filter(water_bill__year_id=year, water_bill__tenant_id=tenant)
+        chart_data_query = chart_data_query.filter(year_id=year, tenant_id=tenant)
+    
+    else:
+        # Default view - show current year's records
+        water_payments = water_payments.filter(water_bill__year_id=year)
+        chart_data_query = chart_data_query.filter(year_id=year)
 
+    # Prepare data for charts
+    chart_data = chart_data_query.values('month__name', 'year__name').annotate(
+        total_units=Sum('units_consumed'),
+        total_expected=Sum('amount'),
+        total_paid=Sum('waterbillpayment__amount_paid')
+    ).order_by('year__name', 'month__name')
+
+    months_labels = []
+    units_consumed = []
+    expected_amounts = []
+    paid_amounts = []
+
+    for data in chart_data:
+        month_label = f"{data['month__name']} {data['year__name']}"
+        months_labels.append(month_label)
+        units_consumed.append(float(data['total_units'] or 0))
+        expected_amounts.append(float(data['total_expected'] or 0))
+        paid_amounts.append(float(data['total_paid'] or 0))
+
+    # Add pagination
+    paginator = Paginator(water_payments, 10)  # Show 10 payments per page
+    try:
+        water_payments_page = paginator.page(page)
+    except:
+        water_payments_page = paginator.page(1)
 
     if export == 'csv':
         response = HttpResponse(content_type='text/csv')
@@ -245,7 +195,7 @@ def water_bills_payments_report(request):
         writer = csv.writer(response)
         writer.writerow(['Recorded On', 'Tenant', 'House No.', 'Amount Paid', 'Payment Method', 'Payment Date', 'Month'])
 
-        for water_payment in water_payments:
+        for water_payment in water_payments_page:
             writer.writerow([
                 water_payment.created_at.strftime('%Y-%m-%d'),
                 f"{water_payment.tenant.user.first_name} {water_payment.tenant.user.last_name}",
@@ -260,141 +210,16 @@ def water_bills_payments_report(request):
     
 
     context = {
-        'water_payments': water_payments,
+        'water_payments': water_payments_page,  # Changed to paginated queryset
         'years': Year.objects.all(),
         'months': MONTHS_LIST,
         'tenants': Tenant.objects.all(),
         'selected_year': year,
         'selected_month': month,
         'selected_tenant': tenant,
+        'months_labels': json.dumps(months_labels),
+        'units_consumed': json.dumps(units_consumed),
+        'expected_amounts': json.dumps(expected_amounts),
+        'paid_amounts': json.dumps(paid_amounts),
     }
     return render(request, 'reports/water_payments_report.html', context)
-
-
-def tenant_payments_report(request):
-    # Get filter values from request
-    year = request.GET.get('year')
-    month = request.GET.get('month')
-    tenant = request.GET.get('tenant')
-    export = request.GET.get('export')
-
-    # Filter payments based on selected filters
-    tenant_payments = TenantPayment.objects.all()
-
-    if year and month and tenant:
-        tenant_payments = tenant_payments.filter(year_id=year, month__name=month, tenant_id=tenant)
-    
-    elif year and month:
-        tenant_payments = tenant_payments.filter(year_id=year, month__name=month)
-    
-    elif year and tenant:
-        tenant_payments = tenant_payments.filter(year_id=year, tenant_id=tenant)
-    
-    elif month and tenant:
-        tenant_payments = tenant_payments.filter(month__name=month, tenant_id=tenant)
-
-    elif tenant:
-        tenant_payments = tenant_payments.filter(tenant_id=tenant)
-
-    elif year:
-        tenant_payments = tenant_payments.filter(year_id=year)
-
-    elif month:
-        tenant_payments = tenant_payments.filter(month__name=month)
-
-    # Get distinct years, months, and tenants for filters
-
-    if export == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="tenant_payments.csv"'  
-
-        writer = csv.writer(response)
-        writer.writerow(['Recorded On', 'Tenant', 'House No.', 'Amount Paid', 'Payment Method', 'Payment Date', 'Month', 'Year', 'Payment Type'])
-
-        for payment in tenant_payments:
-            writer.writerow([ 
-                payment.created_at.strftime('%Y-%m-%d'),
-                f"{payment.tenant.user.first_name} {payment.tenant.user.last_name}", 
-                payment.unit.name, 
-                payment.amount_paid, 
-                payment.payment_method, 
-                payment.payment_date.strftime('%Y-%m-%d'), 
-                payment.month.name, 
-                payment.year.name, 
-                payment.payment_type
-            ])
-
-        return response
-    
-
-    context = {
-        'tenant_payments': tenant_payments,
-        'years': Year.objects.all(),
-        'months': MONTHS_LIST,
-        'tenants': Tenant.objects.all(),
-        'selected_year': year,
-        'selected_month': month,
-        'selected_tenant': tenant,
-    }
-    return render(request, 'reports/tenant_payments_report.html', context)
-
-
-def rent_payments_report(request):
-    # Get filter parameters
-    year = request.GET.get('year')
-    month = request.GET.get('month')
-    tenant = request.GET.get('tenant')
-    export = request.GET.get('export')
-
-    rent_payments = RentPayment.objects.all()
-
-    if year and month and tenant:
-        rent_payments = rent_payments.filter(rent_bill__year_id=year, rent_bill__month__name=month, rent_bill__tenant_id=tenant)
-    
-    elif year and month:
-        rent_payments = rent_payments.filter(rent_bill__year_id=year, rent_bill__month__name=month)
-    
-    elif month and tenant:
-        rent_payments = rent_payments.filter(rent_bill__month__name=month, rent_bill__tenant_id=tenant)
-
-    elif tenant:
-        rent_payments = rent_payments.filter(rent_bill__tenant_id=tenant)
-
-    elif year:
-        rent_payments = rent_payments.filter(rent_bill__year_id=year)
-
-    elif month:
-        rent_payments = rent_payments.filter(rent_bill__month__name=month)
-
-    if export == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="rent_payments.csv"'  
-
-        writer = csv.writer(response)
-        writer.writerow(['Recorded On', 'Tenant', 'House No.', 'Amount Paid', 'Payment Method', 'Payment Date', 'Month', 'Year'])
-
-        for rent_payment in rent_payments:
-            writer.writerow([
-                rent_payment.created_at.strftime('%Y-%m-%d'),
-                f"{rent_payment.rent_bill.tenant.user.first_name} {rent_payment.rent_bill.tenant.user.last_name}",
-                f"{rent_payment.rent_bill.unit.name} ({rent_payment.rent_bill.unit.property.name})",
-                rent_payment.amount_paid,
-                rent_payment.payment_method,
-                rent_payment.payment_date.strftime('%Y-%m-%d'),
-                rent_payment.rent_bill.month.name,
-                rent_payment.rent_bill.year.name
-            ])
-
-        return response
-    
-
-    context = {
-        'rent_payments': rent_payments,
-        'years': Year.objects.all(),
-        'months': MONTHS_LIST,
-        'tenants': Tenant.objects.all(),
-        'selected_year': year,
-        'selected_month': month,
-        'selected_tenant': tenant,
-    }
-    return render(request, 'reports/rent_payments_report.html', context)

@@ -76,6 +76,14 @@ class UnitMonthBill(AbstractBaseModel):
             message = "Rent bill is missing"
         return message
 
+    def mark_as_paid(self):
+        self.status = PaymentStatuses.PAID.value
+        self.fully_paid = True
+        self.amount_paid = self.amount_expected
+        self.water_amount_paid = self.water_amount
+        self.garbage_amount_paid = self.garbage_amount
+        self.rent_amount_paid = self.rent_amount
+        self.save()
 
 class WaterBillPayment(AbstractBaseModel):
     tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True)
@@ -99,7 +107,6 @@ class Expense(AbstractBaseModel):
     def __str__(self):
         return self.property.name
     
-
 
 class RentBill(AbstractBaseModel):
     unit_bill = models.ForeignKey("UnitMonthBill", on_delete=models.CASCADE, null=True, blank=True)

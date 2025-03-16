@@ -11,6 +11,8 @@ from apps.core.models import WaterPrice, Year, Month
 from apps.payments.models import RentPayment, RentBill
 from apps.core.constants import MONTHS_LIST, UserRoles, MaintenanceStatuses
 import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 
 # Create your views here.
 @login_required
@@ -18,23 +20,27 @@ def home(request):
     if request.user.role == UserRoles.CARETAKER.value:
         return redirect("caretaker-dashboard")
     
+
+    year = datetime.now().date().year
+    print(f"Current Year: {year}")
+    month_ids_list = list(RentBill.objects.filter(month__year__name=str(year)).values_list('month__id', flat=True).distinct())
+
     # Basic stats
     properties_count = Property.objects.count()
     tenants_count = Tenant.objects.all().count()
     
     # Get total revenue (sum of all paid rent)
-    total_revenue = RentBill.objects.all(
-    ).aggregate(
+    total_revenue = RentBill.objects.filter(month__in=month_ids_list).aggregate(
         total=Sum('amount_paid')
     )['total'] or 0
     
     # Get monthly revenue data for the last 6 months
-    current_year = Year.objects.filter(is_active=True).first()
+    
     
     monthly_data = []
-    if current_year:
+    if year:
         monthly_data = RentBill.objects.filter(
-            month__year=current_year
+            month__in=month_ids_list
         ).values('month').annotate(
             expected_amount=Sum('amount_expected'),
             paid_amount=Sum('amount_paid')
@@ -60,9 +66,7 @@ def home(request):
     recent_activities = []
     
     # Recent payments
-    recent_payments = RentBill.objects.filter(
-        status='paid'
-    ).select_related('tenant', 'unit', 'month').order_by('-updated_at')[:3]
+    recent_payments = RentBill.objects.filter(month__in=month_ids_list, status='paid').select_related('tenant', 'unit', 'month').order_by('-updated_at')[:3]
     
     for payment in recent_payments:
         recent_activities.append({
@@ -76,6 +80,11 @@ def home(request):
     
     # Sort activities by timestamp
     recent_activities.sort(key=lambda x: x['timestamp'], reverse=True)
+    
+    # Add available years for the filter
+    # You might want to get this from your database
+    current_year = datetime.now().year
+    available_years = list(range(current_year - 3, current_year + 1))
     
     context = {
         'properties_count': properties_count,
@@ -96,6 +105,8 @@ def home(request):
         },
         
         'recent_activities': recent_activities,
+        'available_years': available_years,
+        'current_year': current_year,
     }
     
     return render(request, 'home.html', context)
@@ -194,3 +205,79 @@ def edit_water_price(request):
         WaterPrice.objects.filter(id=water_price_id).update(unit_price=unit_price)
         return redirect("water-prices")
     return render(request, 'settings/edit_water_price.html')
+
+@require_GET
+def chart_data_api(request):
+    """API endpoint to get chart data for a specific year"""
+    year = request.GET.get('year', datetime.now().year)
+    try:
+        year = int(year)
+    except ValueError:
+        year = datetime.now().year
+    
+    # Get revenue data for the selected year
+    # This is just an example - adjust according to your actual data structure
+    revenue_data = get_revenue_data_for_year(year)
+    
+    # Get occupancy data for the selected year
+    occupancy_data = get_occupancy_data_for_year(year)
+    
+    # Calculate total revenue for the selected year
+    total_revenue = calculate_total_revenue_for_year(year)
+    
+    return JsonResponse({
+        'revenue': revenue_data,
+        'occupancy': occupancy_data,
+        'total_revenue': f"Kes {total_revenue:,.2f}"  # Format as currency
+    })
+
+def get_revenue_data_for_year(year):
+    # Get monthly data for the specified year
+
+    # Get all months for the specified year
+    months_list = list(RentBill.objects.filter(month__year__name=str(year)).values_list('month__id', flat=True).distinct())
+    
+    
+    monthly_data = RentBill.objects.filter(month__in=months_list).values('month').annotate(
+        expected_amount=Sum('amount_expected'),
+        paid_amount=Sum('amount_paid')
+    ).order_by('month__created_at')
+    
+    labels = []
+    expected_amounts = []
+    paid_amounts = []
+    
+    # Only process months that have RentBill records
+    # This is already happening since we're iterating over the query results
+    for data in monthly_data:
+        month = Month.objects.get(id=data['month'])
+        labels.append(month.name)
+        expected_amounts.append(float(data['expected_amount'] or 0))
+        paid_amounts.append(float(data['paid_amount'] or 0))
+    
+    return {
+        'labels': labels,
+        'expected_amounts': expected_amounts,
+        'paid_amounts': paid_amounts
+    }
+
+def get_occupancy_data_for_year(year):
+    # Implement logic to get occupancy data for the specified year
+    # Example:
+    occupied_units = PropertyUnit.objects.filter(is_occupied=True).count()
+    total_units = PropertyUnit.objects.all().count()
+    vacant_units = total_units - occupied_units
+    return {
+        'occupied': occupied_units,  # Number of occupied units for the selected year
+        'vacant': vacant_units      # Number of vacant units for the selected year
+    }
+
+def calculate_total_revenue_for_year(year):
+    # Your logic to calculate total revenue for the given year
+    # For example:
+    
+    total = RentBill.objects.filter(
+        year__name=str(year)
+    ).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+    
+    return total

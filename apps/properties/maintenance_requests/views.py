@@ -8,11 +8,12 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.db import transaction
 from django.core.paginator import Paginator
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from apps.properties.models import PropertyUnit, MaintenanceRequest
 
 """Maintenance Requests"""
-class MaintenanceListView(ListView):
+class MaintenanceListView(LoginRequiredMixin, ListView):
     model = MaintenanceRequest
     template_name = "properties/maintenance_requests/maintenance_requests.html"
     context_object_name = "maintenance_requests"

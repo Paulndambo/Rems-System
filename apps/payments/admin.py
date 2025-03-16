@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import RentPayment, TenantPayment, RentBill, WaterBillPayment, Expense, GarbageBill, UnitMonthBill
+from .models import RentPayment, TenantPayment, RentBill, WaterBillPayment, Expense, GarbageBill, UnitMonthBill, GarbageBillPayment
 
 # Register your models here.
 
@@ -34,3 +34,8 @@ class ExpenseAdmin(admin.ModelAdmin):
 @admin.register(GarbageBill)
 class GarbageBillAdmin(admin.ModelAdmin):
     list_display = ["id", "unit", "tenant", "amount_expected", "amount_paid", "due_date", "status", "fully_paid"]
+
+@admin.register(GarbageBillPayment)
+class GarbageBillPaymentAdmin(admin.ModelAdmin):
+    list_display = ["id", "garbage_bill", "amount_paid", "payment_date", "payment_method"]
+
