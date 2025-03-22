@@ -84,7 +84,6 @@ def unit_bill_receipt(request, unit_bill_id):
     return render(request, "unit_bills/unit_bill_receipt.html", context)
 
 
-@login_required
 def update_bill_status(bill, amount_paid, expected_amount):
     if amount_paid >= expected_amount:
         bill.fully_paid = True
