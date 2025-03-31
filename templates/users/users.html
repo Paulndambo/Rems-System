@@ -113,6 +113,9 @@
                         <td>{{user.role}}</td>
                         <td><span class="status-badge status-{{user.status|lower}}">{{user.status}}</span></td>
                         <td class="text-end">
+                            <a href="{% url 'change-password' user.id %}" class="btn btn-sm btn-light btn-action">
+                                <i class="fas fa-lock text-primary"></i>
+                            </a>
                             <button class="btn btn-sm btn-light btn-action" data-bs-toggle="modal" data-bs-target="#editUserModal{{user.id}}" title="Edit">
                                 <i class="fas fa-edit text-primary"></i>
                             </button>

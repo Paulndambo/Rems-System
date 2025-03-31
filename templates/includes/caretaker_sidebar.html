@@ -35,19 +35,7 @@
             </a>
         </li>
         
-        <li class="mb-2">
-            <a href="{% url 'caretaker-rent-bills' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3 {% if 'expenses' in request.path %}active{% endif %}">
-                <i class="fas fa-file-invoice-dollar me-3"></i>
-                <span class="nav-label">Monthly Rent</span>
-            </a>
-        </li>
-
-        <li class="mb-2">
-            <a href="{% url 'expenses' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3 {% if 'expenses' in request.path %}active{% endif %}">
-                <i class="fas fa-receipt me-3"></i>
-                <span class="nav-label">Expenses</span>
-            </a>
-        </li>
+      
 
         <li class="mb-2">
             <a href="{% url 'water-bills' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3 {% if 'expenses' in request.path %}active{% endif %}">
@@ -57,10 +45,18 @@
         </li>
 
         <li class="mb-2">
+            <a href="{% url 'pending-bills' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3 {% if 'expenses' in request.path %}active{% endif %}">
+                <i class="bi bi-cash-stack me-3"></i>
+                <span class="nav-label">Pending Bills</span>
+            </a>
+        </li>
+        <!--
+        <li class="mb-2">
             <a href="#" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3 {% if 'expenses' in request.path %}active{% endif %}">
                 <i class="fas fa-bell me-3"></i>
                 <span class="nav-label">Notices</span>
             </a>
         </li>
+        -->
     </ul>
 </nav>

@@ -81,6 +81,7 @@
                                 <a href="{% url 'unit-bill-details' bill.id %}" class="btn btn-sm btn-info">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                {%  if request.user.role != "Caretaker" %}
                                 <a href="{% url 'unit-bill-receipt' bill.id %}" class="btn btn-sm btn-secondary">
                                     <i class="bi bi-printer"></i>
                                 </a>
@@ -93,6 +94,7 @@
                                         <i class="bi bi-envelope"></i>
 
                                 </button>
+                                {% endif %}
                             
                             </div>
                         </td>
