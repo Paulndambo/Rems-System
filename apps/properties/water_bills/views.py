@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import math
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
@@ -68,6 +68,9 @@ def new_water_bill(request):
 
         unit_bill = UnitMonthBill.objects.filter(unit=unit, month=month, year=year).first()
 
+        water_cost = (Decimal(unit.water_price) * Decimal(units_consumed))
+        water_cost_rounded_off = math.ceil(water_cost)
+
         if not unit_bill:
             unit_bill = UnitMonthBill.objects.create(
                 unit=unit,
@@ -76,7 +79,7 @@ def new_water_bill(request):
                 year=year
             )
 
-        unit_bill.water_amount = (Decimal(unit.water_price) * Decimal(units_consumed))
+        unit_bill.water_amount = water_cost_rounded_off
         unit_bill.update_amount_expected()
         unit_bill.save()
 
@@ -91,7 +94,7 @@ def new_water_bill(request):
             current_reading=current_reading,
             meter_number=unit.water_meter_number,
             units_consumed=units_consumed,
-            amount=unit_bill.water_amount
+            amount=water_cost_rounded_off
         )
         
         rent_bill = RentBill.objects.filter(unit=unit, unit_bill=unit_bill).first()
@@ -163,10 +166,13 @@ def edit_water_bill(request):
         water_bill.reading_date = reading_date
         water_bill.save()
 
-        water_bill.amount = water_bill.total_amount()
+
+        water_cost = (Decimal(water_bill.unit.water_price) * Decimal(units_consumed))
+        water_cost_rounded_off = math.ceil(water_cost)
+        water_bill.amount = water_cost_rounded_off
         water_bill.save()
 
-        water_bill.unit_bill.water_amount = water_bill.amount
+        water_bill.unit_bill.water_amount = water_cost_rounded_off
         water_bill.unit_bill.update_amount_expected()
         water_bill.unit_bill.save()
 
