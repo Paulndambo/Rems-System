@@ -38,7 +38,7 @@ def load_water_bills():
 
         units_consumed = Decimal(water_bill.get("units_consumed"))
         current_reading = Decimal(water_bill.get("current_reading"))
-        previous_reading = Decimal(water_bill.get("previous_reading"))
+        previous_reading = Decimal('0')
 
         month_bill = UnitMonthBill.objects.create(
             unit=unit,

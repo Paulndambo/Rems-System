@@ -366,6 +366,7 @@
             </div>
         -->
 
+        <!--
         <div class="card bg-white mb-4" id="paymentsOverviewTable">
             <div class="card-header bg-white">
                 <div class="row g-3 align-items-center">
@@ -389,8 +390,8 @@
                             <tr>
                                 {% for cell in row %}
                                     {% if forloop.first %}
-                                        <td><strong>{{ cell }}</strong></td> <!-- Unit number -->
-                                    {% else %}
+                                        <td><strong>{{ cell }}</strong></td> 
+                                        {% else %}
                                         <td>
                                             {% if cell == "Fully Paid" %}
                                             <div class="bg-success text-white p-2 rounded d-flex align-items-center justify-content-center">
@@ -414,8 +415,9 @@
                 </table>
             </div>
         </div>
+        -->
         
-
+    
 
         <!-- Units Table -->
         <div class="card">
@@ -453,14 +455,10 @@
                                 <td>{{unit.floor}}</td>
                                 <td>{{unit.rent}}</td>
                                 <td>
-                                    {% if unit.status == "Occupied" %}
+                                    {% if unit.is_occupied %}
                                     <span class="badge bg-success">Occupied</span>
-                                    {% elif unit.status == "Vacant" %}
-                                    <span class="badge bg-danger">Vacant</span>
-                                    {% elif unit.status == "Under Maintenance" %}
-                                    <span class="badge bg-warning">Under Maintenance</span>
                                     {% else %}
-                                    <span class="badge bg-secondary">{{unit.status}}</span>
+                                    <span class="badge bg-danger">Vacant</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -468,10 +466,6 @@
                                     <a href="{% url 'tenant-detail' unit.tenant.id %}" class="text-decoration-none text-primary">
                                         {{ unit.tenant.user.name }}
                                     </a>
-                                    {% else %}
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignTenantModal{{unit.id}}">
-                                        <i class="fas fa-user-plus"></i> Assign
-                                    </button>
                                     {% endif %}
                                 </td>
                                 <td>

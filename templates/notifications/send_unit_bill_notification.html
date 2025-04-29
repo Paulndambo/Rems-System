@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="tenantModalLabel">Send Unit Bill Notification</h5>
+                <h5 class="modal-title" id="tenantModalLabel">Send Tenant Notification</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="tenantForm" method="POST" action="{% url 'send-unit-bill-notification' %}">
@@ -12,6 +12,14 @@
                     <input type="number" name="unit_bill_id" id="unit_bill_id" value="{{bill.id}}" readonly hidden>
                     <div class="row mb-2">
                         <p>Are you sure you want to send unit bill notification to tenant named: <b>{{bill.tenant.user.first_name}} {{bill.tenant.user.last_name}}</b>?</p>
+                   </div>
+                   <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label fw-bold">What kind of Message?</label>
+                        <select class="form-select" id="notification_type" name="notification_type">
+                            <option value="sms" selected>SMS Message</option>
+                        </select>
+                    </div>
                    </div>
                     
                 <div class="text-center mb-2">

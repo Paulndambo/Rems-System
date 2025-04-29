@@ -26,7 +26,7 @@
                     <th>Amount Expected</th>
                     <th>Amount Paid</th>
                     <th>Status</th> 
-                    <th>Actions</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -39,7 +39,9 @@
                     <td>{{security_deposit.amount_paid}}</td>
                     <td>{{security_deposit.status}}</td>
                     <td>
+                        {% if not security_deposit.fully_paid %}
                         <a class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#collectSecurityDepositPaymentModal{{security_deposit.id}}">Pay</a>
+                        {% endif %}
                     </td>
                     {% include "security_deposits/pay_security_deposit.html" %}
                 </tr>

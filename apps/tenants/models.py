@@ -14,7 +14,8 @@ class Tenant(AbstractBaseModel):
     occupation = models.CharField(max_length=255, null=True, blank=True)
     lease_duration = models.CharField(max_length=255, null=True, blank=True)
     renews_every = models.CharField(max_length=255, null=True, blank=True)
-
+    unit_assigned = models.OneToOneField("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, related_name="tenant_unit")
+    
     def __str__(self):
         return self.user.username
 
