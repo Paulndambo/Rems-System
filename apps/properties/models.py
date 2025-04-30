@@ -1,6 +1,6 @@
 from decimal import Decimal
 from django.db import models
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import calendar
 import math
 
@@ -113,15 +113,9 @@ class WaterBill(AbstractBaseModel):
             self.tenant = self.unit.tenant
 
         if self.reading_date:
-            self.due_date = self.reading_date + timedelta(days=5)
+            reading_date = datetime.strptime(str(self.reading_date), "%Y-%m-%d").date()
+            self.due_date = reading_date + timedelta(days=5)
          
-        # Set previous_reading from the last WaterBill for the unit
-        last_water_bill = WaterBill.objects.filter(unit=self.unit).order_by('-created_at').first()
-        if last_water_bill:
-            self.previous_reading = last_water_bill.current_reading
-        else:
-            self.previous_reading = 0.00
-
         # Calculate reading_date and due_date
         if self.month and self.year:
             # Extract month number from month name
@@ -133,11 +127,7 @@ class WaterBill(AbstractBaseModel):
             self.reading_date = first_day_next_month
             # Set due_date to the 5th of the next month
             self.due_date = first_day_next_month.replace(day=5)
-
-        # Call the superclass save method
-        self.units_consumed = self.units_consumed #Decimal(self.current_reading) - Decimal(self.previous_reading)
-        
-        self.amount = self.total_amount()
+        #self.amount = self.total_amount()
         super().save(*args, **kwargs)
     
     
