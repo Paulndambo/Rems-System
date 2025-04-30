@@ -7,12 +7,15 @@ from django.db.models import Q
 from django.db import transaction
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 
 from apps.properties.models import PropertyUnit, WaterBill
 from apps.core.models import Month, Year
 from apps.payments.models import RentBill, UnitMonthBill, GarbageBill
 from apps.core.constants import MONTHS_LIST, PAYMENT_METHODS
 
+
+from apps.properties.water_bills.billing_mixin import TenantBillingMixin
 
 # Create your views here.
 """Water Bills"""
@@ -55,80 +58,35 @@ class WaterBillListView(LoginRequiredMixin, ListView):
 def new_water_bill(request):
     if request.method == "POST":
         unit_id = request.POST.get('unit')
+        unit = PropertyUnit.objects.get(id=unit_id)
+        
+        last_water_bill = WaterBill.objects.filter(unit=unit).order_by("-created_at").first()
+
+        previous_reading = last_water_bill.current_reading if last_water_bill else 0
         
         year_id = request.POST.get('year')
         month_name = request.POST.get('month')
-        previous_reading = request.POST.get('previous_reading')
         current_reading = request.POST.get('current_reading')
-        units_consumed = Decimal(current_reading) - Decimal(previous_reading)
-
-        unit = PropertyUnit.objects.get(id=unit_id)
+        
+        
         year = Year.objects.get(id=year_id)
         month = Month.objects.get(name=month_name, year=year)
-
-        unit_bill = UnitMonthBill.objects.filter(unit=unit, month=month, year=year).first()
-
-        water_cost = (Decimal(unit.water_price) * Decimal(units_consumed))
-        water_cost_rounded_off = math.ceil(water_cost)
-
-        if not unit_bill:
-            unit_bill = UnitMonthBill.objects.create(
-                unit=unit,
-                tenant=unit.tenant,
-                month=month,
-                year=year
-            )
-
-        unit_bill.water_amount = water_cost_rounded_off
-        unit_bill.update_amount_expected()
-        unit_bill.save()
-
-        water_bill = WaterBill.objects.create(
-            unit_bill=unit_bill,
-            unit=unit,
-            property=unit.property,
-            tenant=unit.tenant,
-            year=year,
-            month=month,
-            previous_reading=previous_reading,
-            current_reading=current_reading,
-            meter_number=unit.water_meter_number,
-            units_consumed=units_consumed,
-            amount=water_cost_rounded_off
-        )
         
-        rent_bill = RentBill.objects.filter(unit=unit, unit_bill=unit_bill).first()
-        if not rent_bill:
-            RentBill.objects.create(
-                unit=unit,
-                unit_bill=unit_bill,
-                tenant=unit.tenant,
-                amount_expected=unit.rent,
-                due_date=water_bill.due_date,
+        try:
+            biller = TenantBillingMixin(
+                year=year,
                 month=month,
-                year=year
+                previous_reading=previous_reading,
+                current_reading=current_reading,
+                unit=unit
             )
-
-        unit_bill.update_amount_expected()
-        unit_bill.save()
-
-        garbage_bill = GarbageBill.objects.filter(unit=unit, unit_bill=unit_bill).first()
-        if not garbage_bill:
-            GarbageBill.objects.create(
-                unit=unit,
-                unit_bill=unit_bill,
-                tenant=unit.tenant,
-                amount_expected=unit.property.garbage_charge,
-                due_date=water_bill.due_date,
-            )
-
-        unit_bill.rent_amount = unit.rent
-        unit_bill.garbage_amount = unit.property.garbage_charge   
-        unit_bill.update_amount_expected()
-        unit_bill.save()
+            res = biller.generate_bill()
+            messages.success(request, "You have successfully generated monthly bill for James!!")
+        except Exception as e:
+            raise e
+        
 
         return redirect("water-bills")
-
     return render(request, 'water_bills/new_water_bill.html')
 
 
@@ -144,9 +102,10 @@ def view_water_bill(request, id):
 def edit_water_bill(request):
     if request.method == "POST":
         water_bill_id = request.POST.get('water_bill_id')
-    
+        water_bill = WaterBill.objects.get(id=water_bill_id)
 
-        previous_reading = request.POST.get('previous_reading')
+        previous_reading = water_bill.previous_reading
+    
         current_reading = request.POST.get('current_reading')
         reading_date = request.POST.get('reading_date')
         units_consumed = Decimal(current_reading) - Decimal(previous_reading)
@@ -165,6 +124,8 @@ def edit_water_bill(request):
         water_bill.year = year
         water_bill.reading_date = reading_date
         water_bill.save()
+
+        water_bill.refresh_bill()
 
 
         water_cost = (Decimal(water_bill.unit.water_price) * Decimal(units_consumed))
