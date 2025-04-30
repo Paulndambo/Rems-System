@@ -13,11 +13,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.payments.models import (WaterBillPayment, RentPayment, 
                                    RentBill, TenantPayment, GarbageBill, 
                                    GarbageBillPayment, UnitMonthBill)
-from apps.properties.models import WaterBill
-from apps.core.models import Month
+from apps.properties.models import WaterBill, PropertyUnit
+from apps.core.models import Month, Year
 from apps.core.constants import PaymentStatuses, PAYMENT_METHODS
 from apps.notifications.whatsapp import WhatsAppNotification
 from apps.notifications.message_templates import format_water_bill_message, format_rent_bill_message, format_garbage_bill_message, format_unit_bill_message
+from apps.core.constants import MONTHS_LIST, PAYMENT_METHODS
+from apps.properties.water_bills.billing_mixin import TenantBillingMixin
+
 
 class MonthlyUnitBillsView(LoginRequiredMixin, ListView):
     model = Month
@@ -88,13 +91,13 @@ def update_bill_status(bill, amount_paid, expected_amount):
     if amount_paid >= expected_amount:
         bill.fully_paid = True
         bill.status = PaymentStatuses.PAID.value
-        """
+        
         whatsapp_notification = WhatsAppNotification(
             message=format_unit_bill_message(bill.tenant.user.first_name, bill.month.name, bill.year.name),
             recipient=bill.tenant.user.phone_number
         )
         whatsapp_notification.send_message()
-        """
+        
     elif amount_paid > 0:
         bill.status = PaymentStatuses.PARTIALLY_PAID.value
     else:
@@ -144,13 +147,13 @@ def collect_unit_bill_payment(request):
                 year=unit_bill.year
             )
 
-            """
+            
             whatsapp_notification = WhatsAppNotification(
                 message=format_rent_bill_message(unit_bill.tenant.user.first_name, rent_amount),
                 recipient=unit_bill.tenant.user.phone_number
             )
             whatsapp_notification.send_message()
-            """
+            
 
         if water_amount > 0:
             water_bill = WaterBill.objects.get(unit_bill=unit_bill)
@@ -183,13 +186,13 @@ def collect_unit_bill_payment(request):
                 month=unit_bill.month,
                 year=unit_bill.year
             )
-            """
+            
             whatsapp_notification = WhatsAppNotification(
                 message=format_water_bill_message(unit_bill.tenant.user.first_name, water_amount),
                 recipient=unit_bill.tenant.user.phone_number
             )
             whatsapp_notification.send_message()
-            """
+            
 
         if garbage_amount > 0:
             garbage_bill = GarbageBill.objects.get(unit_bill=unit_bill)
@@ -220,13 +223,13 @@ def collect_unit_bill_payment(request):
                 year=unit_bill.year
             )
 
-            """
+            
             whatsapp_notification = WhatsAppNotification(
                 message=format_garbage_bill_message(unit_bill.tenant.user.first_name, garbage_amount),
                 recipient=unit_bill.tenant.user.phone_number
             )
             whatsapp_notification.send_message()
-            """
+            
 
         update_bill_status(unit_bill, unit_bill.amount_paid, unit_bill.amount_expected)
 
@@ -257,3 +260,48 @@ class PendingBillsView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+    
+    
+    
+def generate_bill(request):
+    units = PropertyUnit.objects.filter(is_occupied=True)
+    
+    context = {
+        "months": MONTHS_LIST,
+        "years": Year.objects.filter(is_active=True),
+        "payment_methods": PAYMENT_METHODS,
+        "units": units
+    }
+    
+    if request.method == "POST":
+        unit_id = request.POST.get('unit')
+        unit = PropertyUnit.objects.get(id=unit_id)
+        
+        last_water_bill = WaterBill.objects.filter(unit=unit).order_by("-created_at").first()
+        
+        year_id = request.POST.get('year')
+        month_name = request.POST.get('month')
+        previous_reading = last_water_bill.current_reading if last_water_bill else 0
+        current_reading = request.POST.get('current_reading')
+        
+        
+        year = Year.objects.get(id=year_id)
+        month = Month.objects.get(name=month_name, year=year)
+        
+        
+        try:
+            biller = TenantBillingMixin(
+                year=year,
+                month=month,
+                previous_reading=previous_reading,
+                current_reading=current_reading,
+                unit=unit
+            )
+            res = biller.generate_bill()
+            messages.success(request, f"Bill successfully generated!!, You can go to monthly bills for {month}, {year.name}. You will find it")
+        except Exception as e:
+            raise e
+        
+        
+    
+    return render(request, "water_bills/generate_bill.html", context)
