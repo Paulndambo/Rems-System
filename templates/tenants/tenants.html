@@ -101,11 +101,13 @@
                         value="{{ search_query }}">
                 </div>
             </div>
+            {% if request.user.role != "Caretaker" %}
             <div class="col-auto">
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTenantModal">
                     <i class="fas fa-plus me-1"></i>New Tenant
                 </button>
             </div>
+            {% endif %}
         </div>
     </div>
 
@@ -136,12 +138,14 @@
                             <a href="{% url 'tenant-detail' tenant.id %}" class="btn btn-sm btn-outline-primary btn-action">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            {% if user.role != "Caretaker" %}
                             <button class="btn btn-sm btn-outline-primary btn-action" data-bs-toggle="modal" data-bs-target="#editTenantModal{{tenant.id}}">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button class="btn btn-sm btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteTenantModal{{tenant.id}}">
                                 <i class="fas fa-trash"></i>
                             </button>
+                            {% endif %}
                         </td>
                     </tr>
                     {% include "tenants/edit_tenant.html" %}

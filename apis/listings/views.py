@@ -1,3 +1,4 @@
+from decimal import Decimal, InvalidOperation
 import os
 import time
 
@@ -16,6 +17,7 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from apps.users.models import User
 from website.models import UnitListing, ListingImage, UnitAmenity, ClientRequest, Comment, ListingInterestExpression
 from .serializers import UnitListingSerializer, ListingImageSerializer, ClientRequestSerializer, AmenitySerializer, CommentSerializer, ListingInterestExpressionSerializer, CollectListingViewsSerializer, UploadListingImageSerializer
 from .filters import UnitListingFilter
@@ -38,7 +40,10 @@ class UnitListingListView(generics.ListCreateAPIView):
         town = self.request.query_params.get('town', None)
         unit_type = self.request.query_params.get('unit_type', None)
         listing_type = self.request.query_params.get('listing_type', None)
-
+        keyword = self.request.query_params.get('keyword', None)
+        city = self.request.query_params.get('city', None)
+        min_price = self.request.query_params.get('min_price', None)
+        max_price = self.request.query_params.get('max_price', None)
         # Dynamically build the filter
         filter_conditions = Q()
         if town:
@@ -51,13 +56,48 @@ class UnitListingListView(generics.ListCreateAPIView):
         if listing_type:
             listing_type = listing_type.strip()
             filter_conditions &= Q(listing_type__icontains=listing_type)
+        
+        if keyword:
+            keyword_parts = keyword.strip().split()
+            for part in keyword_parts:
+                filter_conditions &= (
+                    Q(property_name__icontains=part) |
+                    Q(unit_description__icontains=part) |
+                    Q(location_description__icontains=part) |
+                    Q(unit_type__icontains=part) |
+                    Q(listing_type__icontains=part) |
+                    Q(city__name__icontains=part)
+                )
+        if city:
+            city = city.strip()
+            filter_conditions &= Q(city__name__icontains=city)
+        if min_price:
+            try:
+                min_price = Decimal(min_price)
+                filter_conditions &= Q(unit_price__gte=min_price)
+            except (ValueError, InvalidOperation):
+                return Response({"error": "Invalid min_price value. It must be a number."}, status=status.HTTP_400_BAD_REQUEST)
 
+        if max_price:
+            try:
+                max_price = Decimal(max_price)
+                filter_conditions &= Q(unit_price__lte=max_price)
+            except (ValueError, InvalidOperation):
+                return Response({"error": "Invalid max_price value. It must be a number."}, status=status.HTTP_400_BAD_REQUEST)
+        
         # Apply the filter
         return queryset.filter(filter_conditions)
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         data = request.data
+        firebase_uid = data.get("owner", None)
+        try:
+            user = User.objects.get(firebase_uid=firebase_uid)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        data["owner"] = user.id
         serializer = self.get_serializer(data=data)
         if serializer.is_valid(raise_exception=True):
             listing = serializer.save()
@@ -72,32 +112,32 @@ class UnitListingListView(generics.ListCreateAPIView):
             UnitAmenity.objects.bulk_create(listing_amenities)
 
 
-            image_file = serializer.validated_data['unit_image']
+            # image_file = serializer.validated_data['unit_image']
 
-            file_extension = image_file.name.split('.')[-1].lower()
-            file_content = image_file.read()
-            file_content = ContentFile(file_content)
+            # file_extension = image_file.name.split('.')[-1].lower()
+            # file_content = image_file.read()
+            # file_content = ContentFile(file_content)
 
-            file_name = fs.save(
-                f"temp_source_file.{file_extension}", file_content
-            )
-            temp_file = fs.path(file_name)
+            # file_name = fs.save(
+            #     f"temp_source_file.{file_extension}", file_content
+            # )
+            # temp_file = fs.path(file_name)
 
-            cloudinary_handler = CloudinaryHandler()
-            upload_result = cloudinary_handler.upload_image(temp_file, 'listing_images')
+            # cloudinary_handler = CloudinaryHandler()
+            # upload_result = cloudinary_handler.upload_image(temp_file, 'listing_images')
 
-            image_url = upload_result['public_url']
+            # image_url = upload_result['public_url']
 
-            listing.unit_image_url = image_url
-            listing.save()  
+            # listing.unit_image_url = image_url
+            # listing.save()  
 
-            ListingImage.objects.create(listing=listing, image=data['unit_image'], image_url=image_url)
+            ListingImage.objects.create(listing=listing, image=data['unit_image'], image_url="http://localhost.com")
 
-            firebase_data = serializer.data
-            firebase_data['unit_image_url'] = image_url
+            # firebase_data = serializer.data
+            # firebase_data['unit_image_url'] = image_url
 
-            firebase_writer = FirebaseListingWriter()
-            firebase_writer.write_to_firebase_document_with_id("listings", firebase_data, listing.id)
+            # firebase_writer = FirebaseListingWriter()
+            # firebase_writer.write_to_firebase_document_with_id("listings", firebase_data, listing.id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

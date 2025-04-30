@@ -124,12 +124,15 @@ def caretaker_dashboard(request):
 
     total_rent_due = total_rent - total_rent_paid
     total_water_due = total_water - total_water_paid
+
+    
     
     context = {
         "rent_bills": rent_bills[:5],
         "water_bills": water_bills[:5],
         "bill_months": MONTHS_LIST,
         "years": Year.objects.filter(is_active=True).order_by('-created_at'),
+        "months": MONTHS_LIST,
         "properties": Property.objects.filter(is_active=True).order_by('-created_at'),
         "total_rent_due": round(total_rent_due, 0) if total_rent_due is not None else 0,
         "total_water_due": round(total_water_due, 0) if total_water_due is not None else 0,

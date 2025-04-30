@@ -26,7 +26,9 @@ from apps.payments.models import (
     RentPayment,
     RentBill,
     TenantPayment,
-    UnitMonthBill
+    UnitMonthBill,
+    SecurityDeposit,
+    SecurityDepositPayment
 )
 from apps.properties.models import WaterBill, PropertyUnit, Property
 from apps.payments.models import GarbageBill
@@ -505,3 +507,76 @@ def rent_payments_overview(request):
         "rows": rows,
     }
     return render(request, "rent_payments/overview.html", context)
+
+
+class SecurityDepositsView(ListView):
+    model = SecurityDeposit
+    template_name = "security_deposits/security_deposits.html"
+    context_object_name = "security_deposits"
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query)
+                | Q(tenant__user__first_name__icontains=search_query)
+                | Q(unit__name__icontains=search_query)
+            )
+
+        return queryset.order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = self.request.GET.get("search", "")
+        context["payment_methods"] = PaymentMethods.choices()
+        return context
+    
+
+@login_required
+def pay_security_deposit(request):
+    if request.method == "POST":
+        security_deposit_id = request.POST.get("security_deposit_id")
+        amount_paid = Decimal(request.POST.get("amount_paid"))
+        payment_method = request.POST.get("payment_method")
+        payment_date = request.POST.get("payment_date")
+        reference_number = request.POST.get("reference_number")
+
+        security_deposit = SecurityDeposit.objects.get(id=security_deposit_id)
+        security_deposit.amount_paid += amount_paid
+        security_deposit.save()
+
+        if security_deposit.amount_paid == security_deposit.amount_expected:
+            security_deposit.status = PaymentStatuses.PAID.value
+            security_deposit.fully_paid = True
+            security_deposit.save()
+        elif security_deposit.amount_paid < security_deposit.amount_expected:
+            security_deposit.status = PaymentStatuses.PARTIALLY_PAID.value
+            security_deposit.save()
+        else:
+            security_deposit.status = PaymentStatuses.PENDING.value
+            security_deposit.save()
+
+        security_deposit_payment = SecurityDepositPayment.objects.create(
+            security_deposit=security_deposit,
+            amount_paid=amount_paid,
+            payment_method=payment_method,
+            payment_date=payment_date,
+            reference_number=reference_number
+        )
+
+        TenantPayment.objects.create(
+            tenant=security_deposit.tenant,
+            unit=security_deposit.unit,
+            amount_paid=amount_paid,
+            payment_date=payment_date,
+            
+            security_deposit_payment=security_deposit_payment,
+            payment_type="Security Deposit",
+            payment_method=payment_method
+        )
+
+        return redirect("security-deposits")
+    return render(request, "payments/pay_security_deposit.html")

@@ -46,12 +46,11 @@ def property_detail(request, id):
 
     unit_numbers = [unit.name for unit in units]
 
-    # Fetch rent data grouped by month and unit
     rent_data = {unit: {month: "Unpaid" for month in MONTHS} for unit in unit_numbers}
 
-    bills = RentBill.objects.filter(unit__property=property)
+    bills = RentBill.objects.filter(unit__property=property).filter(year__name=str(2025))
     for bill in bills:
-        month_name = bill.month.name  # Assuming 'month' is a related field with a name attribute
+        month_name = bill.month.name
         if month_name in MONTHS:
             status = "Fully Paid" if bill.fully_paid else ("Partially Paid" if bill.amount_paid > 0 else "Unpaid")
             rent_data[bill.unit.name][month_name] = status
@@ -70,7 +69,7 @@ def property_detail(request, id):
         'property': property,
         'units': units,
         "unit_numbers": unit_numbers,
-        "months": MONTHS,  # Used for column headers
+        "months": MONTHS,  
         "rows": rows,
         "maintenance_requests": maintenance_requests,
         "occupied_units": occupied_units,

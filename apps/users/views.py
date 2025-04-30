@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 from apps.users.models import User
 from apps.core.constants import MARITAL_STATUSES
 from django.views.generic import ListView
 from django.db.models import Q
+from django.contrib import messages
 
 GENDERS = [
     'Male',
@@ -21,6 +21,9 @@ def login_user(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+        print("***********User Information***************")
+        print(username, password)
+        print("***********User Information***************")
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
@@ -30,6 +33,7 @@ def login_user(request):
             return redirect('login')
     next_url = request.GET.get('next', '')
     return render(request, 'accounts/login.html', {'next': next_url})
+
 
 @login_required
 def logout_user(request):
@@ -70,9 +74,9 @@ def new_user(request):
         gender = request.POST.get('gender')
         role = request.POST.get('role')
         marital_status = request.POST.get('marital_status')
+        username = request.POST.get("username")
 
         user = User.objects.create(
-            username=email,
             first_name=first_name,
             last_name=last_name,
             email=email,
@@ -80,8 +84,10 @@ def new_user(request):
             id_number=id_number,
             gender=gender,
             role=role,
+            username=username,
             marital_status=marital_status,
         )
+        user.set_password("1234")
         user.save()
         return redirect('users')
     return render(request, 'users/new_user.html')
@@ -98,10 +104,11 @@ def edit_user(request):
         user.gender = request.POST.get('gender')
         user.role = request.POST.get('role')
         user.marital_status = request.POST.get('marital_status')
-        user.username = request.POST.get('email')
+        user.username = request.POST.get('username')
         user.save()
         return redirect('users')
     return render(request, 'users/edit_user.html')
+
 
 def delete_user(request):
     if request.method == 'POST':
@@ -109,3 +116,21 @@ def delete_user(request):
         user.delete()
         return redirect('users')
     return render(request, 'users/delete_user.html')
+
+
+
+def change_password(request, id):
+    if request.method == "POST":
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+
+        user = User.objects.get(id=id)
+        
+        if password.casefold() == confirm_password.casefold():
+            user.set_password(password)
+            user.save()
+            return redirect("users")
+        else:
+            messages.error("Passwords do not match!!")
+        return redirect("change-password", id=id)
+    return render(request, "accounts/change_password.html")

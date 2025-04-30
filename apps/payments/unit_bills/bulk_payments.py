@@ -120,7 +120,6 @@ class BulkPaymentsProcessor:
                 year=unit_bill.year
             )
 
-            
-
+        
         update_bill_status(unit_bill, unit_bill.amount_paid, unit_bill.amount_expected)
 

@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.db import models
 from datetime import date, timedelta
 import calendar
-
+import math
 
 from apps.core.models import AbstractBaseModel, WaterPrice
 from apps.core.constants import MaintenanceStatuses, PriorityLevels
@@ -103,9 +103,10 @@ class WaterBill(AbstractBaseModel):
     
     def total_amount(self):
         water_price = self.unit.water_price
-        return (Decimal(water_price) * Decimal(self.units_consumed)) + Decimal(self.previous_balance)
+        total_cost = (Decimal(water_price) * Decimal(self.units_consumed)) + Decimal(self.previous_balance)
+        return math.ceil(total_cost)
     
-    """
+    
     def save(self, *args, **kwargs):
         # Set tenant if not already set
         if not self.tenant and self.unit:
@@ -138,7 +139,7 @@ class WaterBill(AbstractBaseModel):
         
         self.amount = self.total_amount()
         super().save(*args, **kwargs)
-    """
+    
     
     
     def refresh_bill(self):
