@@ -9,7 +9,6 @@ from apps.core.constants import PaymentStatuses
 from apps.notifications.sms_sender import TiaraConnectSMSManager
 
 
-
 def send_unit_bill_notification(request):
     """View to send WhatsApp notification for unit bill."""
     if request.method == 'POST':
