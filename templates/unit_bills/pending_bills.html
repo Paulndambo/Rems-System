@@ -30,62 +30,23 @@
             <table id="tenantsTable" class="table table-hover align-middle display">
                 <thead class="table-light">
                     <tr>
-                        <th class="text-center">#</th>
+                        <th>#</th>
+                        <th>Unit</th>
                         <th>Tenant</th>
-                        <th>Month</th>
-                        <th class="text-end">Expected</th>
-                        <th class="text-end">Paid</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-center"></th>
+                        <th>Pending Bill</th>
+                     
                     </tr>
                 </thead>
                 <tbody id="tableBody">
                     {% for bill in pending_bills %}
+
                     <tr>
-                        <td class="text-center">{{forloop.counter}}</td>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{bill.unit_name}}</td>
+                        <td>{{bill.tenant}}</td>
+                        <td>{{bill.total_unpaid}}</td>
+                        <!--
                         <td>
-                            <div class="d-flex align-items-center">
-                                <div class="avatar avatar-sm bg-light rounded-circle me-2">
-                                    <i class="fas fa-user text-primary"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-medium">{{bill.unit.tenant.user.name}}</div>
-                                    <small class="text-muted">Unit: {{bill.unit.name}}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div>{{bill.month}}</div>
-                            <small class="text-muted">{{bill.year}}</small>
-                        </td>
-
-                        
-                        <td class="text-end">{{bill.amount_expected}}</td>
-                        <td class="text-end">{{bill.amount_paid}}</td>
-                        <td class="text-center">
-
-                            {% if bill.unit_bill_status == 'Paid' %}
-                            <span class="badge bg-success-subtle text-success px-3">{{bill.unit_bill_status}}</span>
-                            {% elif bill.unit_bill_status == 'Pending' %}
-                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.unit_bill_status}}</span>
-                            {% elif bill.unit_bill_status == 'Partially Paid' %}
-
-                            <span class="badge bg-warning-subtle text-warning px-3">{{bill.unit_bill_status}}</span>
-                            {% elif bill.unit_bill_status == 'Overdue' %}
-                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.unit_bill_status}}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-
-                            <div class="d-flex justify-content-center gap-2">
-                                <a href="{% url 'unit-bill-details' bill.id %}" class="btn btn-sm btn-info">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                {%  if request.user.role != "Caretaker" %}
-                                <a href="{% url 'unit-bill-receipt' bill.id %}" class="btn btn-sm btn-secondary">
-                                    <i class="bi bi-printer"></i>
-                                </a>
-                                
                                 <button class="btn btn-sm btn-primary" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#sendWhatsAppModal{{bill.id}}"
@@ -94,15 +55,12 @@
                                         <i class="bi bi-envelope"></i>
 
                                 </button>
-                                {% endif %}
-                            
-                            </div>
                         </td>
-
+-->
 
                         {% include 'notifications/send_unit_bill_notification.html' %}
                     </tr>
-                   
+                
                     {% endfor %}
                 </tbody>
             </table>

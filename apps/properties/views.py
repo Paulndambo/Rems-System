@@ -324,3 +324,14 @@ def assign_tenant(request):
         unit.save()
         return redirect("property-detail", id=unit.property.id)
     return render(request, 'properties/units/assign_tenant.html')
+
+
+
+
+def get_units_by_property(request):
+    property_id = request.GET.get('property_id')
+    if property_id:
+        units = PropertyUnit.objects.filter(property_id=property_id)
+        data = [{'id': unit.id, 'name': unit.name} for unit in units]
+        return JsonResponse({'units': data})
+    return JsonResponse({'units': []})

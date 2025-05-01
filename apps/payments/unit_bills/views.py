@@ -1,19 +1,24 @@
 from datetime import datetime, date
 from decimal import Decimal
+from django.db.models import Sum, F, Value, Q
+from django.db.models.functions import Coalesce
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.contrib import messages
 from django.views.generic import ListView
 from django.http import JsonResponse
-from django.db.models import Q
+
+from decimal import Decimal
+from collections import defaultdict
+
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from apps.payments.models import (WaterBillPayment, RentPayment, 
                                    RentBill, TenantPayment, GarbageBill, 
                                    GarbageBillPayment, UnitMonthBill)
-from apps.properties.models import WaterBill, PropertyUnit
+from apps.properties.models import WaterBill, PropertyUnit, Property
 from apps.core.models import Month, Year
 from apps.core.constants import PaymentStatuses, PAYMENT_METHODS
 from apps.notifications.whatsapp import WhatsAppNotification
@@ -243,39 +248,67 @@ class PendingBillsView(LoginRequiredMixin, ListView):
     context_object_name = "pending_bills"
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        # Not used in this version
+        return UnitMonthBill.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
         search_query = self.request.GET.get("search", "")
-    
+
+        queryset = UnitMonthBill.objects.filter(fully_paid=False)
 
         if search_query:
             queryset = queryset.filter(
-                Q(id__icontains=search_query) |
                 Q(unit__name__icontains=search_query) |
                 Q(unit__property__name__icontains=search_query) |
                 Q(tenant__user__first_name__icontains=search_query) |
                 Q(tenant__user__last_name__icontains=search_query)
             )
-        return queryset.filter(fully_paid=False).order_by("-created_at")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        # Group unpaid bills by unit
+        grouped_bills = {}
+
+        for bill in queryset.select_related("unit", "tenant", "tenant__user"):
+            unit_name = bill.unit.name if bill.unit else "Unknown Unit"
+            unit_id = bill.unit.id if bill.unit else None
+
+            key = unit_id  # safer to use ID as key
+            if key not in grouped_bills:
+                grouped_bills[key] = {
+                    "unit_name": unit_name,
+                    "tenant": f"{bill.tenant.user.first_name} {bill.tenant.user.last_name}" if bill.tenant and bill.tenant.user else "Unknown Tenant",
+                    "total_unpaid": Decimal("0.00"),
+                    "bills": []
+                }
+
+            balance = Decimal(bill.amount_expected) - Decimal(bill.amount_paid)
+            grouped_bills[key]["total_unpaid"] += balance
+            grouped_bills[key]["bills"].append(bill)
+
+        context["pending_bills"] = grouped_bills.values()
         return context
-    
     
     
 def generate_bill(request):
     units = PropertyUnit.objects.filter(is_occupied=True)
+    properties = Property.objects.all()
     
     context = {
         "months": MONTHS_LIST,
         "years": Year.objects.filter(is_active=True),
         "payment_methods": PAYMENT_METHODS,
-        "units": units
+        "units": units,
+        "properties": properties
     }
     
     if request.method == "POST":
         unit_id = request.POST.get('unit')
-        unit = PropertyUnit.objects.get(id=unit_id)
+        unit = PropertyUnit.objects.get(name=unit_id)
+
+        print("**************Unit Data**************")
+        print(f"Unit: {unit_id}")
+        print("**************Unit Data**************")
         
         last_water_bill = WaterBill.objects.filter(unit=unit).order_by("-created_at").first()
         
@@ -288,7 +321,6 @@ def generate_bill(request):
         year = Year.objects.get(id=year_id)
         month = Month.objects.get(name=month_name, year=year)
         
-        
         try:
             biller = TenantBillingMixin(
                 year=year,
@@ -299,6 +331,7 @@ def generate_bill(request):
             )
             res = biller.generate_bill()
             messages.success(request, f"Bill successfully generated!!, You can go to monthly bills for {month}, {year.name}. You will find it")
+            return redirect(f"/payments/unit-bills/{month.id}/")
         except Exception as e:
             raise e
         

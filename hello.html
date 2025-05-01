@@ -1,34 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>Country and City Selector</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+    select, input {
+      padding: 8px;
+      width: 250px;
+    }
+  </style>
 </head>
 <body>
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="space-y-4">
-                <h1 class="text-2xl font-bold">Car Listings</h1>
-                <p class="text-gray-400">Browse through our collection of the best cars available.</p>
-            </div>
-            <div class="space-y-4">
-                <h1 class="text-2xl font-bold">Our Services</h1>
-                <div class="flex flex-col space-y-2">
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">Home</a>
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">Cars</a>
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">Contact</a>
-                </div>
-            </div>
-            <div class="space-y-4">
-                <h1 class="text-2xl font-bold">Social Media</h1>
-                <div class="flex flex-col space-y-2">
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">Facebook</a>
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">Instagram</a>
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">Twitter</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+
+  <h2>Country and City Form</h2>
+
+  <form>
+    <label for="country">Select Country:</label>
+    <select id="country">
+      <option value="">-- Select Country --</option>
+      <option value="kenya">Kenya</option>
+      <option value="usa">USA</option>
+      <option value="india">India</option>
+    </select>
+
+    <label for="city">Search City:</label>
+    <input list="city-options" id="city" placeholder="Start typing a city..." />
+    <datalist id="city-options"></datalist>
+  </form>
+
+  <script>
+    const cityData = {
+      kenya: ['Nairobi', 'Mombasa', 'Kisumu'],
+      usa: ['New York', 'Los Angeles', 'Chicago'],
+      india: ['Mumbai', 'Delhi', 'Bangalore']
+    };
+
+    const countrySelect = document.getElementById('country');
+    const cityInput = document.getElementById('city');
+    const cityDatalist = document.getElementById('city-options');
+
+    countrySelect.addEventListener('change', function () {
+      const selectedCountry = this.value;
+      const cities = cityData[selectedCountry] || [];
+
+      // Clear existing options
+      cityDatalist.innerHTML = '';
+
+      // Populate new options
+      cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        cityDatalist.appendChild(option);
+      });
+
+      // Clear city input on country change
+      cityInput.value = '';
+    });
+  </script>
+
 </body>
 </html>

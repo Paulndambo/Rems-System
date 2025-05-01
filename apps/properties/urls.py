@@ -12,7 +12,8 @@ from apps.properties.views import (
     delete_property_unit, 
     property_unit_detail,
     assign_tenant,
-    PropertyUnitListView
+    PropertyUnitListView,
+    get_units_by_property
 )
 from apps.properties.water_bills.views import (
     new_water_bill,
@@ -51,4 +52,6 @@ urlpatterns = [
     path('new-maintenance-request/', new_maintenance_request, name='new-maintenance-request'),
     path('edit-maintenance-request/', edit_maintenance_request, name='edit-maintenance-request'),
     path('delete-maintenance-request/', delete_maintenance_request, name='delete-maintenance-request'),
+
+    path('ajax/get-units/', get_units_by_property, name='get-units-by-property'),
 ]
