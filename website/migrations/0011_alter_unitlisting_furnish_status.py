@@ -6,13 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0010_alter_unitlisting_mininum_lease_period_and_more'),
+        ("website", "0010_alter_unitlisting_mininum_lease_period_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unitlisting',
-            name='furnish_status',
-            field=models.CharField(choices=[('Fully Furnished', 'Fully Furnished'), ('Partially Furnished', 'Partially Furnished'), ('Unfurnished', 'Unfurnished'), ('Semi Furnished', 'Semi Furnished')], default='Unfurnished', max_length=255),
+            model_name="unitlisting",
+            name="furnish_status",
+            field=models.CharField(
+                choices=[
+                    ("Fully Furnished", "Fully Furnished"),
+                    ("Partially Furnished", "Partially Furnished"),
+                    ("Unfurnished", "Unfurnished"),
+                    ("Semi Furnished", "Semi Furnished"),
+                ],
+                default="Unfurnished",
+                max_length=255,
+            ),
         ),
     ]

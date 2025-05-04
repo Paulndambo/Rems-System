@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apis', '0002_alter_customer_email_alter_customer_first_name_and_more'),
+        ("apis", "0002_alter_customer_email_alter_customer_first_name_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='paymentrecord',
-            name='preferred_contact',
-            field=models.CharField(blank=True, choices=[('Email', 'EMAIL'), ('Phone', 'PHONE'), ('Whatsapp', 'WHATSAPP'), ('SMS', 'SMS')], max_length=255, null=True),
+            model_name="paymentrecord",
+            name="preferred_contact",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("Email", "EMAIL"),
+                    ("Phone", "PHONE"),
+                    ("Whatsapp", "WHATSAPP"),
+                    ("SMS", "SMS"),
+                ],
+                max_length=255,
+                null=True,
+            ),
         ),
     ]

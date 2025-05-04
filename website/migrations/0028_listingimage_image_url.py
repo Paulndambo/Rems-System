@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0027_remove_clientrequest_title'),
+        ("website", "0027_remove_clientrequest_title"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='listingimage',
-            name='image_url',
+            model_name="listingimage",
+            name="image_url",
             field=models.URLField(blank=True, max_length=255, null=True),
         ),
     ]

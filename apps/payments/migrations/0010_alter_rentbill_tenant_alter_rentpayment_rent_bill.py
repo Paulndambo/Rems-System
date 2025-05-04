@@ -7,19 +7,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payments', '0009_alter_rentpayment_rent_bill'),
-        ('tenants', '0006_alter_tenant_is_active_and_more'),
+        ("payments", "0009_alter_rentpayment_rent_bill"),
+        ("tenants", "0006_alter_tenant_is_active_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='rentbill',
-            name='tenant',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='tenantrentpayments', to='tenants.tenant'),
+            model_name="rentbill",
+            name="tenant",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="tenantrentpayments",
+                to="tenants.tenant",
+            ),
         ),
         migrations.AlterField(
-            model_name='rentpayment',
-            name='rent_bill',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='payments.rentbill'),
+            model_name="rentpayment",
+            name="rent_bill",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="payments.rentbill",
+            ),
         ),
     ]

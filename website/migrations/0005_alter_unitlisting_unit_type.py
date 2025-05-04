@@ -6,13 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0004_alter_listingimage_listing'),
+        ("website", "0004_alter_listingimage_listing"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unitlisting',
-            name='unit_type',
-            field=models.CharField(choices=[('1 Bedroom', '1 Bedroom'), ('2 Bedroom', '2 Bedroom'), ('3 Bedroom', '3 Bedroom'), ('4 Bedroom', '4 Bedroom'), ('5 Bedroom', '5 Bedroom'), ('Studio', 'Studio'), ('Bedsitter', 'Bedsitter'), ('Single Room', 'Single Room'), ('Penthouse', 'Penthouse'), ('Flat', 'Flat'), ('Duplex', 'Duplex'), ('Triplex', 'Triplex'), ('Quadruplex', 'Quadruplex'), ('Penthouse', 'Penthouse')], max_length=255),
+            model_name="unitlisting",
+            name="unit_type",
+            field=models.CharField(
+                choices=[
+                    ("1 Bedroom", "1 Bedroom"),
+                    ("2 Bedroom", "2 Bedroom"),
+                    ("3 Bedroom", "3 Bedroom"),
+                    ("4 Bedroom", "4 Bedroom"),
+                    ("5 Bedroom", "5 Bedroom"),
+                    ("Studio", "Studio"),
+                    ("Bedsitter", "Bedsitter"),
+                    ("Single Room", "Single Room"),
+                    ("Penthouse", "Penthouse"),
+                    ("Flat", "Flat"),
+                    ("Duplex", "Duplex"),
+                    ("Triplex", "Triplex"),
+                    ("Quadruplex", "Quadruplex"),
+                    ("Penthouse", "Penthouse"),
+                ],
+                max_length=255,
+            ),
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0042_remove_propertyunit_garbage_charge_and_more'),
+        ("properties", "0042_remove_propertyunit_garbage_charge_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='waterbill',
-            name='units_counsumed',
+            model_name="waterbill",
+            name="units_counsumed",
             field=models.DecimalField(decimal_places=4, default=0.0, max_digits=10),
         ),
     ]

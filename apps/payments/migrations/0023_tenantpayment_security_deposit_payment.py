@@ -7,13 +7,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payments', '0022_securitydeposit_securitydepositpayment'),
+        ("payments", "0022_securitydeposit_securitydepositpayment"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='tenantpayment',
-            name='security_deposit_payment',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='payments.securitydepositpayment'),
+            model_name="tenantpayment",
+            name="security_deposit_payment",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="payments.securitydepositpayment",
+            ),
         ),
     ]

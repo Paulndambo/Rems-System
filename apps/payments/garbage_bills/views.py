@@ -4,11 +4,25 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.contrib import messages
-from apps.payments.models import WaterBillPayment, Expense, RentPayment, RentBill, TenantPayment
+from apps.payments.models import (
+    WaterBillPayment,
+    Expense,
+    RentPayment,
+    RentBill,
+    TenantPayment,
+)
 from apps.properties.models import WaterBill, PropertyUnit, Property
 from apps.core.models import Month, Year
 
-from apps.core.constants import MaintenanceStatuses, UserRoles, MONTHS_LIST, EXPENSE_TYPES_LIST, PaymentMethods, PaymentStatuses, PAYMENT_METHODS
+from apps.core.constants import (
+    MaintenanceStatuses,
+    UserRoles,
+    MONTHS_LIST,
+    EXPENSE_TYPES_LIST,
+    PaymentMethods,
+    PaymentStatuses,
+    PAYMENT_METHODS,
+)
 
 from django.views.generic import ListView
 from django.http import JsonResponse
@@ -29,7 +43,6 @@ class GarbageBillsView(ListView):
     context_object_name = "garbage_bills"
     paginate_by = 9
 
-
     def get_queryset(self):
         queryset = super().get_queryset()
         search_query = self.request.GET.get("search", "")
@@ -44,14 +57,14 @@ class GarbageBillsView(ListView):
             )
         return queryset.order_by("-created_at")
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['units'] = PropertyUnit.objects.all()
-        context['months'] = MONTHS_LIST
-        context['years'] = Year.objects.all()
-        context['properties'] = Property.objects.all()
+        context["units"] = PropertyUnit.objects.all()
+        context["months"] = MONTHS_LIST
+        context["years"] = Year.objects.all()
+        context["properties"] = Property.objects.all()
         return context
+
 
 @login_required
 @transaction.atomic
@@ -62,28 +75,32 @@ def generate_garbage_bills(request):
         year = request.POST.get("year")
         due_date = request.POST.get("date_due")
 
-        
         year = Year.objects.get(id=year)
         month = Month.objects.get(name=month, year=year)
-        
 
         units = PropertyUnit.objects.filter(property_id=property_id, is_occupied=True)
 
         for unit in units:
-            unit_bill = UnitMonthBill.objects.filter(unit=unit, month=month, year=year).first()
+            unit_bill = UnitMonthBill.objects.filter(
+                unit=unit, month=month, year=year
+            ).first()
 
             if not unit_bill:
                 unit_bill = UnitMonthBill.objects.create(
-                    unit=unit, 
+                    unit=unit,
                     tenant=unit.tenant,
                     rent_amount=unit.rent,
                     water_amount=0,
                     garbage_amount=unit.property.garbage_charge,
                     month=month,
-                    year=year
+                    year=year,
                 )
 
-            unit_bill.amount_expected = unit_bill.rent_amount + unit_bill.water_amount + unit_bill.garbage_amount
+            unit_bill.amount_expected = (
+                unit_bill.rent_amount
+                + unit_bill.water_amount
+                + unit_bill.garbage_amount
+            )
             unit_bill.save()
 
             rent_bill = RentBill.objects.filter(unit=unit, unit_bill=unit_bill).first()
@@ -95,18 +112,17 @@ def generate_garbage_bills(request):
                     amount_expected=unit.rent,
                     due_date=due_date,
                     month=month,
-                    year=year
+                    year=year,
                 )
 
             unit_bill.update_amount_expected()
 
             GarbageBill.objects.create(
-                unit=unit, 
+                unit=unit,
                 tenant=unit.tenant,
-                amount_expected=unit.property.garbage_charge, 
+                amount_expected=unit.property.garbage_charge,
                 unit_bill=unit_bill,
-                due_date=due_date
-
+                due_date=due_date,
             )
         return redirect("garbage-bills")
     return render(request, "garbage_bills/new_garbage_bill.html")
@@ -127,9 +143,7 @@ def edit_garbage_bill(request, pk):
         garbage_bill.unit_bill.save()
         garbage_bill.unit_bill.update_amount_expected()
 
-
         return redirect("garbage-bills")
-
 
     return render(request, "garbage_bills/edit_garbage_bill.html")
 
@@ -145,6 +159,7 @@ def delete_garbage_bill(request, pk):
 
 
 # Garbage Bill Payments
+
 
 class GarbageBillPaymentsView(ListView):
     model = GarbageBillPayment
@@ -165,12 +180,12 @@ class GarbageBillPaymentsView(ListView):
                 | Q(garbage_bill__tenant__user__last_name__icontains=search_query)
             )
         return queryset.order_by("-created_at")
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['payment_methods'] = PAYMENT_METHODS
+        context["payment_methods"] = PAYMENT_METHODS
         return context
-                
+
 
 @login_required
 @transaction.atomic
@@ -187,12 +202,11 @@ def pay_garbage_bill(request):
             garbage_bill=garbage_bill,
             amount_paid=amount_paid,
             payment_method=payment_method,
-            payment_date=payment_date
+            payment_date=payment_date,
         )
 
         garbage_bill.amount_paid += Decimal(amount_paid)
         garbage_bill.save()
-
 
         if garbage_bill.amount_paid == garbage_bill.amount_expected:
             garbage_bill.status = PaymentStatuses.PAID.value
@@ -205,7 +219,6 @@ def pay_garbage_bill(request):
         garbage_bill.unit_bill.amount_paid += Decimal(amount_paid)
         garbage_bill.unit_bill.save()
         garbage_bill.unit_bill.update_amount_expected()
-
 
         return redirect("garbage-bills")
     return render(request, "garbage_bills/pay_garbage_bill.html")

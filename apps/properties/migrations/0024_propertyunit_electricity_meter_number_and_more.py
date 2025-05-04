@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0023_waterbill'),
+        ("properties", "0023_waterbill"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='propertyunit',
-            name='electricity_meter_number',
+            model_name="propertyunit",
+            name="electricity_meter_number",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='propertyunit',
-            name='water_meter_number',
+            model_name="propertyunit",
+            name="water_meter_number",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

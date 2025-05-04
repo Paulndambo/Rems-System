@@ -13,6 +13,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.properties.models import PropertyUnit, MaintenanceRequest
 
 """Maintenance Requests"""
+
+
 class MaintenanceListView(LoginRequiredMixin, ListView):
     model = MaintenanceRequest
     template_name = "properties/maintenance_requests/maintenance_requests.html"
@@ -25,12 +27,10 @@ class MaintenanceListView(LoginRequiredMixin, ListView):
 
         if search_query:
             queryset = queryset.filter(
-                Q(id__icontains=search_query) |
-                Q(title__icontains=search_query) 
+                Q(id__icontains=search_query) | Q(title__icontains=search_query)
             )
 
         return queryset.order_by("-created_at")
-    
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -44,34 +44,36 @@ class MaintenanceListView(LoginRequiredMixin, ListView):
 @login_required
 def new_maintenance_request(request):
     if request.method == "POST":
-        unit_id = request.POST.get('unit')
+        unit_id = request.POST.get("unit")
         unit = PropertyUnit.objects.get(id=unit_id)
 
-        title = request.POST.get('title')
-        priority = request.POST.get('priority')
-        description = request.POST.get('description')
+        title = request.POST.get("title")
+        priority = request.POST.get("priority")
+        description = request.POST.get("description")
 
         MaintenanceRequest.objects.create(
             title=title,
-            property=unit.property, 
-            unit=unit, 
+            property=unit.property,
+            unit=unit,
             description=description,
-            priority=priority
+            priority=priority,
         )
         return redirect("unit-detail", id=unit_id)
-    return render(request, 'properties/maintenance_requests/new_maintenance_request.html')
+    return render(
+        request, "properties/maintenance_requests/new_maintenance_request.html"
+    )
 
 
 @login_required
 def edit_maintenance_request(request):
     if request.method == "POST":
-        maintenance_request_id = request.POST.get('request_id')
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        status = request.POST.get('status')
-       
-        priority = request.POST.get('priority')
-        cost = request.POST.get('cost')
+        maintenance_request_id = request.POST.get("request_id")
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        status = request.POST.get("status")
+
+        priority = request.POST.get("priority")
+        cost = request.POST.get("cost")
 
         maintenance_request = MaintenanceRequest.objects.get(id=maintenance_request_id)
         maintenance_request.title = title
@@ -81,13 +83,17 @@ def edit_maintenance_request(request):
         maintenance_request.cost = cost
         maintenance_request.save()
         return redirect("maintenance-requests")
-    return render(request, 'properties/maintenance_requests/edit_maintenance_request.html')
+    return render(
+        request, "properties/maintenance_requests/edit_maintenance_request.html"
+    )
 
 
 @login_required
 def delete_maintenance_request(request):
     if request.method == "POST":
-        maintenance_request_id = request.POST.get('request_id')
+        maintenance_request_id = request.POST.get("request_id")
         MaintenanceRequest.objects.get(id=maintenance_request_id).delete()
         return redirect("maintenance-requests")
-    return render(request, 'properties/maintenance_requests/delete_maintenance_request.html')
+    return render(
+        request, "properties/maintenance_requests/delete_maintenance_request.html"
+    )

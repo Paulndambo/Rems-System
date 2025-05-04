@@ -6,13 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0029_listingimage_backup_url'),
+        ("website", "0029_listingimage_backup_url"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unitlisting',
-            name='listing_purpose',
-            field=models.CharField(choices=[('For Sale', 'For Sale'), ('For Rent', 'For Rent'), ('For Lease', 'For Lease')], max_length=255),
+            model_name="unitlisting",
+            name="listing_purpose",
+            field=models.CharField(
+                choices=[
+                    ("For Sale", "For Sale"),
+                    ("For Rent", "For Rent"),
+                    ("For Lease", "For Lease"),
+                ],
+                max_length=255,
+            ),
         ),
     ]

@@ -7,14 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payments', '0007_tenantpayment_payment_type_alter_rentbill_status'),
-        ('tenants', '0006_alter_tenant_is_active_and_more'),
+        ("payments", "0007_tenantpayment_payment_type_alter_rentbill_status"),
+        ("tenants", "0006_alter_tenant_is_active_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='tenantpayment',
-            name='tenant',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='tenantpayments', to='tenants.tenant'),
+            model_name="tenantpayment",
+            name="tenant",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="tenantpayments",
+                to="tenants.tenant",
+            ),
         ),
     ]

@@ -6,16 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0033_unitlisting_direct_contact_fee_and_more'),
+        ("website", "0033_unitlisting_direct_contact_fee_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UploadedImage',
+            name="UploadedImage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='uploads/%Y/%m/%d/')),
-                ('uploaded_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("image", models.ImageField(upload_to="uploads/%Y/%m/%d/")),
+                ("uploaded_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
     ]

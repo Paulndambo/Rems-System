@@ -28,16 +28,16 @@ from drf_yasg import openapi
 ...
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="REMS API",
-      default_version='v1',
-      description="Real Estate Management System API",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="contact@snippets.local"),
-      license=openapi.License(name="BSD License"),
-   ),
-   public=True,
-   permission_classes=(permissions.AllowAny,),
+    openapi.Info(
+        title="REMS API",
+        default_version="v1",
+        description="Real Estate Management System API",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="contact@snippets.local"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
@@ -51,7 +51,11 @@ urlpatterns = [
     path("apis/", include("apis.urls")),
     path("website/", include("website.urls")),
     path("notifications/", include("apps.notifications.urls")),
-    path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path(
+        "docs/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

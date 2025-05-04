@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0021_alter_listinginterestexpression_email_and_more'),
+        ("website", "0021_alter_listinginterestexpression_email_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='listinginterestexpression',
-            name='viewingDate',
+            model_name="listinginterestexpression",
+            name="viewingDate",
             field=models.DateField(null=True),
         ),
     ]

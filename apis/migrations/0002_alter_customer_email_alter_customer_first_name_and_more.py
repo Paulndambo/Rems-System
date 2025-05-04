@@ -6,58 +6,85 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apis', '0001_initial'),
+        ("apis", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customer',
-            name='email',
+            model_name="customer",
+            name="email",
             field=models.EmailField(blank=True, max_length=254, null=True),
         ),
         migrations.AlterField(
-            model_name='customer',
-            name='first_name',
+            model_name="customer",
+            name="first_name",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='customer',
-            name='last_name',
+            model_name="customer",
+            name="last_name",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='customer',
-            name='phone',
+            model_name="customer",
+            name="phone",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='paymentrecord',
-            name='currency',
+            model_name="paymentrecord",
+            name="currency",
             field=models.CharField(blank=True, max_length=3, null=True),
         ),
         migrations.AlterField(
-            model_name='paymentrecord',
-            name='paid_at',
+            model_name="paymentrecord",
+            name="paid_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='paymentrecord',
-            name='payment_status',
-            field=models.CharField(blank=True, choices=[('Paid', 'PAID'), ('Pending', 'PENDING'), ('Failed', 'FAILED')], max_length=255, null=True),
+            model_name="paymentrecord",
+            name="payment_status",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("Paid", "PAID"),
+                    ("Pending", "PENDING"),
+                    ("Failed", "FAILED"),
+                ],
+                max_length=255,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='paymentrecord',
-            name='preferred_contact',
-            field=models.CharField(blank=True, choices=[('Email', 'EMAIL'), ('Phone', 'PHONE'), ('Whatsapp', 'WHATSAPP')], max_length=255, null=True),
+            model_name="paymentrecord",
+            name="preferred_contact",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("Email", "EMAIL"),
+                    ("Phone", "PHONE"),
+                    ("Whatsapp", "WHATSAPP"),
+                ],
+                max_length=255,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='paymentrecord',
-            name='reference',
+            model_name="paymentrecord",
+            name="reference",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='paymentrecord',
-            name='request_type',
-            field=models.CharField(blank=True, choices=[('Landlord Details', 'LANDLORD_DETAILS'), ('Subscription', 'SUBSCRIPTION'), ('Payment', 'PAYMENT')], max_length=255, null=True),
+            model_name="paymentrecord",
+            name="request_type",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("Landlord Details", "LANDLORD_DETAILS"),
+                    ("Subscription", "SUBSCRIPTION"),
+                    ("Payment", "PAYMENT"),
+                ],
+                max_length=255,
+                null=True,
+            ),
         ),
     ]

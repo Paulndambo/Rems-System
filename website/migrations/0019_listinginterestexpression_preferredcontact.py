@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0018_rename_mininum_lease_period_unitlisting_minimum_lease_period'),
+        (
+            "website",
+            "0018_rename_mininum_lease_period_unitlisting_minimum_lease_period",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='listinginterestexpression',
-            name='preferredContact',
+            model_name="listinginterestexpression",
+            name="preferredContact",
             field=models.CharField(max_length=255, null=True),
         ),
     ]

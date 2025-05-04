@@ -6,33 +6,35 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0024_lister_referral_code_unitlisting_commission'),
+        ("website", "0024_lister_referral_code_unitlisting_commission"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='clientrequest',
-            name='budget',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
+            model_name="clientrequest",
+            name="budget",
+            field=models.DecimalField(
+                blank=True, decimal_places=2, max_digits=10, null=True
+            ),
         ),
         migrations.AddField(
-            model_name='clientrequest',
-            name='location',
+            model_name="clientrequest",
+            name="location",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='clientrequest',
-            name='looking_to',
+            model_name="clientrequest",
+            name="looking_to",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='clientrequest',
-            name='property_type',
+            model_name="clientrequest",
+            name="property_type",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='clientrequest',
-            name='unit_type',
+            model_name="clientrequest",
+            name="unit_type",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

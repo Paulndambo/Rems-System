@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0045_remove_propertyunit_size'),
+        ("properties", "0045_remove_propertyunit_size"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='waterbill',
-            name='amount_paid',
+            model_name="waterbill",
+            name="amount_paid",
             field=models.DecimalField(decimal_places=4, default=0.0, max_digits=10),
         ),
     ]

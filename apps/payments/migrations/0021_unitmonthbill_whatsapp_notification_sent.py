@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payments', '0020_tenantpayment_unit_bill'),
+        ("payments", "0020_tenantpayment_unit_bill"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unitmonthbill',
-            name='whatsapp_notification_sent',
+            model_name="unitmonthbill",
+            name="whatsapp_notification_sent",
             field=models.BooleanField(default=False),
         ),
     ]

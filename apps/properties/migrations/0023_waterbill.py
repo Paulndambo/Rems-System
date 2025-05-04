@@ -7,28 +7,75 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0022_alter_maintenancerequest_is_active_and_more'),
+        ("properties", "0022_alter_maintenancerequest_is_active_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='WaterBill',
+            name="WaterBill",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('meter_number', models.CharField(blank=True, max_length=255, null=True)),
-                ('previous_balance', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('previous_reading', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('current_reading', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('amount', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('status', models.CharField(choices=[('In Progress', 'IN_PROGRESS'), ('Completed', 'COMPLETED'), ('Overdue', 'OVERDUE'), ('Pending', 'PENDING')], default='Pending', max_length=255)),
-                ('property', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='properties.property')),
-                ('unit', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='properties.propertyunit')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                (
+                    "meter_number",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                (
+                    "previous_balance",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "previous_reading",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "current_reading",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("In Progress", "IN_PROGRESS"),
+                            ("Completed", "COMPLETED"),
+                            ("Overdue", "OVERDUE"),
+                            ("Pending", "PENDING"),
+                        ],
+                        default="Pending",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "property",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="properties.property",
+                    ),
+                ),
+                (
+                    "unit",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="properties.propertyunit",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

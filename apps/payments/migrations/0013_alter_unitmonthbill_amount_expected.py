@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payments', '0012_garbagebill_garbagebillpayment_unitmonthbill_and_more'),
+        ("payments", "0012_garbagebill_garbagebillpayment_unitmonthbill_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unitmonthbill',
-            name='amount_expected',
+            model_name="unitmonthbill",
+            name="amount_expected",
             field=models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
         ),
     ]

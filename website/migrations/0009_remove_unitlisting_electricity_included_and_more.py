@@ -6,40 +6,40 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0008_unitamenity'),
+        ("website", "0008_unitamenity"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='unitlisting',
-            name='electricity_included',
+            model_name="unitlisting",
+            name="electricity_included",
         ),
         migrations.RemoveField(
-            model_name='unitlisting',
-            name='garbage_included',
+            model_name="unitlisting",
+            name="garbage_included",
         ),
         migrations.RemoveField(
-            model_name='unitlisting',
-            name='gas_included',
+            model_name="unitlisting",
+            name="gas_included",
         ),
         migrations.RemoveField(
-            model_name='unitlisting',
-            name='gym',
+            model_name="unitlisting",
+            name="gym",
         ),
         migrations.RemoveField(
-            model_name='unitlisting',
-            name='internet_included',
+            model_name="unitlisting",
+            name="internet_included",
         ),
         migrations.RemoveField(
-            model_name='unitlisting',
-            name='kids_playground',
+            model_name="unitlisting",
+            name="kids_playground",
         ),
         migrations.RemoveField(
-            model_name='unitlisting',
-            name='swimming_pool',
+            model_name="unitlisting",
+            name="swimming_pool",
         ),
         migrations.RemoveField(
-            model_name='unitlisting',
-            name='water_included',
+            model_name="unitlisting",
+            name="water_included",
         ),
     ]

@@ -10,6 +10,3 @@ def clean_phone_number(phone_number):
         cleaned_number = phone_number
 
     return cleaned_number
-
-
-

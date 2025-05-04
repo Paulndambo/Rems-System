@@ -1,5 +1,14 @@
 from django.urls import path
-from website.views import ListingListView, ListerView, unit_listing_details, approve_listing, reject_listing, new_webiste_listing, mark_amenity_available, mark_amenity_unavailable
+from website.views import (
+    ListingListView,
+    ListerView,
+    unit_listing_details,
+    approve_listing,
+    reject_listing,
+    new_webiste_listing,
+    mark_amenity_available,
+    mark_amenity_unavailable,
+)
 from . import views
 
 urlpatterns = [
@@ -8,8 +17,16 @@ urlpatterns = [
     path("new-listing/", new_webiste_listing, name="new-listing"),
     path("approve-listing/", approve_listing, name="approve-listing"),
     path("decline-listing/", reject_listing, name="decline-listing"),
-    path("mark-amenity-available/<int:id>/", mark_amenity_available, name="mark-amenity-available"),
-    path("mark-amenity-unavailable/<int:id>/", mark_amenity_unavailable, name="mark-amenity-unavailable"),
+    path(
+        "mark-amenity-available/<int:id>/",
+        mark_amenity_available,
+        name="mark-amenity-available",
+    ),
+    path(
+        "mark-amenity-unavailable/<int:id>/",
+        mark_amenity_unavailable,
+        name="mark-amenity-unavailable",
+    ),
     path("listers/", ListerView.as_view(), name="listers"),
-    path('upload-images/', views.upload_images, name='upload_images'),
+    path("upload-images/", views.upload_images, name="upload_images"),
 ]

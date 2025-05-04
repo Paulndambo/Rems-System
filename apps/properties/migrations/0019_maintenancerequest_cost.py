@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0018_propertyunit_security_deposit'),
+        ("properties", "0018_propertyunit_security_deposit"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='maintenancerequest',
-            name='cost',
+            model_name="maintenancerequest",
+            name="cost",
             field=models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
         ),
     ]

@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+
 import os
 from pathlib import Path
 
@@ -41,7 +42,6 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     "drf_yasg",
-
     "apps.core",
     "apps.users",
     "apps.tenants",
@@ -162,18 +162,21 @@ FIREBASE_DATABASE_URL = "https://rem-s-default-rtdb.firebaseio.com"
 
 cred = credentials.Certificate("Rems/firebase_adminsdk.json")
 
-firebase_admin.initialize_app(cred, {
-    'storageBucket': FIREBASE_STORAGE_BUCKET,
-    'databaseURL': FIREBASE_DATABASE_URL,
-})
+firebase_admin.initialize_app(
+    cred,
+    {
+        "storageBucket": FIREBASE_STORAGE_BUCKET,
+        "databaseURL": FIREBASE_DATABASE_URL,
+    },
+)
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'apps.users.firebase_auth.FirebaseAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "apps.users.firebase_auth.FirebaseAuthentication",
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
 }
 
 
@@ -190,7 +193,7 @@ WAAPI_INSTANCE_KEY = "56422"
 
 WAAPI_TESTING_PHONE_NUMBER = "254745491093"
 WAAPI_TESTING_API_KEY = "OfWfYKXl3ucE06ZBEJaNbUWGcEFa5r3g0bGOOi33d37f1685"
-WAAPI_TESTING_INSTANCE_KEY = "56694"
+WAAPI_TESTING_INSTANCE_KEY = "64050"
 
 if DEBUG:
     BACKEND_BASE_URL = "http://localhost:8000"

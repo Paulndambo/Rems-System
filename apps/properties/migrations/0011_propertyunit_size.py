@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0010_alter_propertyunit_tenant'),
+        ("properties", "0010_alter_propertyunit_tenant"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='propertyunit',
-            name='size',
+            model_name="propertyunit",
+            name="size",
             field=models.FloatField(default=0),
         ),
     ]

@@ -7,13 +7,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0002_year_month'),
+        ("core", "0002_year_month"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='month',
-            name='year',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='months', to='core.year'),
+            model_name="month",
+            name="year",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="months",
+                to="core.year",
+            ),
         ),
     ]

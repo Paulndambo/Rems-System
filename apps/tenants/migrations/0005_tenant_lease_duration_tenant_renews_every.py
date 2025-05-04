@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tenants', '0004_tenant_lease_date_tenant_occupation_tenant_status'),
+        ("tenants", "0004_tenant_lease_date_tenant_occupation_tenant_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='tenant',
-            name='lease_duration',
+            model_name="tenant",
+            name="lease_duration",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='tenant',
-            name='renews_every',
+            model_name="tenant",
+            name="renews_every",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

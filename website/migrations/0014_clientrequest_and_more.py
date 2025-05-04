@@ -7,30 +7,42 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0013_delete_amenity'),
+        ("website", "0013_delete_amenity"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ClientRequest',
+            name="ClientRequest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('name', models.CharField(max_length=255)),
-                ('title', models.CharField(max_length=255)),
-                ('email', models.EmailField(blank=True, max_length=254, null=True)),
-                ('phone', models.CharField(max_length=255)),
-                ('message', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                ("name", models.CharField(max_length=255)),
+                ("title", models.CharField(max_length=255)),
+                ("email", models.EmailField(blank=True, max_length=254, null=True)),
+                ("phone", models.CharField(max_length=255)),
+                ("message", models.TextField()),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.AlterField(
-            model_name='listinginterestexpression',
-            name='listing',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='listinginterests', to='website.unitlisting'),
+            model_name="listinginterestexpression",
+            name="listing",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="listinginterests",
+                to="website.unitlisting",
+            ),
         ),
     ]

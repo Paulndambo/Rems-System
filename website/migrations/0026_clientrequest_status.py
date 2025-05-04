@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0025_clientrequest_budget_clientrequest_location_and_more'),
+        ("website", "0025_clientrequest_budget_clientrequest_location_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='clientrequest',
-            name='status',
+            model_name="clientrequest",
+            name="status",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

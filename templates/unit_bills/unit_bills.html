@@ -64,14 +64,9 @@
                         <td class="text-center">{{bill.amount_paid}}</td>
                         <td class="text-center">
 
-                            {% if bill.unit_bill_status == 'Paid' %}
+                            {% if bill.unit_bill_status == 'Fully Paid' %}
                             <span class="badge bg-success-subtle text-success px-3">{{bill.unit_bill_status}}</span>
                             {% elif bill.unit_bill_status == 'Pending' %}
-                            <span class="badge bg-danger-subtle text-danger px-3">{{bill.unit_bill_status}}</span>
-                            {% elif bill.unit_bill_status == 'Partially Paid' %}
-
-                            <span class="badge bg-warning-subtle text-warning px-3">{{bill.unit_bill_status}}</span>
-                            {% elif bill.unit_bill_status == 'Overdue' %}
                             <span class="badge bg-danger-subtle text-danger px-3">{{bill.unit_bill_status}}</span>
                             {% endif %}
                         </td>
@@ -92,7 +87,6 @@
 
                                         title="Message">
                                         <i class="bi bi-envelope"></i>
-
                                 </button>
                             
                             </div>

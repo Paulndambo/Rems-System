@@ -7,52 +7,141 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0006_alter_month_is_active_alter_waterprice_is_active_and_more'),
-        ('payments', '0003_waterbillpayment_payment_method_rentpayment'),
-        ('properties', '0030_alter_maintenancerequest_status_and_more'),
-        ('tenants', '0006_alter_tenant_is_active_and_more'),
+        ("core", "0006_alter_month_is_active_alter_waterprice_is_active_and_more"),
+        ("payments", "0003_waterbillpayment_payment_method_rentpayment"),
+        ("properties", "0030_alter_maintenancerequest_status_and_more"),
+        ("tenants", "0006_alter_tenant_is_active_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='rentpayment',
-            name='month',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.month'),
+            model_name="rentpayment",
+            name="month",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.month",
+            ),
         ),
         migrations.AddField(
-            model_name='rentpayment',
-            name='year',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.year'),
+            model_name="rentpayment",
+            name="year",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.year",
+            ),
         ),
         migrations.AddField(
-            model_name='waterbillpayment',
-            name='month',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.month'),
+            model_name="waterbillpayment",
+            name="month",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.month",
+            ),
         ),
         migrations.AddField(
-            model_name='waterbillpayment',
-            name='year',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.year'),
+            model_name="waterbillpayment",
+            name="year",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.year",
+            ),
         ),
         migrations.CreateModel(
-            name='TenantPayment',
+            name="TenantPayment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('amount_paid', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('payment_method', models.CharField(blank=True, choices=[('Cash', 'CASH'), ('M-Pesa', 'MPESA'), ('Bank Transfer', 'BANK_TRANSFER'), ('Bank Deposit', 'BANK_DEPOSIT')], max_length=255, null=True)),
-                ('payment_date', models.DateField()),
-                ('month', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.month')),
-                ('rent_payment', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='payments.rentpayment')),
-                ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='tenants.tenant')),
-                ('unit', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='properties.propertyunit')),
-                ('water_bill_payment', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='payments.waterbillpayment')),
-                ('year', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.year')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                ("amount_paid", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "payment_method",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("Cash", "CASH"),
+                            ("M-Pesa", "MPESA"),
+                            ("Bank Transfer", "BANK_TRANSFER"),
+                            ("Bank Deposit", "BANK_DEPOSIT"),
+                        ],
+                        max_length=255,
+                        null=True,
+                    ),
+                ),
+                ("payment_date", models.DateField()),
+                (
+                    "month",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="core.month",
+                    ),
+                ),
+                (
+                    "rent_payment",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="payments.rentpayment",
+                    ),
+                ),
+                (
+                    "tenant",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="tenants.tenant",
+                    ),
+                ),
+                (
+                    "unit",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="properties.propertyunit",
+                    ),
+                ),
+                (
+                    "water_bill_payment",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="payments.waterbillpayment",
+                    ),
+                ),
+                (
+                    "year",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="core.year",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

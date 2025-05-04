@@ -7,14 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0009_alter_propertyunit_tenant'),
-        ('tenants', '0003_remove_tenant_date_joined_tenant_move_in_date'),
+        ("properties", "0009_alter_propertyunit_tenant"),
+        ("tenants", "0003_remove_tenant_date_joined_tenant_move_in_date"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='propertyunit',
-            name='tenant',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='tenants.tenant'),
+            model_name="propertyunit",
+            name="tenant",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="tenants.tenant",
+            ),
         ),
     ]

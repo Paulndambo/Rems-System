@@ -9,15 +9,17 @@ from apps.core.models import Month, Year
 
 from django.db import transaction
 
+
 def construct_date(date_str):
     split_date = date_str.split("/")
     return datetime(int(split_date[2]), int(split_date[0]), int(split_date[1]))
+
 
 @transaction.atomic
 def load_water_bills():
     water_bills = []
 
-    with open('water_meter_readings.csv', 'r') as file:
+    with open("water_meter_readings.csv", "r") as file:
         water_bills = list(csv.DictReader(file))
 
     for water_bill in water_bills:
@@ -30,7 +32,7 @@ def load_water_bills():
         if not month:
             print(f"Month {month_str} {year_str} not found")
             continue
-        
+
         reading_date = construct_date(water_bill.get("reading_date"))
         due_date = reading_date + timedelta(days=5)
 
@@ -45,7 +47,6 @@ def load_water_bills():
             rent_amount=unit.rent,
             tenant=unit.tenant,
         )
-       
 
         wb_bill = WaterBill.objects.create(
             unit_bill=month_bill,
@@ -73,7 +74,6 @@ def load_water_bills():
             year=month.year,
         )
 
-        
         if str(year_str) == "2025":
             gb = GarbageBill.objects.create(
                 unit=unit,
@@ -85,7 +85,7 @@ def load_water_bills():
 
             month_bill.garbage_amount = gb.amount_expected
             month_bill.save()
-        
+
         month_bill.water_amount = wb_bill.amount
         month_bill.save()
         month_bill.update_amount_expected()

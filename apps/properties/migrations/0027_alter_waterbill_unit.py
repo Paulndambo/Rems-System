@@ -7,13 +7,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0026_waterbill_tenant'),
+        ("properties", "0026_waterbill_tenant"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='waterbill',
-            name='unit',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='unitwaterbills', to='properties.propertyunit'),
+            model_name="waterbill",
+            name="unit",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="unitwaterbills",
+                to="properties.propertyunit",
+            ),
         ),
     ]

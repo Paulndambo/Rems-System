@@ -6,28 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0020_remove_listinginterestexpression_title'),
+        ("website", "0020_remove_listinginterestexpression_title"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='listinginterestexpression',
-            name='email',
+            model_name="listinginterestexpression",
+            name="email",
             field=models.EmailField(max_length=254, null=True),
         ),
         migrations.AlterField(
-            model_name='listinginterestexpression',
-            name='message',
+            model_name="listinginterestexpression",
+            name="message",
             field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name='listinginterestexpression',
-            name='name',
+            model_name="listinginterestexpression",
+            name="name",
             field=models.CharField(max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='listinginterestexpression',
-            name='phone',
+            model_name="listinginterestexpression",
+            name="phone",
             field=models.CharField(max_length=255, null=True),
         ),
     ]

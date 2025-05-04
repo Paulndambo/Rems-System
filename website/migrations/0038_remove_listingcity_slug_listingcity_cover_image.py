@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0037_alter_unitlisting_city'),
+        ("website", "0037_alter_unitlisting_city"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='listingcity',
-            name='slug',
+            model_name="listingcity",
+            name="slug",
         ),
         migrations.AddField(
-            model_name='listingcity',
-            name='cover_image',
-            field=models.ImageField(blank=True, null=True, upload_to='listing_cities/'),
+            model_name="listingcity",
+            name="cover_image",
+            field=models.ImageField(blank=True, null=True, upload_to="listing_cities/"),
         ),
     ]

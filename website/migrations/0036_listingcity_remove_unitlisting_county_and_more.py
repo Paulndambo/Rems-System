@@ -7,36 +7,49 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0035_unitlisting_unit_image_url'),
+        ("website", "0035_unitlisting_unit_image_url"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ListingCity',
+            name="ListingCity",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('name', models.CharField(max_length=255)),
-                ('county', models.CharField(max_length=255)),
-                ('slug', models.SlugField(max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                ("name", models.CharField(max_length=255)),
+                ("county", models.CharField(max_length=255)),
+                ("slug", models.SlugField(max_length=255)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.RemoveField(
-            model_name='unitlisting',
-            name='county',
+            model_name="unitlisting",
+            name="county",
         ),
         migrations.RemoveField(
-            model_name='unitlisting',
-            name='town',
+            model_name="unitlisting",
+            name="town",
         ),
         migrations.AddField(
-            model_name='unitlisting',
-            name='city',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='website.listingcity'),
+            model_name="unitlisting",
+            name="city",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="website.listingcity",
+            ),
         ),
     ]

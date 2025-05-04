@@ -8,51 +8,57 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0039_waterbill_fully_paid'),
+        ("properties", "0039_waterbill_fully_paid"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='property',
-            name='manager_address',
+            model_name="property",
+            name="manager_address",
         ),
         migrations.RemoveField(
-            model_name='property',
-            name='manager_city',
+            model_name="property",
+            name="manager_city",
         ),
         migrations.RemoveField(
-            model_name='property',
-            name='manager_country',
+            model_name="property",
+            name="manager_country",
         ),
         migrations.RemoveField(
-            model_name='property',
-            name='manager_email',
+            model_name="property",
+            name="manager_email",
         ),
         migrations.RemoveField(
-            model_name='property',
-            name='manager_gender',
+            model_name="property",
+            name="manager_gender",
         ),
         migrations.RemoveField(
-            model_name='property',
-            name='manager_name',
+            model_name="property",
+            name="manager_name",
         ),
         migrations.RemoveField(
-            model_name='property',
-            name='manager_phone_number',
+            model_name="property",
+            name="manager_phone_number",
         ),
         migrations.RemoveField(
-            model_name='property',
-            name='manager_zip',
+            model_name="property",
+            name="manager_zip",
         ),
         migrations.AddField(
-            model_name='property',
-            name='house_manager',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='managedproperties', to=settings.AUTH_USER_MODEL),
+            model_name="property",
+            name="house_manager",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="managedproperties",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='property',
-            name='garbage_charge',
+            model_name="property",
+            name="garbage_charge",
             field=models.DecimalField(decimal_places=2, default=100.0, max_digits=10),
         ),
     ]

@@ -6,25 +6,51 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payments', '0001_initial'),
+        ("payments", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Expense',
+            name="Expense",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('title', models.CharField(max_length=255)),
-                ('amount', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('expense_type', models.CharField(choices=[('Water', 'WATER'), ('Electricity', 'ELECTRICITY'), ('Gas', 'GAS'), ('Internet', 'INTERNET'), ('Security', 'SECURITY'), ('Maintenance', 'MAINTENANCE'), ('Other', 'OTHER')], default='Other', max_length=255)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('spend_on', models.DateField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                ("title", models.CharField(max_length=255)),
+                (
+                    "amount",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "expense_type",
+                    models.CharField(
+                        choices=[
+                            ("Water", "WATER"),
+                            ("Electricity", "ELECTRICITY"),
+                            ("Gas", "GAS"),
+                            ("Internet", "INTERNET"),
+                            ("Security", "SECURITY"),
+                            ("Maintenance", "MAINTENANCE"),
+                            ("Other", "OTHER"),
+                        ],
+                        default="Other",
+                        max_length=255,
+                    ),
+                ),
+                ("description", models.TextField(blank=True, null=True)),
+                ("spend_on", models.DateField()),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

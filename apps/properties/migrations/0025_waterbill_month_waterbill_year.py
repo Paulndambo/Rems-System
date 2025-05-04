@@ -7,19 +7,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0006_alter_month_is_active_alter_waterprice_is_active_and_more'),
-        ('properties', '0024_propertyunit_electricity_meter_number_and_more'),
+        ("core", "0006_alter_month_is_active_alter_waterprice_is_active_and_more"),
+        ("properties", "0024_propertyunit_electricity_meter_number_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='waterbill',
-            name='month',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.month'),
+            model_name="waterbill",
+            name="month",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.month",
+            ),
         ),
         migrations.AddField(
-            model_name='waterbill',
-            name='year',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.year'),
+            model_name="waterbill",
+            name="year",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.year",
+            ),
         ),
     ]

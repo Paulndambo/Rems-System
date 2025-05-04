@@ -7,25 +7,60 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0013_alter_propertyunit_floor'),
+        ("properties", "0013_alter_propertyunit_floor"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='MaintenanceRequest',
+            name="MaintenanceRequest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=True)),
-                ('description', models.TextField()),
-                ('status', models.CharField(choices=[('In Progress', 'IN_PROGRESS'), ('Completed', 'COMPLETED'), ('Overdue', 'OVERDUE'), ('Pending', 'PENDING')], default='Pending', max_length=255)),
-                ('image', models.ImageField(blank=True, null=True, upload_to='maintenance/')),
-                ('property', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='properties.property')),
-                ('unit', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='properties.propertyunit')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=True)),
+                ("description", models.TextField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("In Progress", "IN_PROGRESS"),
+                            ("Completed", "COMPLETED"),
+                            ("Overdue", "OVERDUE"),
+                            ("Pending", "PENDING"),
+                        ],
+                        default="Pending",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(blank=True, null=True, upload_to="maintenance/"),
+                ),
+                (
+                    "property",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="properties.property",
+                    ),
+                ),
+                (
+                    "unit",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="properties.propertyunit",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

@@ -6,13 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0002_unitlisting_county_unitlisting_town'),
+        ("website", "0002_unitlisting_county_unitlisting_town"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unitlisting',
-            name='listing_type',
-            field=models.CharField(choices=[('Apartment', 'Apartment'), ('House', 'House'), ('AirBnB', 'AirBnB'), ('Room', 'Room'), ('Hostel', 'Hostel')], max_length=255),
+            model_name="unitlisting",
+            name="listing_type",
+            field=models.CharField(
+                choices=[
+                    ("Apartment", "Apartment"),
+                    ("House", "House"),
+                    ("AirBnB", "AirBnB"),
+                    ("Room", "Room"),
+                    ("Hostel", "Hostel"),
+                ],
+                max_length=255,
+            ),
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0016_listinginterestexpression_processed'),
+        ("website", "0016_listinginterestexpression_processed"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unitlisting',
-            name='approved',
+            model_name="unitlisting",
+            name="approved",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -7,9 +7,8 @@
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h3 class="mb-0">Unit Bill Details</h3>
         {% if unit_bill.balance > 0 and request.user.role != "Caretaker" %}
-        
         <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#collectUnitBillPaymentModal{{unit_bill.id}}">
-            <i class="fas fa-credit-card me-2"></i>Make Payment
+            <i class="fas fa-credit-card me-2"></i>Record Payment
         </a>
         {% endif %}
 
@@ -32,7 +31,6 @@
                                 <td class="fw-bold">{{ unit_bill.tenant.user.first_name }} {{ unit_bill.tenant.user.last_name }}</td>
                             </tr>
                             <tr>
-
                                 <th class="text-muted">Unit:</th>
                                 <td>{{ unit_bill.unit.name }}</td>
                             </tr>
@@ -54,9 +52,6 @@
                     </div>
 
                 </div>
-
-
-
 
             </div>
             <div class="col-md-6">
@@ -97,7 +92,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-muted">Status:</span>
-                            <span class="badge {% if unit_bill.unit_bill_status == 'Paid' %}bg-success{% elif unit_bill.unit_bill_status == 'Partially Paid' %}bg-warning{% else %}bg-danger{% endif %} px-3 py-2">
+                            <span class="badge {% if unit_bill.unit_bill_status == 'Fully Paid' %}bg-success{% elif unit_bill.unit_bill_status == 'Partially Paid' %}bg-warning{% else %}bg-danger{% endif %} px-3 py-2">
                                 {{ unit_bill.unit_bill_status }}
                             </span>
                         </div>

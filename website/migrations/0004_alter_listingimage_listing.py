@@ -7,13 +7,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0003_alter_unitlisting_listing_type'),
+        ("website", "0003_alter_unitlisting_listing_type"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='listingimage',
-            name='listing',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='website.unitlisting'),
+            model_name="listingimage",
+            name="listing",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="images",
+                to="website.unitlisting",
+            ),
         ),
     ]

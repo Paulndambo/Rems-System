@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0032_alter_unitlisting_viewing_fee'),
+        ("website", "0032_alter_unitlisting_viewing_fee"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unitlisting',
-            name='direct_contact_fee',
+            model_name="unitlisting",
+            name="direct_contact_fee",
             field=models.DecimalField(decimal_places=2, default=100, max_digits=10),
         ),
         migrations.AlterField(
-            model_name='unitlisting',
-            name='viewing_fee',
+            model_name="unitlisting",
+            name="viewing_fee",
             field=models.DecimalField(decimal_places=2, default=0, max_digits=10),
         ),
     ]

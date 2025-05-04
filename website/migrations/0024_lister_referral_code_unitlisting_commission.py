@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0023_lister_owned_by'),
+        ("website", "0023_lister_owned_by"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='lister',
-            name='referral_code',
+            model_name="lister",
+            name="referral_code",
             field=models.CharField(max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='unitlisting',
-            name='commission',
+            model_name="unitlisting",
+            name="commission",
             field=models.DecimalField(decimal_places=2, default=0, max_digits=100),
         ),
     ]

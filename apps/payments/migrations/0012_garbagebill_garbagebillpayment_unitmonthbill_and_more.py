@@ -7,78 +7,232 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0006_alter_month_is_active_alter_waterprice_is_active_and_more'),
-        ('payments', '0011_expense_property_expense_unit'),
-        ('properties', '0032_waterbill_reading_date'),
-        ('tenants', '0006_alter_tenant_is_active_and_more'),
+        ("core", "0006_alter_month_is_active_alter_waterprice_is_active_and_more"),
+        ("payments", "0011_expense_property_expense_unit"),
+        ("properties", "0032_waterbill_reading_date"),
+        ("tenants", "0006_alter_tenant_is_active_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='GarbageBill',
+            name="GarbageBill",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('amount_expected', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('amount_paid', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('due_date', models.DateField(blank=True, null=True)),
-                ('status', models.CharField(choices=[('Future', 'FUTURE'), ('Pending', 'PENDING'), ('Paid', 'PAID'), ('Overdue', 'OVERDUE'), ('Partially Paid', 'PARTIALLY_PAID'), ('Cancelled', 'CANCELLED'), ('Completed', 'COMPLETED')], default='Pending', max_length=255)),
-                ('fully_paid', models.BooleanField(default=False)),
-                ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='tenants.tenant')),
-                ('unit', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='properties.propertyunit')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                (
+                    "amount_expected",
+                    models.DecimalField(decimal_places=2, max_digits=10),
+                ),
+                (
+                    "amount_paid",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                ("due_date", models.DateField(blank=True, null=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("Future", "FUTURE"),
+                            ("Pending", "PENDING"),
+                            ("Paid", "PAID"),
+                            ("Overdue", "OVERDUE"),
+                            ("Partially Paid", "PARTIALLY_PAID"),
+                            ("Cancelled", "CANCELLED"),
+                            ("Completed", "COMPLETED"),
+                        ],
+                        default="Pending",
+                        max_length=255,
+                    ),
+                ),
+                ("fully_paid", models.BooleanField(default=False)),
+                (
+                    "tenant",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="tenants.tenant",
+                    ),
+                ),
+                (
+                    "unit",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="properties.propertyunit",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='GarbageBillPayment',
+            name="GarbageBillPayment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('amount_paid', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('payment_date', models.DateField()),
-                ('payment_method', models.CharField(blank=True, choices=[('Cash', 'CASH'), ('M-Pesa', 'MPESA'), ('Bank Transfer', 'BANK_TRANSFER'), ('Bank Deposit', 'BANK_DEPOSIT')], max_length=255, null=True)),
-                ('garbage_bill', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='payments.garbagebill')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                ("amount_paid", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("payment_date", models.DateField()),
+                (
+                    "payment_method",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("Cash", "CASH"),
+                            ("M-Pesa", "MPESA"),
+                            ("Bank Transfer", "BANK_TRANSFER"),
+                            ("Bank Deposit", "BANK_DEPOSIT"),
+                        ],
+                        max_length=255,
+                        null=True,
+                    ),
+                ),
+                (
+                    "garbage_bill",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="payments.garbagebill",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='UnitMonthBill',
+            name="UnitMonthBill",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('rent_amount', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('water_amount', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('garbage_amount', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('amount_expected', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('amount_paid', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('status', models.CharField(choices=[('Future', 'FUTURE'), ('Pending', 'PENDING'), ('Paid', 'PAID'), ('Overdue', 'OVERDUE'), ('Partially Paid', 'PARTIALLY_PAID'), ('Cancelled', 'CANCELLED'), ('Completed', 'COMPLETED')], default='Pending', max_length=255)),
-                ('month', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.month')),
-                ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='tenants.tenant')),
-                ('unit', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='properties.propertyunit')),
-                ('year', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.year')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                (
+                    "rent_amount",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "water_amount",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "garbage_amount",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "amount_expected",
+                    models.DecimalField(decimal_places=2, max_digits=10),
+                ),
+                (
+                    "amount_paid",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("Future", "FUTURE"),
+                            ("Pending", "PENDING"),
+                            ("Paid", "PAID"),
+                            ("Overdue", "OVERDUE"),
+                            ("Partially Paid", "PARTIALLY_PAID"),
+                            ("Cancelled", "CANCELLED"),
+                            ("Completed", "COMPLETED"),
+                        ],
+                        default="Pending",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "month",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="core.month",
+                    ),
+                ),
+                (
+                    "tenant",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="tenants.tenant",
+                    ),
+                ),
+                (
+                    "unit",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="properties.propertyunit",
+                    ),
+                ),
+                (
+                    "year",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="core.year",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.AddField(
-            model_name='garbagebill',
-            name='unit_bill',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='payments.unitmonthbill'),
+            model_name="garbagebill",
+            name="unit_bill",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="payments.unitmonthbill",
+            ),
         ),
         migrations.AddField(
-            model_name='rentbill',
-            name='unit_bill',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='payments.unitmonthbill'),
+            model_name="rentbill",
+            name="unit_bill",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="payments.unitmonthbill",
+            ),
         ),
     ]
