@@ -38,6 +38,13 @@
                                         <p><strong>Email:</strong> {{tenant.user.email}}</p>
                                         <p><strong>Phone:</strong> {{tenant.user.phone}}</p>
                                         <p><strong>Marital Status:</strong> {{tenant.user.marital_status}}</p>
+                                        <p>
+                                            {% if tenant.lease_contract %}
+                                                <a href="{{tenant.lease_contract.url}}" target="_blank" class="btn btn-primary">View Signed Contract</a>
+                                            {% else %}
+                                            <button class="btn btn-warning">Upload Signed Contract</button>
+                                            {% endif %}
+                                        </p>
                                     </div>
                                     <div class="col-md-6">
                                         <p><strong>Move-in Date:</strong> {{tenant.move_in_date}}</p>
@@ -46,6 +53,7 @@
                                     </div>
                                 </div>
                             </div>
+                            
                         </div>
                     </div>
                 </div>

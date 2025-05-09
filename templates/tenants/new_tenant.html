@@ -6,7 +6,7 @@
                 <h5 class="modal-title" id="tenantModalLabel">Add New Tenant</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="tenantForm" method="POST" action="{% url 'new-tenant' %}">
+            <form id="tenantForm" method="POST" action="{% url 'new-tenant' %}" enctype="multipart/form-data">
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row mb-3">
@@ -83,6 +83,10 @@
                                     <option value="{{unit.id}}">{{unit.property.name}} - (<b>{{unit.name}}</b>)</option>
                                 {% endfor %}
                             </select>
+                        </div>
+                        <div class="col">
+                            <label for="rental_unit" class="form-label fw-bold">Signed Contract</label>
+                            <input type="file" name="lease_contract" id="lease_contract" class="form-control" />
                         </div>
                     </div>
                    
