@@ -107,6 +107,8 @@ def property_detail(request, id):
         "occupied_units": occupied_units,
         "tenants": tenants,
         "house_managers": house_managers,
+        "unit_types": UNIT_TYPES,
+        "unit_statuses": UNIT_STATUSES
     }
     return render(request, "properties/property_details.html", context)
 

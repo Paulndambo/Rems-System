@@ -48,14 +48,9 @@ urlpatterns = [
     path("tenants/", include("apps.tenants.urls")),
     path("payments/", include("apps.payments.urls")),
     path("reports/", include("apps.reports.urls")),
-    path("apis/", include("apis.urls")),
-    path("website/", include("website.urls")),
+   
     path("notifications/", include("apps.notifications.urls")),
-    path(
-        "docs/",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
+   
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

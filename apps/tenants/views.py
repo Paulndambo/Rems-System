@@ -12,6 +12,7 @@ from apps.properties.models import PropertyUnit, WaterBill
 from apps.payments.models import TenantPayment
 from apps.users.models import User
 from apps.core.constants import LEASE_DURATIONS, MARITAL_STATUSES
+from apps.tenants.new_tenant_mixin import OnboardTenantMixin
 
 # from apps.payments.models import WaterBill, TenantMonthlyBill
 # Create your views here.
@@ -139,6 +140,27 @@ def new_tenant(request):
         marital_status = request.POST.get("marital_status")
 
         rental_unit = request.POST.get("rental_unit")
+        
+        try:
+            onboard_tenant = OnboardTenantMixin(
+                first_name=first_name, 
+                last_name=last_name, 
+                email=email, 
+                phone=phone, 
+                id_number=id_number, 
+                gender=gender, 
+                move_in_date=move_in_date, 
+                lease_duration=lease_duration, 
+                lease_date=lease_date, 
+                marital_status=marital_status, 
+                rental_unit=rental_unit
+            )
+            onboard_tenant.run()
+        except Exception as e:
+            print(e)
+            raise e
+        
+        """
         unit = PropertyUnit.objects.get(id=rental_unit)
 
         user = User.objects.create(
@@ -167,6 +189,7 @@ def new_tenant(request):
         unit.tenant = tenant
         unit.is_occupied = True
         unit.save()
+        """
         return redirect("tenants")
     return render(request, "tenants/new_tenant.html")
 

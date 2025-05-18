@@ -38,10 +38,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
     "django_filters",
-    "corsheaders",
-    "drf_yasg",
+    
     "apps.core",
     "apps.users",
     "apps.tenants",
@@ -49,8 +47,7 @@ INSTALLED_APPS = [
     "apps.payments",
     "apps.reports",
     "apps.notifications",
-    "website",
-    "apis",
+
 ]
 
 MIDDLEWARE = [
@@ -151,33 +148,6 @@ LOGOUT_REDIRECT_URL = "/users/login/"
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-
-# FIREBASE CONFIGURATION
-import firebase_admin
-from firebase_admin import credentials
-
-
-FIREBASE_STORAGE_BUCKET = "rem-s-storage"
-FIREBASE_DATABASE_URL = "https://rem-s-default-rtdb.firebaseio.com"
-
-cred = credentials.Certificate("Rems/firebase_adminsdk.json")
-
-firebase_admin.initialize_app(
-    cred,
-    {
-        "storageBucket": FIREBASE_STORAGE_BUCKET,
-        "databaseURL": FIREBASE_DATABASE_URL,
-    },
-)
-
-
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "apps.users.firebase_auth.FirebaseAuthentication",
-    ),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 10,
-}
 
 
 CLOUDINARY_CLOUD_NAME = "dc4dykv8e"

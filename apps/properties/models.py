@@ -90,6 +90,7 @@ class PropertyUnit(AbstractBaseModel):
 
     def __str__(self):
         return self.name
+    
 
 
 class MaintenanceRequest(AbstractBaseModel):
@@ -120,7 +121,7 @@ class WaterBill(AbstractBaseModel):
     )
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
     unit = models.ForeignKey(
-        PropertyUnit, on_delete=models.CASCADE, related_name="unitwaterbills"
+        PropertyUnit, on_delete=models.SET_NULL, null=True, related_name="unitwaterbills"
     )
     tenant = models.ForeignKey(
         "tenants.Tenant",
