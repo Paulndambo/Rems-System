@@ -77,6 +77,24 @@ class OnboardTenantMixin(object):
             unit=unit,
             amount_expected=unit.security_deposit,
         )
+ 
+@transaction.atomic       
+def clean_up_unit(unit: PropertyUnit):
+    print("**************Starting Unit Cleanup**************")
+    WaterBill.objects.filter(
+            unit=unit
+        ).update(unit=None)
         
-    def __clean_up_unit(self):
-        pass
+    UnitMonthBill.objects.filter(
+        unit=unit
+    ).update(unit=None)
+    
+    TenantPayment.objects.filter(
+        unit=unit
+    ).update(unit=None)
+    
+    GarbageBill.objects.filter(
+        unit=unit
+    ).update(unit=None)
+    print("**************Finished Unit Cleanup**************")
+    
