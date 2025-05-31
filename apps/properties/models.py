@@ -156,8 +156,8 @@ class WaterBill(AbstractBaseModel):
     due_date = models.DateField(null=True, blank=True)
     fully_paid = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.unit.name
+    #def __init__(self):
+    #    return self.unit.name if self.unit else "N/A"
 
     def total_amount(self):
         water_price = self.unit.water_price

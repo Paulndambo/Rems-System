@@ -87,8 +87,26 @@ def unit_bill_details(request, pk):
 @login_required
 def unit_bill_receipt(request, unit_bill_id):
     bill = UnitMonthBill.objects.get(id=unit_bill_id)
+    
+    previous_bills = UnitMonthBill.objects.filter(tenant=bill.tenant).exclude(id=bill.id)
+    
+    total_rent_bills = sum(previous_bills.values_list("rent_amount", flat=True))
+    total_rent_bills_paid = sum(previous_bills.values_list("rent_amount_paid", flat=True))
+    
+    total_water_bills = sum(previous_bills.values_list("water_amount", flat=True))
+    total_water_bills_paid = sum(previous_bills.values_list("water_amount_paid", flat=True))
+    
+    total_water_bills_pending = total_water_bills - total_water_bills_paid
+    total_rent_pending = total_rent_bills - total_rent_bills_paid
+    
+    total_month_bill = total_rent_pending + total_water_bills_pending + bill.amount_expected
+    
     context = {
-        "bill": bill
+        "bill": bill,
+        "total_month_bill": total_month_bill,
+        "total_rent_pending": total_rent_pending,
+        "total_water_bills_pending": total_water_bills_pending,
+        "total_pending_bill": total_rent_pending + total_water_bills_pending,
     }
     return render(request, "unit_bills/unit_bill_receipt.html", context)
 

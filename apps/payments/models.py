@@ -10,30 +10,16 @@ BACKEND_BASE_URL = settings.BACKEND_BASE_URL
 
 # Create your models here.
 class UnitMonthBill(AbstractBaseModel):
-    unit = models.ForeignKey(
-        "properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True
-    )
-    tenant = models.ForeignKey(
-        "tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True
-    )
-    month = models.ForeignKey(
-        "core.Month", on_delete=models.SET_NULL, null=True, blank=True
-    )
-    year = models.ForeignKey(
-        "core.Year", on_delete=models.SET_NULL, null=True, blank=True
-    )
+    unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True)
+    tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True)
+    month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
+    year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    rent_amount_paid = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00
-    )
+    rent_amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     water_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    water_amount_paid = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00
-    )
+    water_amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     garbage_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    garbage_amount_paid = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00
-    )
+    garbage_amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     amount_expected = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(
