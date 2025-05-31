@@ -6,7 +6,7 @@ from typing import Dict, Any
 from apps.payments.models import UnitMonthBill, RentBill, GarbageBill
 from apps.properties.models import WaterBill
 from apps.core.constants import PaymentStatuses
-from apps.notifications.sms_sender import TiaraConnectSMSManager
+from apps.notifications.sms_sender import TiaraConnectSMSManager, rent_reminder_template
 
 
 def send_unit_bill_notification(request):
@@ -19,12 +19,13 @@ def send_unit_bill_notification(request):
 
         if notification_type == "sms":
             print(f"Notification Type is: {notification_type}")
+            
+            message = rent_reminder_template(bill=unit_bill)
 
             notifier = TiaraConnectSMSManager(
                 phone_number=tenant.user.phone,
-                message_type="rent_reminder"
-            )
-            notifier.send_rent_reminder(bill=unit_bill)
+                message=message
+            ).run()
 
         else:
             return redirect('unit-bills', unit_bill.month.id)

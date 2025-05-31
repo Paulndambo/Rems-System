@@ -138,6 +138,7 @@ def new_tenant(request):
         lease_duration = request.POST.get("lease_duration")
         lease_date = request.POST.get("lease_date")
         marital_status = request.POST.get("marital_status")
+        lease_contract = request.FILES.get("lease_contract")
 
         rental_unit = request.POST.get("rental_unit")
         
@@ -153,43 +154,15 @@ def new_tenant(request):
                 lease_duration=lease_duration, 
                 lease_date=lease_date, 
                 marital_status=marital_status, 
-                rental_unit=rental_unit
+                rental_unit=rental_unit,
+                lease_contract=lease_contract
             )
             onboard_tenant.run()
         except Exception as e:
             print(e)
             raise e
         
-        """
-        unit = PropertyUnit.objects.get(id=rental_unit)
-
-        user = User.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            email=email if email else f"{first_name}.{last_name}@gmail.com",
-            phone=phone,
-            id_number=id_number,
-            gender=gender,
-            username=email if email else f"{first_name}.{last_name}",
-            marital_status=marital_status,
-            role="Tenant",
-        )
-
-        user.set_password("1234")
-        user.save()
-
-        tenant = Tenant.objects.create(
-            user=user,
-            move_in_date=move_in_date,
-            lease_duration=lease_duration,
-            lease_date=lease_date,
-            status="Active",
-            renews_every=lease_duration,
-        )
-        unit.tenant = tenant
-        unit.is_occupied = True
-        unit.save()
-        """
+        
         return redirect("tenants")
     return render(request, "tenants/new_tenant.html")
 
@@ -210,21 +183,23 @@ def edit_tenant(request):
         lease_duration = request.POST.get("lease_duration")
         lease_date = request.POST.get("lease_date")
         marital_status = request.POST.get("marital_status")
+        lease_contract = request.FILES.get("lease_contract")
 
         rental_unit = request.POST.get("rental_unit")
         unit = PropertyUnit.objects.filter(id=rental_unit).first()
 
-        tenant.user.first_name = first_name
-        tenant.user.last_name = last_name
-        tenant.user.email = email
-        tenant.user.phone = phone
-        tenant.user.id_number = id_number
-        tenant.user.gender = gender
-        tenant.move_in_date = move_in_date
-        tenant.lease_duration = lease_duration
-        tenant.user.marital_status = marital_status
-        tenant.renews_every = lease_duration
-        tenant.lease_date = lease_date
+        tenant.user.first_name = first_name if first_name else tenant.first_name
+        tenant.user.last_name = last_name if last_name else tenant.last_name
+        tenant.user.email = email if email else tenant.email
+        tenant.user.phone = phone if phone else tenant.phone
+        tenant.user.id_number = id_number if id_number else tenant.id_number
+        tenant.user.gender = gender if gender else tenant.gender
+        tenant.move_in_date = move_in_date if move_in_date else tenant.move_in_date
+        tenant.lease_duration = lease_duration if lease_duration else tenant.lease_duration
+        tenant.user.marital_status = marital_status if marital_status else tenant.marital_status
+        tenant.renews_every = lease_duration if lease_duration else tenant.lease_duration
+        tenant.lease_date = lease_date if lease_date else tenant.lease_date
+        tenant.lease_contract = lease_contract if lease_contract else tenant.lease_contract
 
         tenant.user.save()
         tenant.save()

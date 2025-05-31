@@ -6,7 +6,7 @@ from apps.users.models import User
 from apps.payments.models import RentPayment, RentBill, UnitMonthBill, SecurityDeposit, TenantPayment, GarbageBill
 
 class OnboardTenantMixin(object):
-    def __init__(self, first_name, last_name, email, phone, id_number, gender, move_in_date, lease_duration, lease_date, marital_status, rental_unit):
+    def __init__(self, first_name, last_name, email, phone, id_number, gender, move_in_date, lease_duration, lease_date, marital_status, rental_unit, lease_contract):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
@@ -18,6 +18,7 @@ class OnboardTenantMixin(object):
         self.lease_date = lease_date
         self.marital_status = marital_status
         self.rental_unit = rental_unit
+        self.lease_contract = lease_contract
         
     @transaction.atomic
     def run(self):
@@ -48,6 +49,7 @@ class OnboardTenantMixin(object):
             lease_date=self.lease_date,
             status="Active",
             renews_every=self.lease_duration,
+            lease_contract=self.lease_contract,
         )
         
         

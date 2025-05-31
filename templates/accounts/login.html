@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REMS | Login</title>
+    <title>RentWise | Login</title>
     <style>
         :root {
             --primary-color: #2563eb;
@@ -92,6 +92,15 @@
         }
 
         .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .form-select {
             width: 100%;
             padding: 0.75rem 1rem;
             font-size: 1rem;
@@ -220,7 +229,6 @@
         
         <div class="login-header">
             <h1>Welcome to RentWise</h1>
-            <p>Sign in to access your rental management dashboard</p>
         </div>
         
         {% if messages %}
@@ -242,6 +250,14 @@
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Which System?</label>
+                <select class="form-select" id="target_system" name="target_system">
+                    <option value="rentwise">Flughafen View</option>
+                    <option value="clientwise">Twende World Tours</option>
+                </select>
             </div>
             
             <button type="submit" class="btn btn-primary">Login</button>

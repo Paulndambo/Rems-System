@@ -1,0 +1,29 @@
+<!-- Add this modal HTML after the table in your template -->
+<div class="modal fade" id="deleteMessageModal{{message.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tenantModalLabel">Delete {{message.purpose}} Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="tenantForm" method="POST" action="{% url 'delete-message' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="number" name="message_id" id="message_id" value="{{message.id}}" readonly hidden>
+                    <input type="text" name="purpose" id="purpose" value="{{message.purpose}}" readonly hidden>
+                    <div class="row mb-2">
+                        {% if message.purpose == 'Birthday' %}
+                            <p>Are you sure you want to delete Birthday message for: <b>{{message.receiver.name}}</b>?</p>
+                        {% else %}
+                        <p>Are you sure you want to delete {{message.purpose}} message for: <b>{{message.holiday_name}}</b>?</p>
+                        {% endif %}
+                   </div>
+                    
+                <div class="text-center mb-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

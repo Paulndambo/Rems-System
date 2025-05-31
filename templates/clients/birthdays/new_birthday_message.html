@@ -1,0 +1,30 @@
+<!-- Add this modal HTML after the table in your template -->
+<div class="modal fade" id="birthdayMessageModal{{client.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tenantModalLabel">New Birthday Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="tenantForm" method="POST" action="{% url 'new-message' %}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    
+                    <input type="text" hidden required readonly name="purpose" id="purpose" value="Birthday">
+                    <input type="text" hidden required readonly name="receiver" id="receiver" value="{{client.id}}"></input>
+                    
+                    <div class="row mb-3">
+                        <div class="col">
+                            <p>Are you sure you want to send: <b>{{client.name}}</b> a birthday message?</p>
+                        </div>
+                    </div>
+        
+                </div>
+                <div class="text-center mb-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

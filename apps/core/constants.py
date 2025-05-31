@@ -196,3 +196,5 @@ class UserRoles(Enum):
 
 
 MARITAL_STATUSES = ["Single", "Married", "Divorced", "Widowed"]
+
+GENDER_CHOICES = ["Male", "Female", "Other"]

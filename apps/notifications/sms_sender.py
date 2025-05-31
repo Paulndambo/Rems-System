@@ -1,5 +1,6 @@
 import requests
 from apps.payments.models import UnitMonthBill
+from toursclients.models import TourClient, Message
 
 TIARA_CONNECT_URL = 'https://api2.tiaraconnect.io/api/messaging/sendsms'
 TIARA_API_KEY = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI1NTIiLCJvaWQiOjU1MiwidWlkIjoiM2JjOWU5ZTMtNjVjYy00OGE1LWIyMTMtZDNjMjJmMTNiYmMzIiwiYXBpZCI6NTI1LCJpYXQiOjE3NDUzMTIwMTQsImV4cCI6MjA4NTMxMjAxNH0.8zDf2REJFDoPO8gdQ1t9OAv73I6_OX1GWHJpAQ6eVXkQyuuSt5Q4IEIxLatkfhFVm6vs8utnVd4WpfkPJmbEOw"
@@ -18,12 +19,31 @@ Unpaid Dues: {total_unit_bills_pending}
 Total Amount: {total_unit_bills_pending + bill.amount_expected}
 """
 
+
+def birthday_message_template(client: TourClient):
+    return f"""
+Hello {client.name},
+Hope you are doing well.
+Happy birthday {client.name}!
+"""
+
+def holiday_message_template(message: Message, client: TourClient):
+    return f"""
+Hello {client.name},
+Hope you are doing well.
+Happy {message.holiday_name}!
+"""
+
+
+
 class TiaraConnectSMSManager:
-    def __init__(self, phone_number, message_type):
+    def __init__(self, phone_number, message):
         self.phone_number = phone_number
-        self.message_type = message_type
+        self.message = message
         
-    
+    def run(self):
+        self.__send_sms(message=self.message)
+        
     def __send_sms(self, message):
         phone_number = self.__clean_phone_number(self.phone_number)
 
@@ -53,10 +73,11 @@ class TiaraConnectSMSManager:
         else:
             return phone_number
 
-
     def send_rent_reminder(self, bill):
         message = rent_reminder_template(bill)
         print("*******************Message********************")
         print(message)
         self.__send_sms(message=message)
         print("*******************Message********************")
+        
+        

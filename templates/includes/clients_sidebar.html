@@ -1,0 +1,42 @@
+<nav id="sidebar" class="vh-100 overflow-auto">
+    <div class="sidebar-header d-flex align-items-center position-sticky top-0 bg-primary p-3">
+        <span class="nav-label text-white fw-bold">Twende World Tours</span>
+    </div>
+
+    <ul class="list-unstyled components p-3">
+        <li class="mb-3">
+            <a href="{% url 'clients' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3">
+                <i class="bi bi-grid-1x2-fill me-3"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+        </li>
+
+        <li class="mb-3">
+            <a href="{% url 'tour-clients' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3">
+                <i class="bi bi-people-fill me-3"></i>
+                <span class="nav-label">Clients</span>
+            </a>
+        </li>
+
+        <li class="mb-3">
+            <a href="{% url 'upcoming-birthdays' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3">
+                <i class="bi bi-people-fill me-3"></i>
+                <span class="nav-label">Upcoming Birthdays</span>
+            </a>
+        </li>
+        <li class="mb-3">
+            <a href="#peopleSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+                <div>
+                    <i class="bi bi-envelope me-3"></i>
+                    <span class="nav-label">Messages</span>
+                </div>
+                <i class="bi bi-chevron-down fs-7"></i>
+            </a>
+            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="peopleSubmenu">
+                <li class="mb-2"><a href="{% url 'birthday-messages' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Birthday Messages</span></a></li>
+                <li class="mb-2"><a href="{% url 'holiday-messages' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Holiday Messages</span></a></li>
+            </ul>
+        </li>
+    
+    </ul>
+</nav>

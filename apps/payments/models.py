@@ -170,9 +170,7 @@ class RentBill(AbstractBaseModel):
     )
     fully_paid = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"{self.tenant.user.name}" if self.tenant else f"{self.unit.name}"
-
+ 
     def balance(self):
         return self.amount_expected - self.amount_paid
 
@@ -227,8 +225,7 @@ class TenantPayment(AbstractBaseModel):
     )
     payment_type = models.CharField(max_length=255, null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.tenant.user.name}"
+ 
 
 
 class GarbageBill(AbstractBaseModel):
@@ -249,9 +246,7 @@ class GarbageBill(AbstractBaseModel):
     )
     fully_paid = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"{self.tenant.user.name}" if self.tenant else f"{self.unit.name}"
-
+   
     def balance(self):
         return self.amount_expected - self.amount_paid
 
@@ -266,12 +261,7 @@ class GarbageBillPayment(AbstractBaseModel):
         max_length=255, choices=PaymentMethods.choices(), null=True, blank=True
     )
 
-    def __str__(self):
-        return (
-            f"{self.garbage_bill.tenant.user.name}"
-            if self.garbage_bill.tenant
-            else f"{self.garbage_bill.unit.name}"
-        )
+
 
 
 class SecurityDeposit(AbstractBaseModel):
@@ -290,9 +280,7 @@ class SecurityDeposit(AbstractBaseModel):
     )
     fully_paid = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"{self.tenant.user.name}"
-
+    
     def balance(self):
         return self.amount_expected - self.amount_paid
 
@@ -308,5 +296,4 @@ class SecurityDepositPayment(AbstractBaseModel):
     )
     reference_number = models.CharField(max_length=255, null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.security_deposit.tenant.user.name}"
+

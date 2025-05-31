@@ -22,14 +22,18 @@ def login_user(request):
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
+        target_system = request.POST.get("target_system")
         print("***********User Information***************")
         print(username, password)
         print("***********User Information***************")
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            next_url = request.GET.get("next", "home")
-            return redirect(next_url)  # Redirect to the next URL or home page.
+            if target_system.lower() == "rentwise":
+                next_url = request.GET.get("next", "home")
+                return redirect(next_url)  # Redirect to the next URL or home page.
+            elif target_system.lower() == "clientwise":
+                return redirect("clients")
         else:
             return redirect("login")
     next_url = request.GET.get("next", "")
