@@ -31,3 +31,14 @@ class Month(AbstractBaseModel):
 
     def __str__(self):
         return f"{self.name}"
+
+
+class UserAction(AbstractBaseModel):
+    action_type = models.CharField(max_length=255)
+    user = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, related_name="user_actions"
+    )
+    action_details = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.action_type}"

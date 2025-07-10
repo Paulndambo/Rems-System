@@ -34,7 +34,7 @@ class User(AbstractUser, AbstractBaseModel):
         super().save(*args, **kwargs)
 
     def name(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}" if self.first_name else self.username.capitalize()
 
     def status(self):
         if self.is_active:

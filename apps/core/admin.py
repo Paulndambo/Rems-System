@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.core.models import WaterPrice, Year, Month
+from apps.core.models import WaterPrice, Year, Month, UserAction
 
 
 # Register your models here.
@@ -17,3 +17,7 @@ class YearAdmin(admin.ModelAdmin):
 @admin.register(Month)
 class MonthAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "year", "created_at", "updated_at", "is_active"]
+
+@admin.register(UserAction)
+class UserActionAdmin(admin.ModelAdmin):
+    list_display = ["id", "action_type", "user", "created_at", "updated_at", "is_active"]

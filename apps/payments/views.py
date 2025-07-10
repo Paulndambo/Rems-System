@@ -19,7 +19,7 @@ from apps.core.constants import (
     PaymentStatuses,
     PAYMENT_METHODS,
 )
-from apps.core.models import Month, Year
+from apps.core.models import Month, Year, UserAction
 from apps.payments.models import (
     WaterBillPayment,
     Expense,
@@ -83,6 +83,12 @@ def pay_water_bill(request):
         month=bill.month,
         year=bill.year,
         payment_method=payment_method,
+    )
+    
+    UserAction.objects.create(
+        user=request.user,
+        action_type="Recorded Water Bill",
+        action_details=f"Paid water bill of {payment.amount_paid} for {payment.water_bill.unit.tenant.full_name}",
     )
 
     # Update bill amounts and status
@@ -156,7 +162,7 @@ def add_expense(request):
     if request.method != "POST":
         return render(request, "expenses/add_expense.html")
 
-    Expense.objects.create(
+    expense = Expense.objects.create(
         title=request.POST.get("title"),
         amount=request.POST.get("amount"),
         expense_type=request.POST.get("expense_type"),
@@ -164,6 +170,11 @@ def add_expense(request):
         spend_on=request.POST.get("spend_on"),
         property_id=request.POST.get("property"),
         unit_id=request.POST.get("unit"),
+    )
+    UserAction.objects.create(
+        user=request.user,
+        action_type="Recorded Expense",
+        action_details=f"Recorded expense of {expense.amount} for {expense.title}",
     )
     return redirect("expenses")
 
@@ -187,6 +198,12 @@ def edit_expense(request):
         expense.property_id = property_id
         expense.unit_id = unit_id
         expense.save()
+        
+        UserAction.objects.create(
+            user=request.user,
+            action_type="Edited Expense",
+            action_details=f"Edited expense of {expense.amount} for {expense.title}",
+        )
         return redirect("expenses")
     return render(
         request, "expenses/edit_expense.html", {"expense_types": EXPENSE_TYPES_LIST}
@@ -198,6 +215,11 @@ def delete_expense(request):
     if request.method == "POST":
         expense_id = request.POST.get("expense_id")
         expense = Expense.objects.get(id=expense_id)
+        UserAction.objects.create(
+            user=request.user,
+            action_type="Deleted Expense",
+            action_details=f"Deleted expense of {expense.amount} for {expense.title}",
+        )
         expense.delete()
         return redirect("expenses")
     return render(request, "expenses/delete_expense.html")
@@ -379,6 +401,18 @@ def generate_rent_bill(request):
                 )
 
         RentBill.objects.bulk_create(units_list)
+        
+        UserAction.objects.create(
+            user=user,
+            action_type="Generated rent bills",
+            action_details="Generated rent bills for " + month + " " + year,
+        )
+        
+        UserAction.objects.create(
+            user=user,
+            action_type="Generated rent bills",
+            action_details=f"Generated rent bills for {property_id}",
+        )
 
         if user.role == UserRoles.CARETAKER.value:
             return redirect("caretaker-rent-bills")
@@ -431,6 +465,12 @@ def pay_rent(request):
             amount_paid=amount_paid,
             payment_method=payment_method,
             payment_date=payment_date,
+        )
+        
+        UserAction.objects.create(
+            user=user,
+            action_type="Recorded rent payment",
+            action_details="Paid rent bill for " + rent_bill.unit.name,
         )
 
         TenantPayment.objects.create(
@@ -571,6 +611,12 @@ def pay_security_deposit(request):
             payment_method=payment_method,
             payment_date=payment_date,
             reference_number=reference_number,
+        )
+        
+        UserAction.objects.create(
+            action_type="Security Recorded",
+            action_details="Security Deposit Payment Created",
+            user=request.user,
         )
 
         TenantPayment.objects.create(

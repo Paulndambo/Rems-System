@@ -15,4 +15,5 @@ urlpatterns = [
     path("new-message/", views.new_message, name="new-message"),
     
     path("upcoming-birthdays/", views.UpcomingBirthdaysView.as_view(), name="upcoming-birthdays"),
+    path("user-actions/", views.UserActionListView.as_view(), name="user-actions"),
 ]

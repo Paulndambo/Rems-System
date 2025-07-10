@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from .models import TourClient, Message
 from apps.core.constants import GENDER_CHOICES
 
+from apps.core.models import UserAction
 from apps.notifications.sms_sender import TiaraConnectSMSManager, birthday_message_template, holiday_message_template, rent_reminder_template
 # Create your views here.
 @login_required
@@ -72,6 +73,12 @@ def new_tour_client(request):
             nationality=nationality
         )
         
+        UserAction.objects.create(
+            user=request.user,
+            action_type="Added Tour Client",
+            action_details=f"Added Tour Client: {tour_client.name}"
+        )
+        
         return redirect("tour-clients")
     return render(request, "clients/new_client.html")
 
@@ -89,7 +96,7 @@ def edit_tour_client(request):
         nationality = request.POST.get('nationality')
         
     
-        client = TourClient.objects.filter(id=client_id).update(
+        TourClient.objects.filter(id=client_id).update(
             name=name,
             dob=dob,
             gender=gender,
@@ -99,6 +106,12 @@ def edit_tour_client(request):
             email=email,
             nationality=nationality
         )
+
+        UserAction.objects.create(
+            user=request.user,
+            action_type="Edited Tour Client",
+            action_details=f"Edited Tour Client: {name}"
+        )
         
         return redirect("tour-clients")
     return render(request, "clients/edit_client.html")
@@ -107,7 +120,12 @@ def edit_tour_client(request):
 def delete_tour_client(request):
     if request.method == "POST":
         tour_client_id = request.POST.get("client_id")
-        TourClient.objects.get(id=tour_client_id).delete()
+        tour_client = TourClient.objects.get(id=tour_client_id).delete()
+        UserAction.objects.create(
+            user=request.user,
+            action_type="Deleted Tour Client",
+            action_details=f"Deleted Tour Client: {tour_client.name}"
+        )
         return redirect("tour-clients")
     return render(request, "clients/delete_client.html")
 
@@ -194,12 +212,18 @@ def new_message(request):
                 receiver=TourClient.objects.get(id=receiver),
                 country=country
             )
+            UserAction.objects.create(
+                user=request.user,
+                action_type="Sent Birthday Message",
+                action_details=f"Sent Birthday Message to: {message.receiver.name}"
+            )
             
             try:
                 TiaraConnectSMSManager(
                     phone_number=message.receiver.phone_number,
                     message=birthday_message_template(client=message.receiver)
                 ).run()
+                
             except Exception as e:
                 print(e)
                 
@@ -213,6 +237,11 @@ def new_message(request):
                 holiday_name=holiday_name,
                 country=country
             )
+            UserAction.objects.create(
+                user=request.user,
+                action_type="Sent Holiday Message",
+                action_details=f"Sent Holiday Message to: {message.holiday_name}"
+            )
             try:
                 for client in TourClient.objects.all():
                     TiaraConnectSMSManager(
@@ -222,6 +251,7 @@ def new_message(request):
                             client=client
                         )
                     ).run()
+                    
             except Exception as e:
                 print(e)
             return redirect("holiday-messages")
@@ -233,6 +263,36 @@ def delete_message(request):
     if request.method == "POST":
         message_id = request.POST.get("message_id")
         purpose = request.POST.get("purpose").lower()
-        Message.objects.get(id=message_id).delete()
+        message = Message.objects.get(id=message_id).delete()
+        UserAction.objects.create(
+            user=request.user,
+            action_type="Deleted Message",
+            action_details=f"Deleted Message: {message.purpose}"
+        )
         return redirect(f"{purpose}-messages")
     return render(request, "clients/messages/delete_message.html")
+
+
+
+class UserActionListView(LoginRequiredMixin, ListView):
+    model = UserAction
+    template_name = "clients/user_actions.html"
+    context_object_name = "actions"
+    paginate_by = 9
+    
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query)
+                | Q(user__first_name__icontains=search_query)
+            )
+
+        return queryset.order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
