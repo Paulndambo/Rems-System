@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "apps.reports",
     "apps.notifications",
     "toursclients",
+    "invoices",
 
 ]
 
