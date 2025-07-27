@@ -11,10 +11,27 @@
             </a>
         </li>
 
+
         <li class="mb-3">
-            <a href="{% url 'tour-clients' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3">
-                <i class="bi bi-people-fill me-3"></i>
-                <span class="nav-label">Clients</span>
+            <a href="#peopleSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+                <div>
+                    <i class="bi bi-people-fill me-3"></i>
+                    <span class="nav-label">People</span>
+                </div>
+                <i class="bi bi-chevron-down fs-7"></i>
+            </a>
+            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="peopleSubmenu">
+                <li class="mb-2"><a href="{% url 'tour-clients' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Clients</span></a></li>
+                {% if request.user.role == "Admin" %}
+                <li class="mb-2"><a href="{% url 'employees' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Employees</span></a></li>
+                {% endif %}
+            </ul>
+        </li>
+
+        <li class="mb-3">
+            <a href="#" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3">
+                <i class="bi bi-receipt me-3"></i>
+                <span class="nav-label">Invoices</span>
             </a>
         </li>
 
@@ -25,25 +42,33 @@
             </a>
         </li>
         <li class="mb-3">
-            <a href="#peopleSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+            <a href="#messagesSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
                 <div>
                     <i class="bi bi-envelope me-3"></i>
                     <span class="nav-label">Messages</span>
                 </div>
                 <i class="bi bi-chevron-down fs-7"></i>
             </a>
-            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="peopleSubmenu">
+            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="messagesSubmenu">
                 <li class="mb-2"><a href="{% url 'birthday-messages' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Birthday Messages</span></a></li>
                 <li class="mb-2"><a href="{% url 'holiday-messages' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Holiday Messages</span></a></li>
             </ul>
         </li>
-
-         <li class="mb-3">
-            <a href="{% url 'user-actions' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3">
-                <i class="bi bi-gear-fill me-3"></i>
-                <span class="nav-label">Users Actions</span>
+        {% if request.user.role == "Admin" %}
+        <li class="mb-3">
+            <a href="#userActionsSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
+                <div>
+                    <i class="bi bi-gear-fill me-3"></i>
+                    <span class="nav-label">User Actions</span>
+                </div>
+                <i class="bi bi-chevron-down fs-7"></i>
             </a>
+            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="userActionsSubmenu">
+                <li class="mb-2"><a href="{% url 'attendances' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Attendance</span></a></li>
+                <li class="mb-2"><a href="{% url 'user-actions' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">User Activity</span></a></li>
+                <li class="mb-2"><a href="{% url 'active-users' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Login Logs</span></a></li>
+            </ul>
         </li>
-    
+         {% endif %}    
     </ul>
 </nav>

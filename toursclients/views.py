@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
+from django.conf import settings
 
 from django.db.models import Q
 
 from django.shortcuts import render, redirect
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
@@ -11,6 +12,9 @@ from .models import TourClient, Message
 from apps.core.constants import GENDER_CHOICES
 
 from apps.core.models import UserAction
+from apps.users.models import User, Attendance
+from django.contrib.sessions.models import Session
+from django.utils.timezone import now
 from apps.notifications.sms_sender import TiaraConnectSMSManager, birthday_message_template, holiday_message_template, rent_reminder_template
 # Create your views here.
 @login_required
@@ -32,7 +36,6 @@ class TourClientsListView(LoginRequiredMixin, ListView):
     context_object_name = "clients"
     paginate_by = 9
     
-
     def get_queryset(self):
         queryset = super().get_queryset()
         search_query = self.request.GET.get("search", "")
@@ -53,7 +56,8 @@ class TourClientsListView(LoginRequiredMixin, ListView):
 @login_required
 def new_tour_client(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         dob = request.POST.get('dob')
         gender = request.POST.get('gender')
         phone_number = request.POST.get('phone_number')
@@ -63,7 +67,8 @@ def new_tour_client(request):
         nationality = request.POST.get('nationality')
     
         tour_client = TourClient.objects.create(
-            name=name,
+            first_name=first_name,
+            last_name=last_name,
             dob=dob,
             gender=gender,
             phone_number=phone_number,
@@ -86,7 +91,8 @@ def new_tour_client(request):
 def edit_tour_client(request):
     if request.method == 'POST':
         client_id = request.POST.get('client_id')
-        name = request.POST.get('name')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         dob = request.POST.get('dob')
         gender = request.POST.get('gender')
         phone_number = request.POST.get('phone_number')
@@ -97,7 +103,8 @@ def edit_tour_client(request):
         
     
         TourClient.objects.filter(id=client_id).update(
-            name=name,
+            first_name=first_name,
+            last_name=last_name,
             dob=dob,
             gender=gender,
             phone_number=phone_number,
@@ -110,7 +117,7 @@ def edit_tour_client(request):
         UserAction.objects.create(
             user=request.user,
             action_type="Edited Tour Client",
-            action_details=f"Edited Tour Client: {name}"
+            action_details=f"Edited Tour Client: {first_name} {last_name}"
         )
         
         return redirect("tour-clients")
@@ -296,3 +303,128 @@ class UserActionListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+    
+
+class AttendanceListView(LoginRequiredMixin, ListView):
+    model = Attendance
+    template_name = "clients/attendances.html"
+    context_object_name = "attendances"
+    paginate_by = 9
+    
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query)
+                | Q(user__first_name__icontains=search_query)
+            )
+
+        return queryset.order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+         
+
+class LoggedInUsersView(ListView):
+    template_name = 'clients/logged_in_users.html'
+    context_object_name = 'users'
+
+    def get_queryset(self):
+        sessions = Session.objects.filter(expire_date__gte=now())
+        users_data = []
+
+        for session in sessions:
+            data = session.get_decoded()
+            user_id = data.get('_auth_user_id')
+            if user_id:
+                try:
+                    user = User.objects.get(id=user_id)
+                    login_time = session.expire_date - timedelta(seconds=settings.SESSION_COOKIE_AGE)
+                    users_data.append({
+                        'user': user,
+                        'login_time': login_time
+                    })
+                except User.DoesNotExist:
+                    continue
+
+        return users_data
+
+class EmployeeListView(ListView):
+    model = User
+    template_name = "clients/employees/employees.html"
+    context_object_name = "employees"
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "")
+
+        print(f"You are searching for {search_query}")
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(id__icontains=search_query) | Q(first_name__icontains=search_query)
+            )
+        return queryset.filter(role="Employee").order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["marital_statuses"] = ["Married", "Single", "Divorced"]
+        context["genders"] = ["Male", "Female"]
+        return context
+    
+    
+def new_employee(request):
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        email = request.POST.get("email")
+        phone = request.POST.get("phone")
+        id_number = request.POST.get("id_number")
+        gender = request.POST.get("gender")
+        marital_status = request.POST.get("marital_status")
+        username = request.POST.get("username")
+
+        user = User.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            id_number=id_number,
+            gender=gender,
+            role="Employee",
+            username=username,
+            marital_status=marital_status,
+        )
+        user.set_password("1234")
+        user.save()
+        return redirect("employees")
+    return render(request, "clients/employees/new_employee.html")
+
+
+def edit_employee(request):
+    if request.method == "POST":
+        user = User.objects.get(id=request.POST.get("user_id"))
+        user.first_name = request.POST.get("first_name")
+        user.last_name = request.POST.get("last_name")
+        user.email = request.POST.get("email")
+        user.phone = request.POST.get("phone")
+        user.id_number = request.POST.get("id_number")
+        user.gender = request.POST.get("gender")
+        user.marital_status = request.POST.get("marital_status")
+        user.username = request.POST.get("username")
+        user.save()
+        return redirect("employees")
+    return render(request, "clients/employees/edit_employee.html")
+
+
+def delete_employee(request):
+    if request.method == "POST":
+        user = User.objects.get(id=request.POST.get("user_id"))
+        user.delete()
+        return redirect("employees")
+    return render(request, "clients/employees/delete_employee.html")

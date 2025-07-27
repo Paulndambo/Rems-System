@@ -16,4 +16,12 @@ urlpatterns = [
     
     path("upcoming-birthdays/", views.UpcomingBirthdaysView.as_view(), name="upcoming-birthdays"),
     path("user-actions/", views.UserActionListView.as_view(), name="user-actions"),
+    
+    path("employees/", views.EmployeeListView.as_view(), name="employees"),
+    path("new-employee/", views.new_employee, name="new-employee"),
+    path("edit-employee/", views.edit_employee, name="edit-employee"),
+    path("delete-employee/", views.delete_employee, name="delete-employee"),
+    
+    path("attendances/", views.AttendanceListView.as_view(), name="attendances"),
+    path("active-users/", views.LoggedInUsersView.as_view(), name="active-users"),
 ]

@@ -61,3 +61,10 @@ class HouseManager(AbstractBaseModel):
 
     def __str__(self):
         return self.name
+
+
+class Attendance(AbstractBaseModel):
+   user = models.ForeignKey(User, on_delete=models.CASCADE) 
+   
+   def __str__(self):
+       return self.user.name

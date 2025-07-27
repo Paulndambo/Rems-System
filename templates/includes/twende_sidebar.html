@@ -1,0 +1,76 @@
+<nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-plane"></i> Twende Tours</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{% url 'clients' %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'tour-clients' %}" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        Clients
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="offers">
+                        <i class="fas fa-tags"></i>
+                        Offers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'upcoming-birthdays' %}" class="nav-link" data-page="offers">
+                        <i class="fas fa-birthday-cake"></i>
+                        Upcoming Birthdays
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" id="messagesToggle">
+                        <i class="fas fa-envelope"></i>
+                        Messages
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </a>
+                    <ul class="submenu" id="messagesSubmenu">
+                        <li class="nav-item">
+                            <a href="{% url 'birthday-messages' %}" class="nav-link">
+                                <i class="fas fa-birthday-cake"></i>
+                                Birthday Messages
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-page="offer-messages">
+                                <i class="fas fa-percent"></i>
+                                Offer Messages
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'holiday-messages' %}" class="nav-link">
+                                <i class="fas fa-calendar-alt"></i>
+                                Holiday Messages
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="invoices">
+                        <i class="fas fa-file-invoice"></i>
+                        Invoices
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="users">
+                        <i class="fas fa-user-cog"></i>
+                        Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="user-actions">
+                        <i class="fas fa-history"></i>
+                        User Actions
+                    </a>
+                </li>
+            </ul>
+        </nav>

@@ -184,15 +184,17 @@ class PaymentMethods(Enum):
 
 
 class UserRoles(Enum):
+    ADMIN = "Admin"
     LANDLORD = "Landlord"
     LISTER = "Lister"
     TENANT = "Tenant"
     CARETAKER = "Caretaker"
     HOUSE_MANAGER = "House Manager"
+    Employee = "Employee"
 
     @classmethod
     def choices(cls):
-        return [(key.value, key.name) for key in cls]
+        return [(key.value, key.value) for key in cls]
 
 
 MARITAL_STATUSES = ["Single", "Married", "Divorced", "Widowed"]

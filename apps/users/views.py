@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from apps.users.models import User
+from apps.users.models import User, Attendance
 from apps.core.constants import MARITAL_STATUSES
 from django.views.generic import ListView
 from django.db.models import Q
@@ -17,7 +17,6 @@ ROLES = [
     "House Manager",
 ]
 
-
 def login_user(request):
     if request.method == "POST":
         username = request.POST["username"]
@@ -29,6 +28,9 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            Attendance.objects.create(
+                user=user,
+            )
             if target_system.lower() == "rentwise":
                 next_url = request.GET.get("next", "home")
                 return redirect(next_url)  # Redirect to the next URL or home page.

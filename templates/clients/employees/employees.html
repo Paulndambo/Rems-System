@@ -1,0 +1,184 @@
+{% extends "clients/base.html" %}
+{% block additional_styles %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Simple card styles */
+        .card {
+            margin: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        /* Simple table styles */
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        /* Simple status badge */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .status-active {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+
+        /* Simple action buttons */
+        .btn-action {
+            padding: 4px 8px;
+            margin: 0 2px;
+        }
+
+        /* Search bar */
+        .search-wrapper {
+            max-width: 300px;
+        }
+
+        /* Pagination styles */
+        .pagination-wrapper {
+            padding: 1rem;
+            background-color: #fff;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .pagination {
+            margin-bottom: 0;
+        }
+    </style>
+{% endblock additional_styles %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Employee</h5>
+            <div class="d-flex gap-3">
+                <div class="search-wrapper">
+                    <input type="text" class="form-control" 
+                        placeholder="Search employees..." 
+                        id="searchInput" 
+                        value="{{ search_query }}">
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newEmployeeModal">
+                    <i class="fas fa-plus me-1"></i>New Employee
+                </button>
+            </div>
+        </div>
+    </div>
+{% include "clients/employees/new_employee.html" %}
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in employees %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{user.name}}</td>
+                        <td>{{user.phone}}</td>
+                        <td>{{user.role}}</td>
+                        <td><span class="status-badge status-{{user.status|lower}}">{{user.status}}</span></td>
+                        <td class="text-end">
+                            <a href="{% url 'change-password' user.id %}" class="btn btn-sm btn-light btn-action">
+                                <i class="fas fa-lock text-primary"></i>
+                            </a>
+                            <button class="btn btn-sm btn-light btn-action" data-bs-toggle="modal" data-bs-target="#editEmployeeModal{{user.id}}" title="Edit">
+                                <i class="fas fa-edit text-primary"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light btn-action" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal{{user.id}}" title="Delete">
+                                <i class="fas fa-trash text-danger"></i>
+                            </button>
+                        </td>
+                        {% include "clients/employees/edit_employee.html" %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="pagination-wrapper">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
+                </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
