@@ -13,8 +13,20 @@ def format_bill_message(tenant_name: str, bill: UnitMonthBill) -> str:
     """Format WhatsApp message for unit bill notification."""
     water_bill = WaterBill.objects.filter(unit_bill=bill).first()
 
-    total_unit_bills = sum(list(UnitMonthBill.objects.filter(tenant=bill.tenant).exclude(id=bill.id).values_list("amount_expected", flat=True)))
-    total_unit_bills_paid = sum(list(UnitMonthBill.objects.filter(tenant=bill.tenant, fully_paid=True).exclude(id=bill.id).values_list("amount_paid", flat=True)))
+    total_unit_bills = sum(
+        list(
+            UnitMonthBill.objects.filter(tenant=bill.tenant)
+            .exclude(id=bill.id)
+            .values_list("amount_expected", flat=True)
+        )
+    )
+    total_unit_bills_paid = sum(
+        list(
+            UnitMonthBill.objects.filter(tenant=bill.tenant, fully_paid=True)
+            .exclude(id=bill.id)
+            .values_list("amount_paid", flat=True)
+        )
+    )
 
     total_unit_bills_pending = total_unit_bills - total_unit_bills_paid
 
@@ -56,21 +68,20 @@ Thank you."""
 
 def send_unit_bill_notification(request):
     """View to send WhatsApp notification for unit bill."""
-    if request.method == 'POST':
-        unit_bill_id = request.POST.get('unit_bill_id')
+    if request.method == "POST":
+        unit_bill_id = request.POST.get("unit_bill_id")
         unit_bill = get_object_or_404(UnitMonthBill, id=unit_bill_id)
         tenant = unit_bill.tenant
-        
+
         # TODO: Get recipient number from tenant model instead of hardcoding
         recipient_number = tenant.user.phone
-        
+
         tenant_name = f"{tenant.user.first_name} {tenant.user.last_name}"
         message = format_bill_message(tenant_name, unit_bill)
-        
+
         try:
-            whatsapp_notification = WhatsAppNotification( 
-                message=message,
-                recipient=recipient_number
+            whatsapp_notification = WhatsAppNotification(
+                message=message, recipient=recipient_number
             )
             whatsapp_notification.send_message()
             success = True
@@ -80,6 +91,6 @@ def send_unit_bill_notification(request):
             print(f"Failed to send WhatsApp message: {str(e)}")
             success = False
 
-        return redirect('unit-bills', unit_bill.month.id)
-   
-    return render(request, 'notifications/send_unit_bill_notification.html')
+        return redirect("unit-bills", unit_bill.month.id)
+
+    return render(request, "notifications/send_unit_bill_notification.html")

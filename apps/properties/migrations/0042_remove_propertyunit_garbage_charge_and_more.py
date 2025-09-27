@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0041_propertyunit_garbage_charge'),
+        ("properties", "0041_propertyunit_garbage_charge"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='propertyunit',
-            name='garbage_charge',
+            model_name="propertyunit",
+            name="garbage_charge",
         ),
         migrations.AlterField(
-            model_name='property',
-            name='garbage_charge',
+            model_name="property",
+            name="garbage_charge",
             field=models.DecimalField(decimal_places=2, default=130.0, max_digits=10),
         ),
     ]

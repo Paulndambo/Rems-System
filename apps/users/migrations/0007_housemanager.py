@@ -6,34 +6,51 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0006_user_marital_status'),
+        ("users", "0006_user_marital_status"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='HouseManager',
+            name="HouseManager",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('name', models.CharField(max_length=255)),
-                ('address', models.TextField(blank=True, null=True)),
-                ('city', models.CharField(blank=True, max_length=255, null=True)),
-                ('state', models.CharField(blank=True, max_length=255, null=True)),
-                ('county', models.CharField(blank=True, max_length=255, null=True)),
-                ('zip_code', models.CharField(blank=True, max_length=255, null=True)),
-                ('country', models.CharField(blank=True, max_length=255, null=True)),
-                ('phone', models.CharField(blank=True, max_length=255, null=True)),
-                ('email', models.EmailField(blank=True, max_length=254, null=True)),
-                ('profile_picture', models.URLField(blank=True, max_length=255, null=True)),
-                ('firebase_uid', models.CharField(blank=True, max_length=255, null=True)),
-                ('id_number', models.CharField(blank=True, max_length=255, null=True)),
-                ('gender', models.CharField(blank=True, max_length=255, null=True)),
-                ('marital_status', models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                ("name", models.CharField(max_length=255)),
+                ("address", models.TextField(blank=True, null=True)),
+                ("city", models.CharField(blank=True, max_length=255, null=True)),
+                ("state", models.CharField(blank=True, max_length=255, null=True)),
+                ("county", models.CharField(blank=True, max_length=255, null=True)),
+                ("zip_code", models.CharField(blank=True, max_length=255, null=True)),
+                ("country", models.CharField(blank=True, max_length=255, null=True)),
+                ("phone", models.CharField(blank=True, max_length=255, null=True)),
+                ("email", models.EmailField(blank=True, max_length=254, null=True)),
+                (
+                    "profile_picture",
+                    models.URLField(blank=True, max_length=255, null=True),
+                ),
+                (
+                    "firebase_uid",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                ("id_number", models.CharField(blank=True, max_length=255, null=True)),
+                ("gender", models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "marital_status",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

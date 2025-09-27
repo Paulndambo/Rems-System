@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0038_alter_waterbill_current_reading_and_more'),
+        ("properties", "0038_alter_waterbill_current_reading_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='waterbill',
-            name='fully_paid',
+            model_name="waterbill",
+            name="fully_paid",
             field=models.BooleanField(default=False),
         ),
     ]

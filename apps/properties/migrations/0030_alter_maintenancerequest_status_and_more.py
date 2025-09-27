@@ -6,18 +6,40 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0029_alter_maintenancerequest_status_and_more'),
+        ("properties", "0029_alter_maintenancerequest_status_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='maintenancerequest',
-            name='status',
-            field=models.CharField(choices=[('In Progress', 'IN_PROGRESS'), ('Completed', 'COMPLETED'), ('Overdue', 'OVERDUE'), ('Pending', 'PENDING'), ('Paid', 'PAID'), ('Partially Paid', 'PARTIALLY_PAID')], default='Pending', max_length=255),
+            model_name="maintenancerequest",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("In Progress", "IN_PROGRESS"),
+                    ("Completed", "COMPLETED"),
+                    ("Overdue", "OVERDUE"),
+                    ("Pending", "PENDING"),
+                    ("Paid", "PAID"),
+                    ("Partially Paid", "PARTIALLY_PAID"),
+                ],
+                default="Pending",
+                max_length=255,
+            ),
         ),
         migrations.AlterField(
-            model_name='waterbill',
-            name='status',
-            field=models.CharField(choices=[('In Progress', 'IN_PROGRESS'), ('Completed', 'COMPLETED'), ('Overdue', 'OVERDUE'), ('Pending', 'PENDING'), ('Paid', 'PAID'), ('Partially Paid', 'PARTIALLY_PAID')], default='Pending', max_length=255),
+            model_name="waterbill",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("In Progress", "IN_PROGRESS"),
+                    ("Completed", "COMPLETED"),
+                    ("Overdue", "OVERDUE"),
+                    ("Pending", "PENDING"),
+                    ("Paid", "PAID"),
+                    ("Partially Paid", "PARTIALLY_PAID"),
+                ],
+                default="Pending",
+                max_length=255,
+            ),
         ),
     ]

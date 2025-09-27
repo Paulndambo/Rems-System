@@ -9,25 +9,47 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('properties', '0027_alter_waterbill_unit'),
-        ('tenants', '0006_alter_tenant_is_active_and_more'),
+        ("properties", "0027_alter_waterbill_unit"),
+        ("tenants", "0006_alter_tenant_is_active_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='WaterBillPayment',
+            name="WaterBillPayment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('amount_paid', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('payment_date', models.DateField()),
-                ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='tenants.tenant')),
-                ('water_bill', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='properties.waterbill')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                ("amount_paid", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("payment_date", models.DateField()),
+                (
+                    "tenant",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="tenants.tenant",
+                    ),
+                ),
+                (
+                    "water_bill",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="properties.waterbill",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

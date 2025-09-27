@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0019_maintenancerequest_cost'),
+        ("properties", "0019_maintenancerequest_cost"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='maintenancerequest',
-            name='priority',
-            field=models.CharField(choices=[('High', 'HIGH'), ('Medium', 'MEDIUM'), ('Low', 'LOW')], default='Medium', max_length=255),
+            model_name="maintenancerequest",
+            name="priority",
+            field=models.CharField(
+                choices=[("High", "HIGH"), ("Medium", "MEDIUM"), ("Low", "LOW")],
+                default="Medium",
+                max_length=255,
+            ),
         ),
     ]

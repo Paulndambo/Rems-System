@@ -7,13 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payments', '0019_alter_rentbill_unit_bill'),
+        ("payments", "0019_alter_rentbill_unit_bill"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='tenantpayment',
-            name='unit_bill',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='payments.unitmonthbill'),
+            model_name="tenantpayment",
+            name="unit_bill",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="payments.unitmonthbill",
+            ),
         ),
     ]

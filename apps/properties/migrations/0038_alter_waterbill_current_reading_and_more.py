@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0037_waterbill_due_date'),
+        ("properties", "0037_waterbill_due_date"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='waterbill',
-            name='current_reading',
+            model_name="waterbill",
+            name="current_reading",
             field=models.DecimalField(decimal_places=4, default=0.0, max_digits=10),
         ),
         migrations.AlterField(
-            model_name='waterbill',
-            name='previous_reading',
+            model_name="waterbill",
+            name="previous_reading",
             field=models.DecimalField(decimal_places=4, default=0.0, max_digits=10),
         ),
     ]

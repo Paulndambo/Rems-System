@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tenants', '0003_remove_tenant_date_joined_tenant_move_in_date'),
+        ("tenants", "0003_remove_tenant_date_joined_tenant_move_in_date"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='tenant',
-            name='lease_date',
+            model_name="tenant",
+            name="lease_date",
             field=models.DateField(null=True),
         ),
         migrations.AddField(
-            model_name='tenant',
-            name='occupation',
+            model_name="tenant",
+            name="occupation",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='tenant',
-            name='status',
-            field=models.CharField(default='Active', max_length=255),
+            model_name="tenant",
+            name="status",
+            field=models.CharField(default="Active", max_length=255),
         ),
     ]

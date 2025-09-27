@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0005_alter_month_is_active_alter_year_is_active'),
+        ("core", "0005_alter_month_is_active_alter_year_is_active"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='month',
-            name='is_active',
+            model_name="month",
+            name="is_active",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='waterprice',
-            name='is_active',
+            model_name="waterprice",
+            name="is_active",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='year',
-            name='is_active',
+            model_name="year",
+            name="is_active",
             field=models.BooleanField(default=False),
         ),
     ]

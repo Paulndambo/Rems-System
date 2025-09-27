@@ -1,4 +1,13 @@
-from apps.payments.models import RentBill, UnitMonthBill, RentPayment, WaterBillPayment, TenantPayment, RentPayment, GarbageBillPayment, GarbageBill
+from apps.payments.models import (
+    RentBill,
+    UnitMonthBill,
+    RentPayment,
+    WaterBillPayment,
+    TenantPayment,
+    RentPayment,
+    GarbageBillPayment,
+    GarbageBill,
+)
 from apps.core.models import Month, Year
 from apps.core.constants import PaymentMethods, MaintenanceStatuses
 
@@ -7,10 +16,11 @@ from datetime import datetime
 from django.db import transaction
 
 
-
 @transaction.atomic
 def mark_water_payments():
-    water_bills = WaterBill.objects.filter(month__year__name="2025", month__name__in=["January", "February"])
+    water_bills = WaterBill.objects.filter(
+        month__year__name="2025", month__name__in=["January", "February"]
+    )
 
     for water_bill in water_bills:
         water_bill_payment = WaterBillPayment.objects.create(
@@ -44,7 +54,10 @@ def mark_water_payments():
 
 @transaction.atomic
 def mark_garbage_payments():
-    garbage_bills = GarbageBill.objects.filter(unit_bill__month__year__name="2025", unit_bill__month__name__in=["January", "February"])
+    garbage_bills = GarbageBill.objects.filter(
+        unit_bill__month__year__name="2025",
+        unit_bill__month__name__in=["January", "February"],
+    )
 
     for garbage_bill in garbage_bills:
         garbage_bill_payment = GarbageBillPayment.objects.create(
@@ -75,14 +88,17 @@ def mark_garbage_payments():
 
 @transaction.atomic
 def mark_rent_payments():
-    rent_bills = RentBill.objects.filter(unit_bill__month__year__name="2025", unit_bill__month__name__in=["January", "February"])
+    rent_bills = RentBill.objects.filter(
+        unit_bill__month__year__name="2025",
+        unit_bill__month__name__in=["January", "February"],
+    )
 
     for rent_bill in rent_bills:
         rent_bill_payment = RentPayment.objects.create(
             rent_bill=rent_bill,
             amount_paid=rent_bill.amount_expected,
             payment_method=PaymentMethods.MPESA.value,
-            payment_date=rent_bill.due_date
+            payment_date=rent_bill.due_date,
         )
 
         TenantPayment.objects.create(
@@ -106,7 +122,9 @@ def mark_rent_payments():
 
 @transaction.atomic
 def mark_unit_bill_payments():
-    unit_bills = UnitMonthBill.objects.filter(month__year__name="2025", month__name__in=["January", "February"])
+    unit_bills = UnitMonthBill.objects.filter(
+        month__year__name="2025", month__name__in=["January", "February"]
+    )
 
     for unit_bill in unit_bills:
         unit_bill.mark_as_paid()

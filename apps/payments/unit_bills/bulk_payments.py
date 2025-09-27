@@ -2,9 +2,17 @@ from datetime import datetime
 from apps.payments.models import UnitMonthBill
 from apps.core.constants import PaymentStatuses, PaymentMethods
 from decimal import Decimal
-from apps.payments.models import RentBill, GarbageBill, RentPayment, WaterBillPayment, GarbageBillPayment, TenantPayment
+from apps.payments.models import (
+    RentBill,
+    GarbageBill,
+    RentPayment,
+    WaterBillPayment,
+    GarbageBillPayment,
+    TenantPayment,
+)
 from apps.properties.models import WaterBill
 from django.db import transaction
+
 
 def update_bill_status(bill, amount_paid, expected_amount):
     if amount_paid >= expected_amount:
@@ -15,6 +23,7 @@ def update_bill_status(bill, amount_paid, expected_amount):
     else:
         bill.status = PaymentStatuses.PENDING.value
     bill.save()
+
 
 class BulkPaymentsProcessor:
     def __init__(self):
@@ -36,13 +45,15 @@ class BulkPaymentsProcessor:
             unit_bill.rent_amount_paid += rent_amount
             unit_bill.amount_paid += rent_amount
             unit_bill.save()
-            update_bill_status(rent_bill, rent_bill.amount_paid, rent_bill.amount_expected)
+            update_bill_status(
+                rent_bill, rent_bill.amount_paid, rent_bill.amount_expected
+            )
 
             rent_payment = RentPayment.objects.create(
                 rent_bill=rent_bill,
                 amount_paid=rent_amount,
                 payment_method=payment_method,
-                payment_date=rent_bill.due_date
+                payment_date=rent_bill.due_date,
             )
 
             TenantPayment.objects.create(
@@ -55,7 +66,7 @@ class BulkPaymentsProcessor:
                 payment_date=rent_bill.due_date,
                 payment_type="Rent Bill",
                 month=unit_bill.month,
-                year=unit_bill.year
+                year=unit_bill.year,
             )
 
         if water_amount > 0:
@@ -66,7 +77,9 @@ class BulkPaymentsProcessor:
                 unit_bill.water_amount_paid += water_amount
                 unit_bill.amount_paid += water_amount
                 unit_bill.save()
-                update_bill_status(water_bill, water_bill.amount_paid, water_bill.amount)
+                update_bill_status(
+                    water_bill, water_bill.amount_paid, water_bill.amount
+                )
 
                 water_payment = WaterBillPayment.objects.create(
                     tenant=unit_bill.tenant,
@@ -88,7 +101,7 @@ class BulkPaymentsProcessor:
                     payment_date=water_bill.due_date,
                     payment_type="Water Bill",
                     month=unit_bill.month,
-                    year=unit_bill.year
+                    year=unit_bill.year,
                 )
 
         if garbage_amount > 0:
@@ -98,13 +111,15 @@ class BulkPaymentsProcessor:
             unit_bill.garbage_amount_paid += garbage_amount
             unit_bill.amount_paid += garbage_amount
             unit_bill.save()
-            update_bill_status(garbage_bill, garbage_bill.amount_paid, unit_bill.garbage_amount)
+            update_bill_status(
+                garbage_bill, garbage_bill.amount_paid, unit_bill.garbage_amount
+            )
 
             garbage_payment = GarbageBillPayment.objects.create(
                 garbage_bill=garbage_bill,
                 amount_paid=garbage_amount,
                 payment_method=payment_method,
-                payment_date=garbage_bill.due_date
+                payment_date=garbage_bill.due_date,
             )
 
             TenantPayment.objects.create(
@@ -117,9 +132,7 @@ class BulkPaymentsProcessor:
                 payment_date=garbage_bill.due_date,
                 payment_type="Garbage Bill",
                 month=unit_bill.month,
-                year=unit_bill.year
+                year=unit_bill.year,
             )
 
-        
         update_bill_status(unit_bill, unit_bill.amount_paid, unit_bill.amount_expected)
-

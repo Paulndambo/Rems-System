@@ -6,18 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0028_waterbill_amount_paid'),
+        ("properties", "0028_waterbill_amount_paid"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='maintenancerequest',
-            name='status',
-            field=models.CharField(choices=[('In Progress', 'IN_PROGRESS'), ('Completed', 'COMPLETED'), ('Overdue', 'OVERDUE'), ('Pending', 'PENDING'), ('Partially Paid', 'PARTIALLY_PAID')], default='Pending', max_length=255),
+            model_name="maintenancerequest",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("In Progress", "IN_PROGRESS"),
+                    ("Completed", "COMPLETED"),
+                    ("Overdue", "OVERDUE"),
+                    ("Pending", "PENDING"),
+                    ("Partially Paid", "PARTIALLY_PAID"),
+                ],
+                default="Pending",
+                max_length=255,
+            ),
         ),
         migrations.AlterField(
-            model_name='waterbill',
-            name='status',
-            field=models.CharField(choices=[('In Progress', 'IN_PROGRESS'), ('Completed', 'COMPLETED'), ('Overdue', 'OVERDUE'), ('Pending', 'PENDING'), ('Partially Paid', 'PARTIALLY_PAID')], default='Pending', max_length=255),
+            model_name="waterbill",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("In Progress", "IN_PROGRESS"),
+                    ("Completed", "COMPLETED"),
+                    ("Overdue", "OVERDUE"),
+                    ("Pending", "PENDING"),
+                    ("Partially Paid", "PARTIALLY_PAID"),
+                ],
+                default="Pending",
+                max_length=255,
+            ),
         ),
     ]

@@ -17,7 +17,7 @@ from apps.core.constants import (
     EXPENSE_TYPES_LIST,
     PaymentMethods,
     PaymentStatuses,
-    PAYMENT_METHODS
+    PAYMENT_METHODS,
 )
 from apps.core.models import Month, Year
 from apps.payments.models import (
@@ -28,13 +28,14 @@ from apps.payments.models import (
     TenantPayment,
     UnitMonthBill,
     SecurityDeposit,
-    SecurityDepositPayment
+    SecurityDepositPayment,
 )
 from apps.properties.models import WaterBill, PropertyUnit, Property
 from apps.payments.models import GarbageBill
 
 # Move global variable to top
 date_today = datetime.now().date()
+
 
 # Create your views here.
 class WaterBillPaymentsView(ListView):
@@ -54,18 +55,19 @@ class WaterBillPaymentsView(ListView):
             )
 
         return queryset.order_by("-created_at")
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("search", "")
         context["expense_types"] = EXPENSE_TYPES_LIST
         return context
 
+
 @login_required
 def pay_water_bill(request):
     if request.method != "POST":
         return render(request, "water_bills/pay_water_bill.html")
-        
+
     water_bill_id = request.POST.get("water_bill_id")
     amount_paid = Decimal(request.POST.get("amount_paying"))
     payment_method = request.POST.get("payment_method")
@@ -80,7 +82,7 @@ def pay_water_bill(request):
         payment_date=date_today,
         month=bill.month,
         year=bill.year,
-        payment_method=payment_method
+        payment_method=payment_method,
     )
 
     # Update bill amounts and status
@@ -103,7 +105,7 @@ def pay_water_bill(request):
         water_bill_payment=payment,
         month=bill.month,
         year=bill.year,
-        payment_method=payment_method
+        payment_method=payment_method,
     )
 
     # Update unit bill amounts and status
@@ -125,7 +127,6 @@ class ExpenseView(ListView):
     context_object_name = "expenses"
     paginate_by = 9
 
-
     def get_queryset(self):
         queryset = super().get_queryset()
         search_query = self.request.GET.get("search", "")
@@ -140,7 +141,7 @@ class ExpenseView(ListView):
             )
 
         return queryset.order_by("-created_at")
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("search", "")
@@ -148,6 +149,7 @@ class ExpenseView(ListView):
         context["properties"] = Property.objects.filter(is_active=True)
         context["units"] = PropertyUnit.objects.all()
         return context
+
 
 @login_required
 def add_expense(request):
@@ -161,7 +163,7 @@ def add_expense(request):
         description=request.POST.get("description"),
         spend_on=request.POST.get("spend_on"),
         property_id=request.POST.get("property"),
-        unit_id=request.POST.get("unit")
+        unit_id=request.POST.get("unit"),
     )
     return redirect("expenses")
 
@@ -186,7 +188,10 @@ def edit_expense(request):
         expense.unit_id = unit_id
         expense.save()
         return redirect("expenses")
-    return render(request, "expenses/edit_expense.html", { "expense_types": EXPENSE_TYPES_LIST })
+    return render(
+        request, "expenses/edit_expense.html", {"expense_types": EXPENSE_TYPES_LIST}
+    )
+
 
 @login_required
 def delete_expense(request):
@@ -198,13 +203,11 @@ def delete_expense(request):
     return render(request, "expenses/delete_expense.html")
 
 
-
 class MonthlyRentBillsView(ListView):
     model = Month
     template_name = "rent_bills/months.html"
     context_object_name = "months"
     paginate_by = 9
-
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -216,13 +219,11 @@ class MonthlyRentBillsView(ListView):
 
         if search_query:
             queryset = queryset.filter(
-                Q(name__icontains=search_query)
-                | Q(year__year__icontains=search_query)
+                Q(name__icontains=search_query) | Q(year__year__icontains=search_query)
             )
 
         return queryset.filter(id__in=months).order_by("-created_at")
-    
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["payment_methods"] = PAYMENT_METHODS
@@ -230,7 +231,6 @@ class MonthlyRentBillsView(ListView):
         context["bill_months"] = MONTHS_LIST
         context["years"] = Year.objects.filter(is_active=True)
         return context
-
 
 
 class RentBillsView(ListView):
@@ -251,7 +251,7 @@ class RentBillsView(ListView):
             )
 
         return queryset.filter(month_id=month_id).order_by("-created_at")
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("search", "")
@@ -260,7 +260,6 @@ class RentBillsView(ListView):
         context["years"] = Year.objects.filter(is_active=True)
         context["payment_methods"] = PAYMENT_METHODS
         return context
-    
 
 
 class CaretakerRentBillsView(ListView):
@@ -280,8 +279,8 @@ class CaretakerRentBillsView(ListView):
             )
 
         # Order by fully_paid (False first) and then by created_at
-        return queryset.order_by('fully_paid', '-created_at')
-    
+        return queryset.order_by("fully_paid", "-created_at")
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("search", "")
@@ -293,14 +292,13 @@ class RentReceiptsView(ListView):
     model = RentBill
     template_name = "rent_bills/rent_receipts.html"
     context_object_name = "rent_receipts"
-    
 
     def get_queryset(self):
         month_id = self.kwargs.get("month_id")
         queryset = super().get_queryset()
 
         return queryset.filter(month_id=month_id).order_by("-created_at")
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("search", "")
@@ -309,7 +307,10 @@ class RentReceiptsView(ListView):
 
 def single_receipt(request, rent_receipt_id):
     rent_receipt = RentBill.objects.get(id=rent_receipt_id)
-    return render(request, "rent_bills/single_receipt.html", { "rent_receipt": rent_receipt })
+    return render(
+        request, "rent_bills/single_receipt.html", {"rent_receipt": rent_receipt}
+    )
+
 
 @login_required
 @transaction.atomic
@@ -321,39 +322,41 @@ def generate_rent_bill(request):
         property_id = request.POST.get("property_id")
         due_date = request.POST.get("due_date")
 
-        
         year = Year.objects.get(id=year)
         month = Month.objects.get(name=month, year=year)
 
-        existing_bills = RentBill.objects.filter(month=month, year=year, unit__property_id=property_id)
+        existing_bills = RentBill.objects.filter(
+            month=month, year=year, unit__property_id=property_id
+        )
         if existing_bills.exists():
-            
+
             if user.role == UserRoles.CARETAKER.value:
                 return redirect("caretaker-rent-bills")
             else:
                 return redirect("monthly-rent-bills")
 
-        units = PropertyUnit.objects.filter(is_occupied=True).filter(property_id=property_id)
+        units = PropertyUnit.objects.filter(is_occupied=True).filter(
+            property_id=property_id
+        )
 
         units_list = []
         for unit in units:
-            unit_bill = UnitMonthBill.objects.filter(unit=unit, month=month, year=year).first()
-            
+            unit_bill = UnitMonthBill.objects.filter(
+                unit=unit, month=month, year=year
+            ).first()
 
             if not unit_bill:
                 unit_bill = UnitMonthBill.objects.create(
-                    unit=unit,
-                    tenant=unit.tenant,
-                    month=month,
-                    year=year
+                    unit=unit, tenant=unit.tenant, month=month, year=year
                 )
-            
+
             unit_bill.rent_amount = unit.rent
             unit_bill.garbage_amount = unit.property.garbage_charge
             unit_bill.update_amount_expected()
             unit_bill.save()
 
-            units_list.append(RentBill(
+            units_list.append(
+                RentBill(
                     unit=unit,
                     unit_bill=unit_bill,
                     tenant=unit.tenant,
@@ -363,7 +366,9 @@ def generate_rent_bill(request):
                     year=year,
                 )
             )
-            garbage_bill = GarbageBill.objects.filter(unit=unit, unit_bill=unit_bill).first()
+            garbage_bill = GarbageBill.objects.filter(
+                unit=unit, unit_bill=unit_bill
+            ).first()
             if not garbage_bill:
                 garbage_bill = GarbageBill.objects.create(
                     unit_bill=unit_bill,
@@ -400,12 +405,13 @@ class RentPaymentsView(ListView):
             )
 
         return queryset.order_by("-created_at")
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("search", "")
         context["payment_methods"] = PaymentMethods.choices()
         return context
+
 
 @login_required
 def pay_rent(request):
@@ -424,7 +430,7 @@ def pay_rent(request):
             rent_bill_id=rent_bill_id,
             amount_paid=amount_paid,
             payment_method=payment_method,
-            payment_date=payment_date
+            payment_date=payment_date,
         )
 
         TenantPayment.objects.create(
@@ -436,12 +442,11 @@ def pay_rent(request):
             year=rent_bill.year,
             rent_payment=rent_payment,
             payment_type="Rent Bill",
-            payment_method=payment_method
+            payment_method=payment_method,
         )
 
         rent_bill.unit_bill.amount_paid += amount_paid
         rent_bill.unit_bill.save()
-
 
         if rent_bill.amount_paid == rent_bill.amount_expected:
             rent_bill.status = PaymentStatuses.PAID.value
@@ -464,7 +469,6 @@ def pay_rent(request):
         else:
             rent_bill.unit_bill.status = PaymentStatuses.PENDING.value
             rent_bill.unit_bill.save()
-            
 
         if user.role == UserRoles.CARETAKER.value:
             return redirect("caretaker-rent-bills")
@@ -490,7 +494,9 @@ def rent_payments_overview(request):
         month_key = f"{bill.year.name}-{bill.month.name}"  # e.g., "2025-January"
         if month_key not in rent_data:
             rent_data[month_key] = {}
-        rent_data[month_key][bill.unit.name] = bill.fully_paid  # Store fully_paid status
+        rent_data[month_key][
+            bill.unit.name
+        ] = bill.fully_paid  # Store fully_paid status
 
     # Generate rows for the table
     rows = []
@@ -533,7 +539,7 @@ class SecurityDepositsView(ListView):
         context["search_query"] = self.request.GET.get("search", "")
         context["payment_methods"] = PaymentMethods.choices()
         return context
-    
+
 
 @login_required
 def pay_security_deposit(request):
@@ -564,7 +570,7 @@ def pay_security_deposit(request):
             amount_paid=amount_paid,
             payment_method=payment_method,
             payment_date=payment_date,
-            reference_number=reference_number
+            reference_number=reference_number,
         )
 
         TenantPayment.objects.create(
@@ -572,10 +578,9 @@ def pay_security_deposit(request):
             unit=security_deposit.unit,
             amount_paid=amount_paid,
             payment_date=payment_date,
-            
             security_deposit_payment=security_deposit_payment,
             payment_type="Security Deposit",
-            payment_method=payment_method
+            payment_method=payment_method,
         )
 
         return redirect("security-deposits")

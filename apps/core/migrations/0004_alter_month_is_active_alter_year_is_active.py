@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0003_alter_month_year'),
+        ("core", "0003_alter_month_year"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='month',
-            name='is_active',
+            model_name="month",
+            name="is_active",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='year',
-            name='is_active',
+            model_name="year",
+            name="is_active",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -6,48 +6,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0020_maintenancerequest_priority'),
+        ("properties", "0020_maintenancerequest_priority"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='property',
-            name='manager_address',
+            model_name="property",
+            name="manager_address",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='property',
-            name='manager_city',
+            model_name="property",
+            name="manager_city",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='property',
-            name='manager_country',
+            model_name="property",
+            name="manager_country",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='property',
-            name='manager_email',
+            model_name="property",
+            name="manager_email",
             field=models.EmailField(blank=True, max_length=254, null=True),
         ),
         migrations.AddField(
-            model_name='property',
-            name='manager_gender',
+            model_name="property",
+            name="manager_gender",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='property',
-            name='manager_name',
+            model_name="property",
+            name="manager_name",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='property',
-            name='manager_phone_number',
+            model_name="property",
+            name="manager_phone_number",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='property',
-            name='manager_zip',
+            model_name="property",
+            name="manager_zip",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

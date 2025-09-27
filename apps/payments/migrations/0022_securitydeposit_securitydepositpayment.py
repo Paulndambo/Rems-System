@@ -7,45 +7,122 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('properties', '0046_alter_waterbill_amount_paid'),
-        ('tenants', '0006_alter_tenant_is_active_and_more'),
-        ('payments', '0021_unitmonthbill_whatsapp_notification_sent'),
+        ("properties", "0046_alter_waterbill_amount_paid"),
+        ("tenants", "0006_alter_tenant_is_active_and_more"),
+        ("payments", "0021_unitmonthbill_whatsapp_notification_sent"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SecurityDeposit',
+            name="SecurityDeposit",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('amount_expected', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('amount_paid', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('status', models.CharField(choices=[('Future', 'FUTURE'), ('Pending', 'PENDING'), ('Paid', 'PAID'), ('Overdue', 'OVERDUE'), ('Partially Paid', 'PARTIALLY_PAID'), ('Cancelled', 'CANCELLED'), ('Completed', 'COMPLETED')], default='Pending', max_length=255)),
-                ('fully_paid', models.BooleanField(default=False)),
-                ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='tenants.tenant')),
-                ('unit', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='properties.propertyunit')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                (
+                    "amount_expected",
+                    models.DecimalField(decimal_places=2, max_digits=10),
+                ),
+                (
+                    "amount_paid",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("Future", "FUTURE"),
+                            ("Pending", "PENDING"),
+                            ("Paid", "PAID"),
+                            ("Overdue", "OVERDUE"),
+                            ("Partially Paid", "PARTIALLY_PAID"),
+                            ("Cancelled", "CANCELLED"),
+                            ("Completed", "COMPLETED"),
+                        ],
+                        default="Pending",
+                        max_length=255,
+                    ),
+                ),
+                ("fully_paid", models.BooleanField(default=False)),
+                (
+                    "tenant",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="tenants.tenant",
+                    ),
+                ),
+                (
+                    "unit",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="properties.propertyunit",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='SecurityDepositPayment',
+            name="SecurityDepositPayment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('amount_paid', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('payment_date', models.DateField()),
-                ('payment_method', models.CharField(blank=True, choices=[('Cash', 'CASH'), ('M-Pesa', 'MPESA'), ('Bank Transfer', 'BANK_TRANSFER'), ('Bank Deposit', 'BANK_DEPOSIT')], max_length=255, null=True)),
-                ('reference_number', models.CharField(blank=True, max_length=255, null=True)),
-                ('security_deposit', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='payments.securitydeposit')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_active", models.BooleanField(default=False)),
+                ("amount_paid", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("payment_date", models.DateField()),
+                (
+                    "payment_method",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("Cash", "CASH"),
+                            ("M-Pesa", "MPESA"),
+                            ("Bank Transfer", "BANK_TRANSFER"),
+                            ("Bank Deposit", "BANK_DEPOSIT"),
+                        ],
+                        max_length=255,
+                        null=True,
+                    ),
+                ),
+                (
+                    "reference_number",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                (
+                    "security_deposit",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="payments.securitydeposit",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

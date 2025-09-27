@@ -8,45 +8,46 @@ from django.db.models import Q
 from django.contrib import messages
 
 GENDERS = [
-    'Male',
-    'Female',
+    "Male",
+    "Female",
 ]
 
 ROLES = [
-    'Caretaker',
-    'House Manager',
+    "Caretaker",
+    "House Manager",
 ]
 
+
 def login_user(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
         print("***********User Information***************")
         print(username, password)
         print("***********User Information***************")
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            next_url = request.GET.get('next', 'home')
+            next_url = request.GET.get("next", "home")
             return redirect(next_url)  # Redirect to the next URL or home page.
         else:
-            return redirect('login')
-    next_url = request.GET.get('next', '')
-    return render(request, 'accounts/login.html', {'next': next_url})
+            return redirect("login")
+    next_url = request.GET.get("next", "")
+    return render(request, "accounts/login.html", {"next": next_url})
 
 
 @login_required
 def logout_user(request):
     logout(request)
-    return redirect('login')  # Redirect to a login page.
+    return redirect("login")  # Redirect to a login page.
 
 
 class UserListView(ListView):
     model = User
-    template_name = 'users/users.html'
-    context_object_name = 'users'
+    template_name = "users/users.html"
+    context_object_name = "users"
     paginate_by = 9
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
         search_query = self.request.GET.get("search", "")
@@ -54,26 +55,29 @@ class UserListView(ListView):
         print(f"You are searching for {search_query}")
 
         if search_query:
-            queryset = queryset.filter(Q(id__icontains=search_query) | Q(first_name__icontains=search_query))
-        return queryset.exclude(role="Tenant").order_by('-created_at')
-    
+            queryset = queryset.filter(
+                Q(id__icontains=search_query) | Q(first_name__icontains=search_query)
+            )
+        return queryset.exclude(role="Tenant").order_by("-created_at")
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['marital_statuses'] = MARITAL_STATUSES
-        context['genders'] = ["Male", "Female"]
-        context['roles'] = ["Caretaker", "House Manager"]
+        context["marital_statuses"] = MARITAL_STATUSES
+        context["genders"] = ["Male", "Female"]
+        context["roles"] = ["Caretaker", "House Manager"]
         return context
-    
+
+
 def new_user(request):
-    if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        id_number = request.POST.get('id_number')
-        gender = request.POST.get('gender')
-        role = request.POST.get('role')
-        marital_status = request.POST.get('marital_status')
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        email = request.POST.get("email")
+        phone = request.POST.get("phone")
+        id_number = request.POST.get("id_number")
+        gender = request.POST.get("gender")
+        role = request.POST.get("role")
+        marital_status = request.POST.get("marital_status")
         username = request.POST.get("username")
 
         user = User.objects.create(
@@ -89,34 +93,33 @@ def new_user(request):
         )
         user.set_password("1234")
         user.save()
-        return redirect('users')
-    return render(request, 'users/new_user.html')
+        return redirect("users")
+    return render(request, "users/new_user.html")
 
 
 def edit_user(request):
-    if request.method == 'POST':
-        user = User.objects.get(id=request.POST.get('user_id'))
-        user.first_name = request.POST.get('first_name')
-        user.last_name = request.POST.get('last_name')
-        user.email = request.POST.get('email')
-        user.phone = request.POST.get('phone')
-        user.id_number = request.POST.get('id_number')
-        user.gender = request.POST.get('gender')
-        user.role = request.POST.get('role')
-        user.marital_status = request.POST.get('marital_status')
-        user.username = request.POST.get('username')
+    if request.method == "POST":
+        user = User.objects.get(id=request.POST.get("user_id"))
+        user.first_name = request.POST.get("first_name")
+        user.last_name = request.POST.get("last_name")
+        user.email = request.POST.get("email")
+        user.phone = request.POST.get("phone")
+        user.id_number = request.POST.get("id_number")
+        user.gender = request.POST.get("gender")
+        user.role = request.POST.get("role")
+        user.marital_status = request.POST.get("marital_status")
+        user.username = request.POST.get("username")
         user.save()
-        return redirect('users')
-    return render(request, 'users/edit_user.html')
+        return redirect("users")
+    return render(request, "users/edit_user.html")
 
 
 def delete_user(request):
-    if request.method == 'POST':
-        user = User.objects.get(id=request.POST.get('user_id'))
+    if request.method == "POST":
+        user = User.objects.get(id=request.POST.get("user_id"))
         user.delete()
-        return redirect('users')
-    return render(request, 'users/delete_user.html')
-
+        return redirect("users")
+    return render(request, "users/delete_user.html")
 
 
 def change_password(request, id):
@@ -125,7 +128,7 @@ def change_password(request, id):
         confirm_password = request.POST.get("confirm_password")
 
         user = User.objects.get(id=id)
-        
+
         if password.casefold() == confirm_password.casefold():
             user.set_password(password)
             user.save()
