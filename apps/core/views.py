@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest
+
 from apps.properties.models import Property, WaterBill, PropertyUnit
 from apps.tenants.models import Tenant
 
@@ -229,7 +231,7 @@ def edit_water_price(request):
 
 
 @require_GET
-def chart_data_api(request):
+def chart_data_api(request: HttpRequest):
     """API endpoint to get chart data for a specific year"""
     year = request.GET.get("year", datetime.now().year)
     try:
