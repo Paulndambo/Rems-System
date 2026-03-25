@@ -1,140 +1,83 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Generate Unit Bill – REMS{% endblock %}
+{% block page_title %}Generate Bill{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header bg-white py-3">
-        <div class="row g-3 align-items-center">
-            <div class="col-12 col-md-4">
-                <h5 class="mb-0 text-primary">
-                    Generate Tenant Month Bill
-                </h5>
-            </div>
-        </div>
-    </div>
-
-    {% if messages %}
-    <div class="messages-container px-3 pt-3">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <div class="card-body">
-        <form id="tenantForm" method="POST" action="{% url 'generate-bill' %}">
-            <div class="modal-body">
-                {% csrf_token %}
-                <div class="row mb-3">
-                    <div class="col">
-                        <label for="rental_property" class="form-label fw-bold">Property</label>
-                        <select class="form-select" id="rental_property" name="rental_property">
-                            <option value="" selected>Choose...</option>
-                            {% for property in properties %}
-                                <option value="{{ property.id }}">{{ property.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col">
-                        <label for="unit" class="form-label fw-bold">Rental Unit</label>
-                        <input class="form-control" list="unit-options" id="unit" name="unit" placeholder="Start typing unit number..." />
-                        <datalist id="unit-options"></datalist>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Month</label>
-                        <select class="form-select" id="month" name="month">
-                            <option value="" selected>Choose...</option>
-                            {% for month in months %}
-                                <option value="{{ month }}">{{ month }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="year" class="form-label fw-bold">Year</label>
-                        <select class="form-select" id="year" name="year">
-                            <option value="" selected>Choose...</option>
-                            {% for year in years %}
-                                <option value="{{ year.id }}">{{ year.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col">
-                        <label for="current_reading" class="form-label fw-bold">Current Reading</label>
-                        <input type="number" class="form-control" id="current_reading" name="current_reading" step="0.0001" value="0.0000" required />
-                    </div>
-                </div>
-            </div>
-            <div class="text-center mb-3">
-                <button type="submit" class="btn btn-primary">Generate Bill</button>
-            </div>
-        </form>    
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'monthly-unit-bills' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Generate Unit Bill</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Create monthly unit bill from latest meter reading</p>
     </div>
 </div>
-{% endblock content %}
 
-{% block extra_css %}
-<!-- Select2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-{% endblock extra_css %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <form method="POST" action="{% url 'generate-bill' %}">
+            {% csrf_token %}
+            <div class="rems-card mb-4">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title">
+                        <i class="fa-solid fa-file-invoice me-2 text-primary"></i>
+                        Billing Cycle Details
+                    </h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="rems-alert alert-info mb-4" role="alert">
+                        <i class="fa-solid fa-circle-info me-2"></i>
+                        Select a unit and month, then enter current meter reading. The system combines rent, water, and garbage into one bill.
+                    </div>
 
-{% block additional_scripts %}
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-const propertySelect = document.getElementById("rental_property");
-const unitInput = document.getElementById("unit");
-const unitsDataList = document.getElementById("unit-options");
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Unit <span class="text-danger">*</span></label>
+                            <select name="unit" id="unit" class="form-select" required>
+                                <option value="">-- Select Occupied Unit --</option>
+                                {% for unit in units %}
+                                {# view currently expects unit name in POST, not unit id #}
+                                <option value="{{ unit.id }}">
+                                    {{ unit.name }}{% if unit.property %} - {{ unit.property.name }}{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Month <span class="text-danger">*</span></label>
+                            <select name="month" id="month" class="form-select" required>
+                                <option value="">-- Select Month --</option>
+                                {% for m in months %}
+                                <option value="{{ m }}">{{ m }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-const fetchPropertyUnits = (propertyId) => {
-    fetch(`/properties/ajax/get-units/?property_id=${propertyId}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Units fetched:", data);
-        unitsDataList.innerHTML = ''; // Clear old options
+                        <div class="col-md-12">
+                            <label class="form-label fw-600">Current Meter Reading <span class="text-danger">*</span></label>
+                            <input
+                                type="number"
+                                name="current_reading"
+                                id="current_reading"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                placeholder="e.g. 324.5"
+                                required
+                            >
+                            <small class="text-muted">Previous reading is auto-fetched from the latest water bill for this unit.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        if (Array.isArray(data.units)) {
-            data.units.forEach(unit => {
-                const option = document.createElement('option');
-                option.value = unit.name;
-                unitsDataList.appendChild(option);
-            });
-        } else {
-            console.warn("Expected 'units' to be an array, got:", data.units);
-        }
-
-        unitInput.value = ''; // Clear input
-    })
-    .catch(error => {
-        console.error("Failed to fetch property units:", error);
-    });
-};
-
-propertySelect.addEventListener('change', function () {
-    const selectedProperty = this.value;
-    if (selectedProperty) {
-        fetchPropertyUnits(selectedProperty);
-    } else {
-        unitsDataList.innerHTML = '';
-        unitInput.value = '';
-    }
-});
-</script>
-{% endblock additional_scripts %}
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'monthly-unit-bills' %}" class="rems-btn rems-btn--ghost">Cancel</a>
+                <button type="submit" class="rems-btn rems-btn--primary">
+                    <i class="fa-solid fa-gears me-2"></i> Generate Bill
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Water Bills – REMS{% endblock %}
+{% block page_title %}Water Bills{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Water Bills</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Track monthly water consumption and generated bills</p>
+    </div>
+    <!-- <a href="{% url 'generate-water-bill' %}" class="rems-btn rems-btn--primary">
+        <i class="fa-solid fa-droplet me-2"></i> Generate Bills
+    </a> -->
+</div>
+
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" value="{{ search_query }}" class="form-control search-input" placeholder="Search by tenant name, unit…">
+            </div>
+            <button type="submit" class="rems-btn rems-btn--primary">Search</button>
+        </form>
+    </div>
+</div>
+
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Monthly Readings & Billing</h5>
+        <p class="rems-card__subtitle">{{ page_obj.paginator.count }} bill(s) found</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
+            <thead>
+                <tr>
+                    <th>Ref No.</th>
+                    <th>Unit</th>
+                    <th>Tenant</th>
+                    <th>Consumption</th>
+                    <th>Required</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in water_bills %}
+                <tr>
+                    <td class="text-muted fw-600">WTR-{{ bill.id }}</td>
+                    <td><span class="rems-badge rems-badge--blue">{{ bill.unit.name }}</span></td>
+                    <td>
+                        <div class="fw-600">{{ bill.tenant.user.first_name }} {{ bill.tenant.user.last_name }}</div>
+                        <div class="text-muted" style="font-size:.70rem;">{{ bill.reading_date|date:"M Y" }} Cycle</div>
+                    </td>
+                    <td>
+                        <div class="fw-600">{{ bill.units_consumed }} Units</div>
+                        <div class="text-muted" style="font-size:.75rem;">Curr: {{ bill.current_reading }} Prev: {{ bill.previous_reading }}</div>
+                    </td>
+                    <td class="fw-600">Kes {{ bill.amount|floatformat:0 }}</td>
+                    <td>
+                        {% if bill.fully_paid %}
+                            <span class="rems-badge rems-badge--green">Fully Paid</span>
+                        {% elif bill.amount_paid > 0 %}
+                            <span class="rems-badge rems-badge--amber">Partial</span>
+                        {% else %}
+                            <span class="rems-badge rems-badge--red">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="#" class="rems-btn rems-btn--ghost" style="padding:.3rem .6rem; font-size:.75rem;" title="View or Pay">
+                            Details <i class="fa-solid fa-angle-right ms-1"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-tint fa-3x text-muted mb-3" style="color:var(--color-blue);"></i>
+                            <h5 class="fw-700">No Water Bills Recorded</h5>
+                            <p class="text-muted">Enter water readings to generate bills for tenants.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=page_obj %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,53 +1,231 @@
-#sidebar {
-    background: #f8f9fa;
-    border-right: 1px solid #dee2e6;
-    min-width: 250px;
-    max-width: 250px;
+/* ===================================================
+   REMS – Sidebar Styles
+   =================================================== */
+
+.rems-sidebar {
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: #0f172a;  /* deep navy */
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width var(--transition), transform var(--transition);
+    box-shadow: 4px 0 24px rgba(0,0,0,.25);
+    border-right: 1px solid rgba(255,255,255,.05);
 }
 
-#sidebar .sidebar-header {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    z-index: 1;
+/* ===================================================
+   COLLAPSED STATE (desktop: push content, sidebar shrinks)
+   =================================================== */
+.rems-wrapper.sidebar-collapsed .rems-sidebar {
+    width: 0;
+    overflow: hidden;
 }
 
-#sidebar .sidebar-logo {
-    filter: brightness(0) invert(1);
+/* ===================================================
+   BRAND
+   =================================================== */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1.25rem 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
-#sidebar .components a {
-    color: #495057;
-    transition: all 0.3s ease;
+.brand-icon {
+    flex-shrink: 0;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(99,102,241,.4);
 }
 
-#sidebar .components a:hover {
-    background-color: #e9ecef;
-    color: #212529;
+.brand-text { flex: 1; min-width: 0; }
+.brand-name {
+    display: block;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: .02em;
+    line-height: 1.2;
+}
+.brand-sub {
+    display: block;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,.4);
+    font-weight: 400;
 }
 
-#sidebar .components a.active {
-    background-color: var(--bs-primary);
-    color: white;
+.sidebar-close-btn {
+    width: 28px; height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255,255,255,.08);
+    color: rgba(255,255,255,.6);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background var(--transition);
+}
+.sidebar-close-btn:hover { background: rgba(255,255,255,.15); }
+
+/* ===================================================
+   SCROLLABLE NAV AREA
+   =================================================== */
+.sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.75rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.1) transparent;
+}
+.sidebar-nav::-webkit-scrollbar { width: 4px; }
+.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }
+
+/* ===================================================
+   SECTIONS
+   =================================================== */
+.nav-section { padding: 0.5rem 0; }
+.nav-section + .nav-section { border-top: 1px solid rgba(255,255,255,.05); }
+
+.nav-section-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.3);
+    padding: 0.5rem 1.1rem 0.3rem;
 }
 
-#sidebar .submenu a {
+.nav-list { list-style: none; margin: 0; padding: 0; }
+
+/* ===================================================
+   NAV LINKS
+   =================================================== */
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1.1rem;
+    border-radius: 0;
+    color: rgba(255,255,255,.65);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    transition: background var(--transition), color var(--transition);
+    white-space: nowrap;
+    position: relative;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,.06);
+    color: #ffffff;
+}
+
+.nav-link.active,
+.nav-link.active:hover {
+    background: linear-gradient(90deg, rgba(99,102,241,.25) 0%, rgba(99,102,241,.08) 100%);
+    color: #a5b4fc;   /* indigo-300 */
+}
+.nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: #6366f1;
+}
+
+.nav-link--danger:hover {
+    background: rgba(244,63,94,.12);
+    color: #fda4af;
+}
+
+/* Nav icon */
+.nav-icon {
+    flex-shrink: 0;
+    width: 22px;
+    display: flex; align-items: center; justify-content: center;
     font-size: 0.9rem;
-    color: #6c757d;
 }
 
-#sidebar .fa-chevron-down {
-    transition: transform 0.3s ease;
+/* Arrow for parent items */
+.nav-arrow {
+    margin-left: auto;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,.3);
+    transition: transform var(--transition);
+}
+.nav-item--has-sub.open > .nav-link--parent .nav-arrow {
+    transform: rotate(90deg);
 }
 
-#sidebar .collapse.show + a .fa-chevron-down {
-    transform: rotate(180deg);
+/* ===================================================
+   SUBMENUS
+   =================================================== */
+.nav-submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0;
+    background: rgba(0,0,0,.2);
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
 }
+.nav-submenu.open { max-height: 400px; }
 
-@media (max-width: 768px) {
-    #sidebar {
-        margin-left: -250px;
+.nav-sublink {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 1.1rem 0.55rem 2.7rem;
+    color: rgba(255,255,255,.5);
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: background var(--transition), color var(--transition);
+    border-radius: 0;
+    white-space: nowrap;
+}
+.nav-sublink:hover {
+    background: rgba(255,255,255,.05);
+    color: rgba(255,255,255,.85);
+}
+.nav-sublink.active {
+    color: #a5b4fc;
+    background: rgba(99,102,241,.15);
+}
+.nav-sublink i { font-size: 0.75rem; opacity: 0.8; }
+
+/* ===================================================
+   MOBILE SIDEBAR
+   =================================================== */
+@media (max-width: 991.98px) {
+    .rems-sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-w) !important;
     }
-    
-    #sidebar.active {
-        margin-left: 0;
+    .rems-sidebar.mobile-open {
+        transform: translateX(0);
     }
-} 
+    .rems-wrapper.sidebar-collapsed .rems-sidebar {
+        width: var(--sidebar-w) !important;
+        transform: translateX(-100%);
+    }
+}

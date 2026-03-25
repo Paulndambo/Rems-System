@@ -1,56 +1,99 @@
-<!-- Add this modal HTML after the table in your template -->
-<div class="modal fade" id="generateRentBillsModal" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="tenantModalLabel">Generate Rent Bills</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="tenantForm" method="POST" action="{% url 'generate-rent-bills' %}">
-                <div class="modal-body">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="name" class="form-label fw-bold">Property</label>
-                        <select class="form-select" id="property_id" name="property_id">
-                            <option value="" selected>Choose...</option>
-                            {% for property in properties %}
-                                <option value="{{property.id}}">{{property.name}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Month</label>
-                        <select class="form-select" id="month" name="month">
-                            <option value="" selected>Choose...</option>
-                            {% for month in bill_months %}
-                                <option value="{{month}}">{{month}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="rent" class="form-label fw-bold">Year</label>
-                        <select class="form-select" id="year" name="year">
-                            <option value="" selected>Choose...</option>
-                            {% for year in years %}
-                                <option value="{{year.id}}">{{year.name}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col">
-                        <label for="unit" class="form-label fw-bold">Due Date</label>
-                        <input type="date" class="form-control" id="due_date" name="due_date"  required/>
-                    </div>
-                    
-                </div>
-                    
-                </div>
-                <div class="text-center mb-3">
-                    <button type="submit" class="btn btn-primary">Generate Rent Bills</button>
-                </div>
-            </form>
-        </div>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Generate Rent Bills – REMS{% endblock %}
+{% block page_title %}Generate Bills{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'monthly-rent-bills' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Generate Rent Bills</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Create invoices for all occupied units in a property</p>
     </div>
 </div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <form method="POST" action="{% url 'generate-rent-bill' %}">
+            {% csrf_token %}
+            <div class="rems-card mb-4">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title"><i class="fa-solid fa-file-invoice me-2 text-primary"></i>Billing Cycle Details</h5>
+                </div>
+                <div class="rems-card__body">
+                    
+                    <div class="rems-alert alert-info mb-4" role="alert">
+                        <i class="fa-solid fa-circle-info me-2"></i> Generating bills automatically calculates rent and garbage charges for all occupied units for the specified month.
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Property <span class="text-danger">*</span></label>
+                            <select name="property_id" class="form-select" required>
+                                <option value="">-- Select Property --</option>
+                                <!-- The view doesn't explicitly pass properties by default for GET; 
+                                     If it does, we use it. If not, fallback manual or assume the context is added -->
+                                {% if properties %}
+                                    {% for p in properties %}
+                                        <option value="{{ p.id }}">{{ p.name }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <!-- Fallback input just in case context isn't fetched -->
+                                    <optgroup label="Action Required">
+                                        <option value="" disabled>Please pass 'properties' to view context</option>
+                                    </optgroup>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Year <span class="text-danger">*</span></label>
+                            <select name="year" class="form-select" required>
+                                <option value="">-- Select Year --</option>
+                                {% if years %}
+                                    {% for y in years %}
+                                        <option value="{{ y.id }}">{{ y.name }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <optgroup label="Missing Context">
+                                        <option value="" disabled>Requires 'years' context</option>
+                                    </optgroup>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Month <span class="text-danger">*</span></label>
+                            <select name="month" class="form-select" required>
+                                <option value="">-- Select Month --</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Due Date <span class="text-danger">*</span></label>
+                            <input type="date" name="due_date" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'monthly-rent-bills' %}" class="rems-btn rems-btn--ghost">Cancel</a>
+                <button type="submit" class="rems-btn rems-btn--primary" id="btnMakeBills">
+                    <i class="fa-solid fa-gears me-2"></i> Generate Bills
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

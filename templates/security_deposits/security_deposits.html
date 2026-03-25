@@ -1,104 +1,100 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Security Deposits – REMS{% endblock %}
+{% block page_title %}Security Deposits{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="col">
-            <h5 class="mb-0">Security Deposits</h5>
-        </div>
-            <div class="col">
-                <input type="text" class="form-control" placeholder="Search..." 
-                id="searchInput" value="{{ search_query }}">
-            </div>
-           
-        </div>
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Security Deposits</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Manage tenants' security deposit records and refunds</p>
     </div>
-    
-    <div class="card-body">
-        <div class="loader" id="loader"></div>
-        <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
+    <!-- Some action like recording a manual deposit or going to rent bills -->
+    <a href="{% url 'tenants' %}" class="rems-btn rems-btn--ghost">
+        <i class="fa-solid fa-users me-2"></i> View Tenants
+    </a>
+</div>
+
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" value="{{ search_query }}" class="form-control search-input" placeholder="Search by name, unit, ID…">
+            </div>
+            <button type="submit" class="rems-btn rems-btn--primary">Search</button>
+        </form>
+    </div>
+</div>
+
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Deposits Record</h5>
+        <p class="rems-card__subtitle">{{ page_obj.paginator.count }} record(s) found</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>Ref No.</th>
                     <th>Tenant</th>
                     <th>Unit</th>
-                    <th>Amount Expected</th>
-                    <th>Amount Paid</th>
-                    <th>Status</th> 
-                    <th>Actions</th>
+                    <th>Required</th>
+                    <th>Paid</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                {% for security_deposit in security_deposits %}
+            <tbody>
+                {% for deposit in security_deposits %}
                 <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td>{{security_deposit.tenant.user.name}}</td>
-                    <td>{{security_deposit.unit.name}}</td>
-                    <td>{{security_deposit.amount_expected}}</td>
-                    <td>{{security_deposit.amount_paid}}</td>
-                    <td>{{security_deposit.status}}</td>
+                    <td class="text-muted fw-600">DEP-{{ deposit.id }}</td>
                     <td>
-                        <a class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#collectSecurityDepositPaymentModal{{security_deposit.id}}">Pay</a>
+                        <div class="fw-600">{{ deposit.tenant.user.first_name }} {{ deposit.tenant.user.last_name }}</div>
+                        <div class="text-muted" style="font-size:.75rem;">{{ deposit.tenant.user.phone|default:"—" }}</div>
                     </td>
-                    {% include "security_deposits/pay_security_deposit.html" %}
+                    <td><span class="rems-badge rems-badge--blue">{{ deposit.unit.name }}</span></td>
+                    <td class="fw-600">Kes {{ deposit.amount_expected|floatformat:0 }}</td>
+                    <td class="text-success fw-600">Kes {{ deposit.amount_paid|floatformat:0 }}</td>
+                    <td>
+                        {% if deposit.fully_paid %}
+                            <span class="rems-badge rems-badge--green">Fully Paid</span>
+                        {% elif deposit.amount_paid > 0 %}
+                            <span class="rems-badge rems-badge--amber">Partially Paid</span>
+                        {% else %}
+                            <span class="rems-badge rems-badge--red">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if not deposit.fully_paid %}
+                        <a href="#" class="rems-btn rems-btn--primary" style="padding:.3rem .6rem; font-size:.75rem;">
+                            Record Pay <i class="fa-solid fa-arrow-right list-icon"></i>
+                        </a>
+                        {% else %}
+                        <span class="rems-badge rems-badge--green"><i class="fa-solid fa-check me-1"></i> Settled</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-piggy-bank fa-3x text-muted mb-3"></i>
+                            <h5 class="fw-700">No Security Deposits</h5>
+                            <p class="text-muted">Once a tenant occupies a unit, deposit records appear here.</p>
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
-                
             </tbody>
         </table>
     </div>
-     <!-- Add pagination controls -->
-     <div class="card-footer bg-white py-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="text-muted small">
-                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
-            </div>
-            <nav aria-label="Page navigation">
-                <ul class="pagination mb-0">
-                    {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1" aria-label="First">
-                                <span aria-hidden="true">&laquo;&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                    {% endif %}
 
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
-                                <span aria-hidden="true">&raquo;&raquo;</span>
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=page_obj %}
     </div>
+    {% endif %}
 </div>
-{% endblock content %}
-{% block additional_scripts %}
-
-{% endblock additional_scripts %}
+{% endblock %}

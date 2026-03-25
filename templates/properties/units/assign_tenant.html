@@ -1,34 +1,51 @@
-<div class="modal fade" id="assignTenantModal{{unit.id}}" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Assign Tenant</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{% url 'assign-tenant' %}">
-                    {% csrf_token %}
-                    <input type="number" name="unit_id" id="unit_id" value="{{unit.id}}" readonly hidden>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label fw-bold">Tenant</label>
-                            <select class="form-select" name="tenant" id="tenant" required>
-                                <option value="">Select Tenant</option>
-                                {% for tenant in tenants %}
-                                    <option value="{{tenant.id}}">{{tenant.user.name}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    
-                    </div>
-                    <div class="text-center mt-2 mb-3">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Assign Tenant</button>
-                    </div>
-                </form>
-            </div>
-            
-        </div>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Assign Tenant – REMS{% endblock %}
+{% block page_title %}Assign Tenant{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'units' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Assign Tenant to Unit</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Attach an existing tenant to a unit</p>
     </div>
 </div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-7">
+        <form method="POST" action="{% url 'assign-tenant' %}">
+            {% csrf_token %}
+            <div class="rems-card mb-4">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title">Assignment Details</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Unit ID <span class="text-danger">*</span></label>
+                            <input type="number" name="unit_id" class="form-control" placeholder="e.g. 8" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Tenant ID <span class="text-danger">*</span></label>
+                            <input type="number" name="tenant" class="form-control" placeholder="e.g. 4" required>
+                        </div>
+                    </div>
+                    <div class="rems-alert alert-info mt-3 mb-0" role="alert">
+                        <i class="fa-solid fa-circle-info me-2"></i>
+                        On submit, unit status is set to <strong>Occupied</strong> automatically.
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'units' %}" class="rems-btn rems-btn--ghost">Cancel</a>
+                <button type="submit" class="rems-btn rems-btn--primary">
+                    <i class="fa-solid fa-user-check me-2"></i>Assign Tenant
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

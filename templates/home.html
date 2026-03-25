@@ -1,325 +1,283 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard – REMS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-<!-- Stats Cards Row -->
+
+<!-- ===== STATS CARDS ===== -->
 <div class="row g-4 mb-4">
-    <div class="col-md-6 col-xl-4">
-        <a href="{% url 'properties' %}" class="text-decoration-none">
-            <div class="card card-stats h-100 shadow-sm hover-lift">
-                <div class="card-body bg-primary bg-gradient text-white rounded">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-0 text-white-50">Total Properties</h6>
-                            <h2 class="my-2 fw-bold">{{properties_count}}</h2>
-                            <p class="card-text mb-0 d-flex align-items-center">
-                                <i class="fas fa-arrow-up me-1 small"></i>
-                                
-                            </p>
-                        </div>
-                        <div class="stat-icon-container">
-                            <i class="fas fa-building stat-icon opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
+
+    <!-- Properties -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card stat-card--blue">
+            <div class="stat-card__icon">
+                <i class="fa-solid fa-building"></i>
             </div>
-        </a>
-    </div>
-    <div class="col-md-6 col-xl-4">
-        <a href="{% url 'tenants' %}" class="text-decoration-none">
-            <div class="card card-stats h-100 shadow-sm hover-lift">
-                <div class="card-body bg-success bg-gradient text-white rounded">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-0 text-white-50">Active Tenants</h6>
-                            <h2 class="my-2 fw-bold">{{tenants_count}}</h2>
-                            <p class="card-text mb-0 d-flex align-items-center">
-                                <i class="fas fa-arrow-up me-1 small"></i>
-                               
-                            </p>
-                        </div>
-                        <div class="stat-icon-container">
-                            <i class="fas fa-users stat-icon opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Total Properties</p>
+                <h2 class="stat-card__value">{{ properties_count }}</h2>
+                <p class="stat-card__sub">Active rentals on system</p>
             </div>
-        </a>
+            <a href="{% url 'properties' %}" class="stat-card__link stretched-link" aria-label="View properties"></a>
+        </div>
     </div>
-    <div class="col-md-6 col-xl-4">
-        <a href="#" class="text-decoration-none">
-            <div class="card card-stats h-100 shadow-sm hover-lift">
-                <div class="card-body bg-warning bg-gradient text-white rounded">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-0 text-white-50">Total Revenue</h6>
-                            <h2 class="my-2 fw-bold">{{total_revenue}}</h2>
-                            <p class="card-text mb-0 d-flex align-items-center">
-                                <i class="fas fa-arrow-up me-1 small"></i>
-                               
-                            </p>
-                        </div>
-                        <div class="stat-icon-container">
-                            <i class="fas fa-dollar-sign stat-icon opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
+
+    <!-- Tenants -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card stat-card--emerald">
+            <div class="stat-card__icon">
+                <i class="fa-solid fa-users"></i>
             </div>
-        </a>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Total Tenants</p>
+                <h2 class="stat-card__value">{{ tenants_count }}</h2>
+                <p class="stat-card__sub">Registered tenants</p>
+            </div>
+            <a href="{% url 'tenants' %}" class="stat-card__link stretched-link" aria-label="View tenants"></a>
+        </div>
     </div>
- 
+
+    <!-- Occupied Units -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card stat-card--violet">
+            <div class="stat-card__icon">
+                <i class="fa-solid fa-house-circle-check"></i>
+            </div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Occupied Units</p>
+                <h2 class="stat-card__value">{{ occupancy_data.occupied }}</h2>
+                <p class="stat-card__sub">{{ occupancy_data.vacant }} vacant unit(s)</p>
+            </div>
+            <a href="{% url 'units' %}" class="stat-card__link stretched-link" aria-label="View units"></a>
+        </div>
+    </div>
+
+    <!-- Revenue -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card stat-card--amber">
+            <div class="stat-card__icon">
+                <i class="fa-solid fa-sack-dollar"></i>
+            </div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Total Revenue</p>
+                <h2 class="stat-card__value">{{ total_revenue }}</h2>
+                <p class="stat-card__sub">Collected this year</p>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-<!-- Charts Section -->
-<div class="row g-4">
-    <!-- Year Filter -->
-    <div class="col-12 mb-2">
-        <div class="card shadow-sm">
-            <div class="card-body py-2">
-                <div class="d-flex align-items-center">
-                    <label for="yearFilter" class="me-2 mb-0">Filter by Year:</label>
-                    <select id="yearFilter" class="form-select form-select-sm w-auto">
-                        {% for year in available_years %}
-                            <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+<!-- ===== CHARTS ROW ===== -->
+<div class="row g-4 mb-4">
+    <!-- Revenue Chart -->
+    <div class="col-12 col-lg-8">
+        <div class="rems-card h-100">
+            <div class="rems-card__header">
+                <div>
+                    <h5 class="rems-card__title">Revenue Overview</h5>
+                    <p class="rems-card__subtitle">Expected vs Collected rent per month</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <select class="form-select form-select-sm rems-select" id="yearFilter" style="width:auto;">
+                        {% for yr in available_years %}
+                        <option value="{{ yr }}" {% if yr == current_year %}selected{% endif %}>{{ yr }}</option>
                         {% endfor %}
                     </select>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Revenue Chart -->
-    <div class="col-lg-8">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white py-3">
-                <h5 class="card-title mb-0">Revenue Overview</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="revenueChart" height="300"></canvas>
+            <div class="rems-card__body">
+                <canvas id="revenueChart" height="110"></canvas>
             </div>
         </div>
     </div>
-    
-    <!-- Occupancy Chart -->
-    <div class="col-lg-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white py-3">
-                <h5 class="card-title mb-0">Occupancy Rate</h5>
+
+    <!-- Occupancy Doughnut -->
+    <div class="col-12 col-lg-4">
+        <div class="rems-card h-100">
+            <div class="rems-card__header">
+                <div>
+                    <h5 class="rems-card__title">Occupancy Rate</h5>
+                    <p class="rems-card__subtitle">Occupied vs Vacant units</p>
+                </div>
             </div>
-            <div class="card-body">
-                <canvas id="occupancyChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Recent Activities -->
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Recent Activities</h5>
-                <a href="#" class="btn btn-sm btn-primary">View All</a>
-            </div>
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                    {% for activity in recent_activities %}
-                    <div class="list-group-item py-3">
-                        <div class="d-flex align-items-center">
-                            <div class="activity-icon bg-{{ activity.bg_class }}-subtle rounded-circle p-2 me-3">
-                                <i class="fas {{ activity.icon_class }} text-{{ activity.bg_class }}"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-1">{{ activity.title }}</h6>
-                                <p class="text-muted small mb-0">{{ activity.description }}</p>
-                            </div>
-                            <small class="text-muted ms-auto">{{ activity.timestamp|timesince }} ago</small>
-                        </div>
+            <div class="rems-card__body d-flex flex-column align-items-center justify-content-center">
+                <canvas id="occupancyChart" style="max-width:220px;max-height:220px;"></canvas>
+                <div class="d-flex gap-4 mt-3">
+                    <div class="text-center">
+                        <span class="legend-dot" style="background:#6366f1;"></span>
+                        <div class="legend-value">{{ occupancy_data.occupied }}</div>
+                        <div class="legend-label">Occupied</div>
                     </div>
-                    {% endfor %}
+                    <div class="text-center">
+                        <span class="legend-dot" style="background:#e2e8f0;"></span>
+                        <div class="legend-value">{{ occupancy_data.vacant }}</div>
+                        <div class="legend-label">Vacant</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
 
-<!-- Add custom CSS -->
-<style>
-    .hover-lift {
-        transition: transform 0.2s ease;
-    }
-    .hover-lift:hover {
-        transform: translateY(-5px);
-    }
-    .stat-icon-container {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 1rem;
-        border-radius: 50%;
-    }
-    .stat-icon {
-        font-size: 2rem;
-    }
-    .activity-icon {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .card {
-        border: none;
-        border-radius: 0.75rem;
-    }
-    .card-header {
-        border-bottom: 1px solid rgba(0,0,0,.05);
-    }
-</style>
+<!-- ===== QUICK ACTIONS + RECENT ACTIVITY ===== -->
+<div class="row g-4">
 
-<!-- Add Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Quick Actions -->
+    <div class="col-12 col-lg-4">
+        <div class="rems-card h-100">
+            <div class="rems-card__header">
+                <h5 class="rems-card__title">Quick Actions</h5>
+            </div>
+            <div class="rems-card__body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'new-tenant' %}" class="quick-action-btn" id="qa-new-tenant">
+                        <i class="fa-solid fa-user-plus"></i> Add New Tenant
+                    </a>
+                    <a href="{% url 'generate-bill' %}" class="quick-action-btn" id="qa-generate-bill">
+                        <i class="fa-solid fa-file-circle-plus"></i> Generate Bill
+                    </a>
+                    <a href="{% url 'new-property' %}" class="quick-action-btn" id="qa-new-property">
+                        <i class="fa-solid fa-building-circle-arrow-right"></i> Add Property
+                    </a>
+                    <a href="{% url 'monthly-unit-bills' %}" class="quick-action-btn" id="qa-monthly-bills">
+                        <i class="fa-regular fa-calendar-check"></i> View Monthly Bills
+                    </a>
+                    <a href="{% url 'pending-bills' %}" class="quick-action-btn quick-action-btn--warning" id="qa-pending-bills">
+                        <i class="fa-solid fa-triangle-exclamation"></i> View Pending Bills
+                    </a>
+                    <a href="{% url 'expenses' %}" class="quick-action-btn quick-action-btn--neutral" id="qa-expenses">
+                        <i class="fa-solid fa-money-bill-trend-up"></i> Manage Expenses
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-12 col-lg-8">
+        <div class="rems-card h-100">
+            <div class="rems-card__header">
+                <div>
+                    <h5 class="rems-card__title">Recent Activity</h5>
+                    <p class="rems-card__subtitle">Latest transactions & events</p>
+                </div>
+            </div>
+            <div class="rems-card__body p-0">
+                {% if recent_activities %}
+                <ul class="activity-list">
+                    {% for act in recent_activities %}
+                    <li class="activity-item">
+                        <div class="activity-icon activity-icon--{{ act.bg_class }}">
+                            <i class="fa-solid {{ act.icon_class }}"></i>
+                        </div>
+                        <div class="activity-body">
+                            <p class="activity-title">{{ act.title }}</p>
+                            <p class="activity-desc">{{ act.description }}</p>
+                        </div>
+                        <div class="activity-time">
+                            {{ act.timestamp|timesince }} ago
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fa-regular fa-clock-rotate-left fa-3x mb-3 text-muted"></i>
+                    <p class="text-muted">No recent activity found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <script>
-    // Global charts references
-    let revenueChart;
-    let occupancyChart;
-    
-    // Initialize charts
-    function initCharts(yearData) {
-        // Revenue Chart
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        
-        // Destroy existing chart if it exists
-        if (revenueChart) {
-            revenueChart.destroy();
-        }
-        
-        revenueChart = new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: yearData.revenue.labels,
-                datasets: [{
-                    label: 'Expected Revenue',
-                    data: yearData.revenue.expected_amounts,
-                    borderColor: 'rgb(255, 99, 132)',
-                    borderDash: [5, 5],
-                    tension: 0.1,
-                    fill: false
+    // Chart.js global defaults
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = "#94a3b8";
+
+    // ——— Revenue Chart ———
+    const revCtx = document.getElementById('revenueChart').getContext('2d');
+    const revenueChart = new Chart(revCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_data.labels|safe }},
+            datasets: [
+                {
+                    label: 'Expected (Kes)',
+                    data: {{ chart_data.expected_amounts|safe }},
+                    backgroundColor: 'rgba(99,102,241,0.18)',
+                    borderColor: '#6366f1',
+                    borderWidth: 2,
+                    borderRadius: 6,
                 },
                 {
-                    label: 'Actual Revenue',
-                    data: yearData.revenue.paid_amounts,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1,
-                    fill: true,
-                    backgroundColor: 'rgba(75, 192, 192, 0.1)'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': Kes.' + context.parsed.y.toLocaleString();
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value, index, values) {
-                                return 'Kes.' + value.toLocaleString();
-                            }
-                        }
-                    }
+                    label: 'Collected (Kes)',
+                    data: {{ chart_data.paid_amounts|safe }},
+                    backgroundColor: 'rgba(16,185,129,0.18)',
+                    borderColor: '#10b981',
+                    borderWidth: 2,
+                    borderRadius: 6,
                 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'top', labels: { usePointStyle: true, padding: 20 } },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(148,163,184,0.08)' } },
+                y: { grid: { color: 'rgba(148,163,184,0.08)' }, beginAtZero: true }
             }
-        });
-
-        // Occupancy Chart
-        const occupancyCtx = document.getElementById('occupancyChart').getContext('2d');
-        
-        // Destroy existing chart if it exists
-        if (occupancyChart) {
-            occupancyChart.destroy();
         }
-        
-        occupancyChart = new Chart(occupancyCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Occupied', 'Vacant'],
-                datasets: [{
-                    data: [
-                        yearData.occupancy.occupied,
-                        yearData.occupancy.vacant
-                    ],
-                    backgroundColor: [
-                        'rgb(75, 192, 192)',
-                        'rgb(255, 99, 132)'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const total = yearData.occupancy.occupied + yearData.occupancy.vacant;
-                                const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                return `${context.label}: ${context.parsed} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
+    });
+
+    // Year filter
+    document.getElementById('yearFilter').addEventListener('change', function () {
+        const year = this.value;
+        fetch(`{% url 'chart_data_api' %}?year=${year}`)
+            .then(r => r.json())
+            .then(data => {
+                revenueChart.data.labels = data.revenue.labels;
+                revenueChart.data.datasets[0].data = data.revenue.expected_amounts;
+                revenueChart.data.datasets[1].data = data.revenue.paid_amounts;
+                revenueChart.update();
+            });
+    });
+
+    // ——— Occupancy Doughnut ———
+    const occCtx = document.getElementById('occupancyChart').getContext('2d');
+    new Chart(occCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Occupied', 'Vacant'],
+            datasets: [{
+                data: [{{ occupancy_data.occupied }}, {{ occupancy_data.vacant }}],
+                backgroundColor: ['#6366f1', '#e2e8f0'],
+                borderWidth: 0,
+                hoverOffset: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } }
             }
-        });
-    }
-
-    // Initial chart data
-    const initialData = {
-        revenue: {
-            labels: JSON.parse('{{ chart_data.labels|safe }}'),
-            expected_amounts: JSON.parse('{{ chart_data.expected_amounts|safe }}'),
-            paid_amounts: JSON.parse('{{ chart_data.paid_amounts|safe }}')
-        },
-        occupancy: {
-            occupied: {{ occupancy_data.occupied|default:0 }},
-            vacant: {{ occupancy_data.vacant|default:0 }}
-        },
-    };
-
-    // Initialize charts with initial data
-    document.addEventListener('DOMContentLoaded', function() {
-        initCharts(initialData);
-        
-        // Year filter change event
-        document.getElementById('yearFilter').addEventListener('change', function() {
-            const selectedYear = this.value;
-            
-            // Fetch data for the selected year
-            fetch(`/api/chart-data/?year=${selectedYear}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Update charts
-                    initCharts(data);
-                    
-                    // Update total revenue display
-                    if (data.total_revenue !== undefined) {
-                        document.querySelector('.bg-warning h2.fw-bold').textContent = data.total_revenue;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching chart data:', error);
-                });
-        });
+        }
     });
 </script>
-{% endblock content %}
+{% endblock %}

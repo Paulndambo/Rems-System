@@ -1,97 +1,144 @@
-<!-- Add this modal HTML after the table in your template -->
-<div class="modal fade" id="newTenantModal" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="tenantModalLabel">Add New Tenant</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="tenantForm" method="POST" action="{% url 'new-tenant' %}">
-                <div class="modal-body">
-                    {% csrf_token %}
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="first_name" class="form-label fw-bold">First Name</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" required>
-                        </div>
-                        <div class="col">
-                            <label for="last_name" class="form-label fw-bold">Last Name</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="contact" class="form-label fw-bold">Contact Number</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" required>
-                        </div>
-                        <div class="col">
-                            <label for="email" class="form-label fw-bold">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email">
-                        </div>
-                        <div class="col">
-                            <label for="id_number" class="form-label fw-bold">ID Number</label>
-                            <input type="text" class="form-control" id="id_number" name="id_number">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="move_in_date" class="form-label fw-bold">Lease Date</label>
-                            <input type="date" class="form-control" id="lease_date" name="lease_date">
-                        </div>
-                        <div class="col">
-                            <label for="move_in_date" class="form-label fw-bold">Move-in Date</label>
-                            <input type="date" class="form-control" id="move_in_date" name="move_in_date">
-                        </div>
-                        <div class="col">
-                            <label for="rent" class="form-label fw-bold">Gender</label>
-                            <select class="form-select" id="gender" name="gender">
-                                <option value="" selected>Choose...</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                            </select>
-                        </div>
-                    </div>
+{% extends "base.html" %}
+{% load static %}
 
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="move_in_date" class="form-label fw-bold">Lease Duration</label>
-                            <select class="form-select" id="lease_duration" name="lease_duration">
-                                <option value="" selected>Choose...</option>
-                                {% for duration in lease_durations %}
-                                    <option value="{{duration}}">{{duration}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                       
-                        <div class="col">
-                            <label for="rent" class="form-label fw-bold">Marital Status</label>
-                            <select class="form-select" id="marital_status" name="marital_status">
-                                <option value="" selected>Choose...</option>
-                                {% for status in marital_statuses %}
-                                    <option value="{{status}}">{{status}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
+{% block title %}Add Tenant – REMS{% endblock %}
+{% block page_title %}Add New Tenant{% endblock %}
 
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="rental_unit" class="form-label fw-bold">Rental Unit</label>
-                            <select class="form-select" id="rental_unit" name="rental_unit">
-                                <option value="" selected>Choose...</option>
-                                {% for unit in units %}
-                                    <option value="{{unit.id}}">{{unit.property.name}} - (<b>{{unit.name}}</b>)</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                   
-                </div>
-                <div class="text-center mb-3">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Tenant</button>
-                </div>
-            </form>
-        </div>
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'tenants' %}" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i>
+    </a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0" style="color:var(--text-primary)">New Tenant</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Fill in details to register a new tenant</p>
     </div>
 </div>
+
+<form method="POST" action="{% url 'new-tenant' %}">
+    {% csrf_token %}
+    <div class="row g-4">
+
+        <!-- Personal Info -->
+        <div class="col-12 col-lg-8">
+            <div class="rems-card mb-4">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title"><i class="fa-solid fa-user me-2 text-primary"></i>Personal Information</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control" placeholder="e.g. John" required id="firstName">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control" placeholder="e.g. Doe" required id="lastName">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Email Address</label>
+                            <input type="email" name="email" class="form-control" placeholder="tenant@email.com" id="email">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Phone Number <span class="text-danger">*</span></label>
+                            <input type="tel" name="phone" class="form-control" placeholder="+254 7XX XXX XXX" required id="phone">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">ID Number</label>
+                            <input type="text" name="id_number" class="form-control" placeholder="National ID number" id="idNumber">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Gender</label>
+                            <select name="gender" class="form-select" id="gender">
+                                <option value="">-- Select --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Marital Status</label>
+                            <select name="marital_status" class="form-select" id="maritalStatus">
+                                <option value="">-- Select --</option>
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Divorced">Divorced</option>
+                                <option value="Widowed">Widowed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Occupation</label>
+                            <input type="text" name="occupation" class="form-control" placeholder="e.g. Engineer" id="occupation">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lease Info -->
+            <div class="rems-card">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title"><i class="fa-regular fa-file-lines me-2 text-primary"></i>Lease Details</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Move-in Date <span class="text-danger">*</span></label>
+                            <input type="date" name="move_in_date" class="form-control" required id="moveInDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Lease Date <span class="text-danger">*</span></label>
+                            <input type="date" name="lease_date" class="form-control" required id="leaseDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Lease Duration <span class="text-danger">*</span></label>
+                            <select name="lease_duration" class="form-select" required id="leaseDuration">
+                                <option value="">-- Select Duration --</option>
+                                <option value="3 Months">3 Months</option>
+                                <option value="6 Months">6 Months</option>
+                                <option value="9 Months">9 Months</option>
+                                <option value="1 Year">1 Year</option>
+                                <option value="2 Years">2 Years</option>
+                                <option value="3 Years">3 Years</option>
+                                <option value="4 Years">4 Years</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Rental Unit <span class="text-danger">*</span></label>
+                            <select name="rental_unit" class="form-select" required id="rentalUnit">
+                                <option value="">-- Select Unit --</option>
+                                {% for unit in units %}
+                                <option value="{{ unit.id }}">{{ unit.name }} – {{ unit.property.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar summary -->
+        <div class="col-12 col-lg-4">
+            <div class="rems-card">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title">Summary</h5>
+                </div>
+                <div class="rems-card__body">
+                    <p class="text-muted" style="font-size:.82rem">
+                        All fields marked with <span class="text-danger">*</span> are required. A default password of <code>1234</code> will be set for the new tenant's account.
+                    </p>
+                    <hr>
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="rems-btn rems-btn--primary" id="submitNewTenant">
+                            <i class="fa-solid fa-user-plus me-2"></i> Register Tenant
+                        </button>
+                        <a href="{% url 'tenants' %}" class="rems-btn rems-btn--ghost text-center">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>
+{% endblock %}

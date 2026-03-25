@@ -1,106 +1,199 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Water Bills Report – REMS{% endblock %}
+{% block page_title %}Water Reports{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="col">
-                <h5 class="mb-0">Water Bills Report</h5>
-            </div>
-            <div class="col-9">
-                <form method="GET" class="row g-3 justify-content-end">
-                    <div class="col-auto">
-                        <select name="tenant" class="form-select">
-                            <option value="">Select Tenant</option>
-                            {% for tenant in tenants %}
-                                <option value="{{ tenant.id }}" {% if selected_tenant == tenant.id %}selected{% endif %}>
-                                    {{ tenant.user.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <select name="month" class="form-select">
-                            <option value="">Select Month</option>
-                            {% for month in months %}
-                                <option value="{{ month }}" {% if selected_month == month %}selected{% endif %}>
-                                    {{ month }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <select name="year" class="form-select">
-                            <option value="">Select Year</option>
-                            {% for year in years %}
-                                <option value="{{ year.id }}" {% if selected_year == year.id %}selected{% endif %}>
-                                    {{ year.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter me-2"></i>
-                        </button>
-                    </div>
-                    <div class="col-auto">
-                        <a href="?{{ request.GET.urlencode }}&export=csv" class="btn btn-success">
-                            <i class="fas fa-download me-2"></i>
-                        </a>
-                    </div>
-                </form>
-            </div>
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Water Payments Report</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Analyze water bill collections and consumption</p>
+    </div>
+    <a href="?export=csv{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_tenant %}&tenant={{ selected_tenant }}{% endif %}" class="rems-btn rems-btn--ghost text-success border-success">
+        <i class="fa-solid fa-file-csv me-2"></i> Export Data
+    </a>
+</div>
 
+<!-- Filters -->
+<div class="rems-card mb-4">
+    <div class="rems-card__header pb-0 border-0">
+        <h6 class="fw-700 mb-0"><i class="fa-solid fa-filter text-primary me-2"></i>Report Filters</h6>
+    </div>
+    <div class="rems-card__body py-3">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <select name="tenant" class="form-select">
+                    <option value="">All Tenants</option>
+                    {% for t in tenants %}
+                    <option value="{{ t.id }}" {% if selected_tenant|stringformat:"s" == t.id|stringformat:"s" %}selected{% endif %}>{{ t.user.first_name }} {{ t.user.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="year" class="form-select">
+                    <option value="">Select Year</option>
+                    {% for y in years %}
+                    <option value="{{ y.id }}" {% if selected_year|stringformat:"s" == y.id|stringformat:"s" %}selected{% endif %}>{{ y.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="month" class="form-select">
+                    <option value="">Select Month</option>
+                    {% for m in months %}
+                    <option value="{{ m }}" {% if selected_month == m %}selected{% endif %}>{{ m }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="rems-btn rems-btn--primary w-100">Filter</button>
+                <a href="#" class="rems-btn rems-btn--ghost px-3"><i class="fa-solid fa-rotate-left"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Chart Section -->
+    <div class="col-12 col-xl-12">
+        <div class="rems-card h-100">
+            <div class="rems-card__header border-0 pb-0 d-flex justify-content-between align-items-center">
+                <h5 class="rems-card__title"><i class="fa-solid fa-droplet me-2" style="color:#0ea5e9"></i>Collections & Consumption Overview</h5>
+            </div>
+            <div class="rems-card__body">
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="waterChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="card-body">
-        <div class="loader" id="loader"></div>
-        <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
+</div>
+
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Water Payment Transactions</h5>
+        <p class="rems-card__subtitle">Showing {{ water_payments.paginator.count|default:0 }} records</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>Date Paid</th>
                     <th>Tenant</th>
-                    <th>House No.</th>
-                    <th>Month</th>
-                    <th>Units</th>
-                    <th>Amount</th>
-                    <th>Amount Paid</th>
-                    <th>Status</th>
-                    <th></th>
+                    <th>Property / Unit</th>
+                    <th>Billing Cycle</th>
+                    <th>Method</th>
+                    <th class="text-end">Amount Paid</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                {% for bill in water_bills %}
+            <tbody>
+                {% for pmt in water_payments %}
                 <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td>{{bill.unit.tenant.user.name}}</td>
-                    <td>{{bill.unit.name}}</td>
-                    <td>{{bill.month}}(<b>{{bill.year}}</b>)</td>
-                    <td>{{bill.current_reading}}</td>
-                    <td>{{bill.amount}}</td>
-                    <td>{{bill.amount_paid}}</td>
+                    <td><div class="fw-600">{{ pmt.payment_date|date:"d M Y" }}</div></td>
                     <td>
-                        {% if bill.status == 'Paid' %}
-                        <span class="badge bg-success">{{bill.status}}</span>
-                        {% elif bill.status == 'Pending' %}
-                        <span class="badge bg-danger">{{bill.status}}</span>
-                        {% elif bill.status == 'Partially Paid' %}
-                        <span class="badge bg-warning">{{bill.status}}</span>
-                        {% elif bill.status == 'Overdue' %}
-                        <span class="badge bg-danger">{{bill.status}}</span>
-                        {% endif %}
+                        <div class="fw-600">{{ pmt.tenant.user.first_name }} {{ pmt.tenant.user.last_name }}</div>
                     </td>
-                    
+                    <td>
+                        <div class="fw-600">{{ pmt.water_bill.unit.property.name }}</div>
+                        <span class="rems-badge rems-badge--blue mt-1">{{ pmt.water_bill.unit.name }}</span>
+                    </td>
+                    <td>{{ pmt.month.name|slice:":3" }} {{ pmt.year.name }}</td>
+                    <td><span class="rems-badge rems-badge--ghost border">{{ pmt.payment_method }}</span></td>
+                    <td class="text-end text-success fw-600">Kes {{ pmt.amount_paid|floatformat:0 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-hand-holding-dollar fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No water payments recorded matching these filters.</p>
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
-                
             </tbody>
         </table>
     </div>
+    {% if water_payments.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=water_payments %}
+    </div>
+    {% endif %}
 </div>
-{% endblock content %}
-{% block additional_scripts %}
+{% endblock %}
 
-{% endblock additional_scripts %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const labels = {{ months_labels|safe }};
+    const expected = {{ expected_amounts|safe }};
+    const paid = {{ paid_amounts|safe }};
+    const consumed = {{ units_consumed|safe }};
+
+    if(labels && labels.length > 0) {
+        const ctx = document.getElementById('waterChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Total Expected (KES)',
+                        data: expected,
+                        backgroundColor: 'rgba(56, 189, 248, 0.2)', // light blue
+                        borderColor: '#0ea5e9',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Actual Collected (KES)',
+                        data: paid,
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)', // emerald
+                        borderColor: '#10b981',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Consumption (Units)',
+                        data: consumed,
+                        type: 'line',
+                        backgroundColor: 'rgba(239, 68, 68, 1)', // red
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointBackgroundColor: '#ef4444',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Amount (KES)' },
+                        grid: { borderDash: [2,4] }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Water Units Consumed' },
+                        grid: { drawOnChartArea: false },
+                    }
+                }
+            }
+        });
+    } else {
+        document.getElementById('waterChart').parentElement.innerHTML = "<div class='d-flex align-items-center justify-content-center h-100 text-muted'>No chart data available for selected filters.</div>";
+    }
+});
+</script>
+{% endblock %}

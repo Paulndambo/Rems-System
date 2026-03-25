@@ -1,554 +1,234 @@
 {% extends "base.html" %}
-{% block additional_css %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-<style>
-    :root {
-        --primary-color: #4f46e5;
-        --primary-hover: #4338ca;
-        --success-color: #10b981;
-        --warning-color: #f59e0b;
-        --danger-color: #ef4444;
-        --border-radius: 0.75rem;
-    }
+{% load static %}
 
-    /* Layout & Container Styling */
-    .dashboard-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 1.5rem;
-    }
+{% block title %}Property Details – REMS{% endblock %}
+{% block page_title %}{{ property.name }}{% endblock %}
 
-    /* Card Enhancements */
-    .card {
-        border-radius: var(--border-radius);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        background: #ffffff;
-    }
-
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .card-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        background: transparent;
-    }
-
-    /* Property Header Styling */
-    .property-header {
-        background: linear-gradient(to right, #f8fafc, #f1f5f9);
-        border-radius: var(--border-radius);
-        margin-bottom: 2rem;
-    }
-
-    .property-header h2 {
-        color: #1e293b;
-        font-size: 1.875rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .property-meta {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-top: 1rem;
-    }
-
-    /* Stats Cards */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stats-card {
-        padding: 1.5rem;
-        border-radius: var(--border-radius);
-        background: linear-gradient(145deg, #ffffff, #f8fafc);
-        border-left: 4px solid;
-    }
-
-    .stats-card.occupancy {
-        border-left-color: var(--primary-color);
-    }
-
-    .stats-card.revenue {
-        border-left-color: var(--success-color);
-    }
-
-    .stats-card.maintenance {
-        border-left-color: var(--warning-color);
-    }
-
-    .stats-card h3 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin: 0.5rem 0;
-        color: #1e293b;
-    }
-
-    .stats-card p {
-        color: #64748b;
-        font-size: 0.875rem;
-    }
-
-    /* Table Enhancements */
-    .table-container {
-        background: #ffffff;
-        border-radius: var(--border-radius);
-        overflow: hidden;
-    }
-
-    .table thead th {
-        background: #f8fafc;
-        font-weight: 600;
-        color: #475569;
-        padding: 1rem 1.5rem;
-        white-space: nowrap;
-    }
-
-    .table tbody td {
-        padding: 1rem 1.5rem;
-        vertical-align: middle;
-    }
-
-    /* Payment Status Badges */
-    .badge {
-        padding: 0.5rem 1rem;
-        border-radius: 2rem;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .badge.paid {
-        background-color: rgba(16, 185, 129, 0.1);
-        color: var(--success-color);
-    }
-
-    .badge.unpaid {
-        background-color: rgba(239, 68, 68, 0.1);
-        color: var(--danger-color);
-    }
-
-    /* Button Styling */
-    .btn {
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.5rem;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
-    }
-
-    .btn-primary {
-        background-color: var(--primary-color);
-        border: none;
-        color: white;
-    }
-
-    .btn-primary:hover {
-        background-color: var(--primary-hover);
-        transform: translateY(-1px);
-    }
-
-    /* Search & Filter Enhancements */
-    .dataTables_filter input {
-        border: 1px solid #e2e8f0;
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-        width: 300px;
-        transition: all 0.2s ease;
-    }
-
-    .dataTables_filter input:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .property-meta {
-            grid-template-columns: 1fr;
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        #paymentsOverviewTable {
-            overflow-x: auto;
-        }
-    }
-
-    /* Loading State */
-    .loader {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(255, 255, 255, 0.9);
-        padding: 2rem;
-        border-radius: var(--border-radius);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        z-index: 1000;
-    }
-
-    .spinner {
-        width: 2rem;
-        height: 2rem;
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid var(--primary-color);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Payment Status Icons */
-    .fully-paid i {
-        color: var(--success-color);
-    }
-
-    .partially-paid i {
-        color: var(--warning-color);
-    }
-
-    .unpaid i {
-        color: var(--danger-color);
-    }
-</style>
-{% endblock additional_css %}
 {% block content %}
-        <!-- Property Header -->
-        <div class="card mb-4">
-            <div class="card-body property-header">
-                <div class="row align-items-center">
-                    <div class="col-md-4">
-                        <h2>{{property.name}}</h2>
-                        <p class="text-muted">{{property.address}}, {{property.city}}, {{property.country}}</p>
-                        
-                        <p><strong>Total Units:</strong> {{property.units}}</p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Property Manager:</strong> {{property.house_manager.name}}</p>
-                        <p><strong>Contact:</strong> {{property.house_manager.phone}}</p>
-                    </div>
-                    <div class="col-md-4 text-md-end">
-                        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#editPropertyModal{{property.id}}">
-                            <i class="fas fa-edit"></i> Edit Property
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'properties' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <div>
+            <h1 class="fs-4 fw-bold mb-0">{{ property.name }}</h1>
+            <p class="text-muted mb-0" style="font-size:.85rem"><i class="fa-solid fa-location-dot me-1"></i> {{ property.address }}, {{ property.city }}</p>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'new-unit' %}?property_id={{ property.id }}" class="rems-btn rems-btn--primary">
+            <i class="fa-solid fa-plus me-1"></i> Add Unit
+        </a>
+        <a href="{% url 'edit-property' %}" class="rems-btn rems-btn--ghost">
+            <i class="fa-solid fa-cog"></i> Settings
+        </a>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--blue">
+            <div class="stat-card__icon"><i class="fa-solid fa-door-open"></i></div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Total Units</p>
+                <h2 class="stat-card__value">{{ property.total_units }}</h2>
+                <p class="stat-card__sub">{{ occupied_units }} Occupied</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--emerald">
+            <div class="stat-card__icon"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Expected Revenue</p>
+                <h2 class="stat-card__value text-truncate" style="font-size:1.3rem;">Kes {{ property.monthly_revenue|floatformat:0 }}</h2>
+                <p class="stat-card__sub">Per Month</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--amber">
+            <div class="stat-card__icon"><i class="fa-solid fa-chart-pie"></i></div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Occupancy</p>
+                <h2 class="stat-card__value">{{ property.occupancy_rate }}%</h2>
+                <div class="progress mt-1" style="height:4px;"><div class="progress-bar bg-warning" style="width:{{ property.occupancy_rate }}%"></div></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--rose">
+            <div class="stat-card__icon"><i class="fa-solid fa-wrench"></i></div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Maintenance</p>
+                <h2 class="stat-card__value">{{ maintenance_requests }}</h2>
+                <p class="stat-card__sub">Pending Requests</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="row g-4 mb-4">
+    <!-- Property Info Card -->
+    <div class="col-12 col-lg-4">
+        <div class="rems-card mb-4">
+            <div class="rems-card__header">
+                <h5 class="rems-card__title">Property Information</h5>
+            </div>
+            <div class="rems-card__body">
+                <ul class="detail-list">
+                    <li><span class="dl-label">Owner</span><span class="dl-val">{{ property.owner.first_name }} {{ property.owner.last_name }}</span></li>
+                    <li><span class="dl-label">Manager</span><span class="dl-val">{{ property.house_manager.first_name }} {{ property.house_manager.last_name }}</span></li>
+                    <li><span class="dl-label">Country</span><span class="dl-val">{{ property.country }}</span></li>
+                    <li><span class="dl-label">Garbage Charge</span><span class="dl-val">Kes {{ property.garbage_charge|floatformat:0 }}</span></li>
+                    <li><span class="dl-label">Status</span><span class="rems-badge {% if property.is_active %}rems-badge--green{% else %}rems-badge--amber{% endif %}">{{ property.status }}</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="rems-card">
+            <div class="rems-card__header d-flex justify-content-between align-items-center">
+                <h5 class="rems-card__title">Quick Actions</h5>
+            </div>
+            <div class="rems-card__body">
+                <div class="d-grid gap-2">
+                    <a href="#" class="quick-action-btn">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> Generate Rent Bills
+                    </a>
+                    <a href="{% url 'assign-tenant' %}" class="quick-action-btn quick-action-btn--neutral">
+                        <i class="fa-solid fa-user-plus"></i> Assign Tenant
+                    </a>
+                    <form method="POST" action="{% url 'delete-property' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="property_id" value="{{ property.id }}">
+                        <button type="submit" class="quick-action-btn quick-action-btn--warning w-100 justify-content-start border-0" onclick="return confirm('Delete this property?');">
+                            <i class="fa-solid fa-trash-can"></i> Delete Property
                         </button>
-                        
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Analytics Cards -->
-        <div class="row mb-4">
-
-            <div class="col-md-4 mb-3">
-                <div class="card stats-card h-100" style="border-left-color: #17a2b8;">
-                    <div class="card-body">
-                        <h6 class="text-muted">Occupancy Rate</h6>
-                        <h3>{{property.occupancy_rate}}%</h3>
-                        <p class="mb-0 text-info">{{occupied_units}} Occupied Units</p>
-                    </div>
+    <!-- Units Table -->
+    <div class="col-12 col-lg-8">
+        <div class="rems-card">
+            <div class="rems-card__header d-flex justify-content-between align-items-end">
+                <div>
+                    <h5 class="rems-card__title"><i class="fa-solid fa-house me-2 text-primary"></i>Units List</h5>
+                    <p class="rems-card__subtitle">All rental units associated with this property</p>
                 </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card stats-card h-100" style="border-left-color: #dc3545;">
-                    <div class="card-body">
-                        <h6 class="text-muted">Monthly Revenue</h6>
-                        <h3>{{property.monthly_revenue}}</h3>
-                        <p class="mb-0 text-danger">Current Month</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card stats-card h-100" style="border-left-color: #ffc107;">
-                    <div class="card-body">
-                        <h6 class="text-muted">Maintenance Requests</h6>
-                        <h3>{{maintenance_requests}}</h3>
-                        <p class="mb-0 text-warning">Pending</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-            <!-- Header Section -->
-             <!--
-            <div class="card bg-white mb-4">
-                <div class="card-header">
-                    <div class="row g-3 align-items-center">
-                        <div class="col-md-4">
-                            <h5 class="card-title mb-0 fw-bold">Payments Overview</h5>
-                            <p class="text-muted small mb-0">Track monthly payment status for each unit</p>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="d-flex gap-2 justify-content-md-end">
-                                <div class="d-flex align-items-center me-3">
-                                    <span class="me-2"><i class="fas fa-check text-success"></i> Paid</span>
-                                    <span class="ms-3"><i class="fas fa-times text-danger"></i> Unpaid</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <div class="loader position-absolute top-50 start-50 translate-middle d-none" id="loader">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-    
-                    <table id="paymentsTable" class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="border-0 px-4 py-3 bg-light position-sticky start-0">
-                                    <strong>Month</strong>
-                                </th>
-                                {% for unit_number in unit_numbers %}
-                                    <th class="border-0 px-4 py-3 text-center">
-                                        <div class="d-flex flex-column align-items-center">
-                                            <strong>Unit {{ unit_number }}</strong>
-          
-                                        </div>
-                                    </th>
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            {% for row in rows %}
-                                <tr>
-                                    {% for cell in row %}
-                                        {% if forloop.first %}
-                                            <td class="bg-light position-sticky start-0">
-                                                <strong>{{ cell }}</strong>
-                                            </td>
-                                        {% else %}
-                                            <td class="px-4 text-center">
-                                                {% if cell == True %}
-                                                    <span class="badge rounded-pill bg-success-subtle text-success">
-                                                        <i class="fas fa-check me-1"></i> Paid
-                                                    </span>
-                                                {% elif cell == False %}
-                                                    <span class="badge rounded-pill bg-danger-subtle text-danger">
-                                                        <i class="fas fa-times me-1"></i> Unpaid
-                                                    </span>
-                                                {% endif %}
-                                            </td>
-                                        {% endif %}
-                                    {% endfor %}
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        -->
-
-        <div class="card bg-white mb-4" id="paymentsOverviewTable">
-            <div class="card-header bg-white">
-                <div class="row g-3 align-items-center">
-                    <div class="col-md-4">
-                        <h5 class="card-title mb-0 fw-bold">Payments Overview</h5>
-                    </div>
-                </div>
+                <a href="{% url 'units' %}?search={{ property.name }}" class="rems-btn rems-btn--ghost" style="padding:.4rem .8rem;font-size:.8rem;">View All</a>
             </div>
             <div class="table-responsive">
-                <table id="paymentsOverviewDataTable" class="table table-hover table-bordered">
-                    <thead class="table-light">
+                <table class="rems-table">
+                    <thead>
                         <tr>
-                            <th>Unit</th>
-                            {% for month in months %}
-                                <th>{{ month }}</th>
-                            {% endfor %}
+                            <th>Unit No.</th>
+                            <th>Type</th>
+                            <th>Rent</th>
+                            <th>Tenant</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="border">
-                        {% for row in rows %}
-                            <tr>
-                                {% for cell in row %}
-                                    {% if forloop.first %}
-                                        <td><strong>{{ cell }}</strong></td> <!-- Unit number -->
-                                    {% else %}
-                                        <td>
-                                            {% if cell == "Fully Paid" %}
-                                            <div class="bg-success text-white p-2 rounded d-flex align-items-center justify-content-center">
-                                                <i class="fas fa-check-circle me-2"></i>
-                                            </div>
-                                            {% elif cell == "Partially Paid" %}
-                                            <div class="bg-warning text-dark p-2 rounded d-flex align-items-center justify-content-center">
-                                                <i class="fas fa-exclamation-circle me-2"></i>
-                                            </div>
-                                            {% else %}
-                                            <div class="bg-danger text-white p-2 rounded d-flex align-items-center justify-content-center">
-                                                <i class="fas fa-times-circle me-2"></i>
-                                            </div>
-                                            {% endif %}
-                                        </td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
+                    <tbody>
+                        {% for unit in units %}
+                        <tr>
+                            <td class="fw-600">{{ unit.name }}</td>
+                            <td>{{ unit.unit_type|default:"—" }}</td>
+                            <td class="fw-600 text-dark">Kes {{ unit.rent|floatformat:0 }}</td>
+                            <td>
+                                {% if unit.tenant %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="table-avatar" style="width:24px;height:24px;font-size:10px;">{{ unit.tenant.user.first_name|first|upper }}</div>
+                                        <span style="font-size:.8rem;">{{ unit.tenant.user.first_name }} {{ unit.tenant.user.last_name }}</span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted" style="font-size:.8rem;">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="rems-badge {% if unit.is_occupied %}rems-badge--green{% elif unit.unit_type == 'Maintenance' %}rems-badge--amber{% else %}rems-badge--rose{% endif %}">
+                                    {% if unit.is_occupied %}Occupied{% else %}Vacant{% endif %}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'unit-detail' unit.id %}" class="action-btn action-btn--view" title="Manage Unit">
+                                    <i class="fa-solid fa-angle-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state py-4">
+                                    <i class="fa-solid fa-door-closed fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted mb-0">No units added yet.</p>
+                                </div>
+                            </td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-        </div>
-        
-
-
-        <!-- Units Table -->
-        <div class="card">
-            <div class="card-header bg-white">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Rental Units</h5>
-                    <div>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUnitModal{{property.id}}">
-                            New Unit
-                        </button>
-                    </div>
-                </div>
+            {% if page_obj.has_other_pages %}
+            <div class="rems-card__body border-top">
+                {% include "partials/pagination.html" with page_obj=page_obj %}
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table id="unitsTable" class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Unit No:.</th>
-                                <th>Type</th>
-                                <th>Floor</th>
-                                <th>Rent</th>
-                                <th>Status</th>
-                                <th>Tenant</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for unit in units %}
-                            <tr>
-                                <td>{{forloop.counter}}</td>
-                                <td>{{unit.name}}</td>
-                                <td>{{unit.unit_type}}</td>
-                                <td>{{unit.floor}}</td>
-                                <td>{{unit.rent}}</td>
-                                <td>
-                                    {% if unit.status == "Occupied" %}
-                                    <span class="badge bg-success">Occupied</span>
-                                    {% elif unit.status == "Vacant" %}
-                                    <span class="badge bg-danger">Vacant</span>
-                                    {% elif unit.status == "Under Maintenance" %}
-                                    <span class="badge bg-warning">Under Maintenance</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary">{{unit.status}}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if unit.tenant %}
-                                    <a href="{% url 'tenant-detail' unit.tenant.id %}" class="text-decoration-none text-primary">
-                                        {{ unit.tenant.user.name }}
-                                    </a>
-                                    {% else %}
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignTenantModal{{unit.id}}">
-                                        <i class="fas fa-user-plus"></i> Assign
-                                    </button>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{% url 'unit-detail' unit.id %}" class="btn btn-sm btn-outline-info" title="View Details">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </td>
-                            </tr>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<!-- Rent Payment Heatmap (Full Width) -->
+<div class="row">
+    <div class="col-12">
+        <div class="rems-card mb-4">
+            <div class="rems-card__header">
+                <h5 class="rems-card__title"><i class="fa-regular fa-calendar-check me-2 text-primary"></i> Rent Payment Heatmap (2025)</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="rems-table table-bordered text-center" style="font-size:.75rem;">
+                    <thead>
+                        <tr>
+                            <th class="text-start">Unit</th>
+                            {% for m in months %}<th>{{ m|slice:":3" }}</th>{% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row_data in rows %}
+                        <tr>
+                            <td class="text-start fw-600">{{ row_data.0 }}</td>
+                            {% for status in row_data|slice:"1:" %}
+                            <td class="p-1">
+                                {% if status == 'Fully Paid' %}
+                                    <span class="d-block w-100 h-100 py-2 rounded bg-success text-white" title="Paid"><i class="fa-solid fa-check"></i></span>
+                                {% elif status == 'Partially Paid' %}
+                                    <span class="d-block w-100 h-100 py-2 rounded bg-warning text-dark" title="Partial"><i class="fa-solid fa-ellipsis"></i></span>
+                                {% else %}
+                                    <span class="d-block w-100 h-100 py-2 rounded bg-light text-muted" title="Unpaid"><i class="fa-solid fa-xmark"></i></span>
+                                {% endif %}
+                            </td>
                             {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+            {% if page_obj.has_other_pages %}
+            <div class="rems-card__body border-top">
+                {% include "partials/pagination.html" with page_obj=page_obj %}
+            </div>
+            {% endif %}
         </div>
-    
+    </div>
+</div>
 
-    <!-- New Unit Modal -->
-  {% include "properties/units/new_unit.html" %}
-  {% include "properties/edit_property.html" %}
-  {% for unit in units %}
-    {% include "properties/units/edit_unit_copy.html" %}
-{% endfor %}
+<style>
+.stat-card--rose { background: white; border-color: rgba(244,63,94,.2); }
+.stat-card--rose .stat-card__icon { background: var(--color-rose-light); color: var(--color-rose); }
+.stat-card--rose .stat-card__value { color: var(--color-rose); }
+</style>
 {% endblock %}
-
-{% block additional_scripts %}
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-<script>
-    $(document).ready(function() {
-        const commonConfig = {
-            "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                   "<'row'<'col-sm-12'tr>>" +
-                   "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-            "pageLength": 10,
-            "ordering": true,
-            "searching": true,
-            "responsive": true,
-            "initComplete": function() {
-                $('.dataTables_filter input').addClass('form-control form-control-sm');
-                $('.dataTables_filter label').addClass('d-flex align-items-center gap-2');
-                $('.dataTables_length select').addClass('form-select form-select-sm');
-            }
-        };
-
-        // Initialize Payments Overview Table
-        $('#paymentsOverviewDataTable').DataTable({
-            ...commonConfig,
-            "language": {
-                "search": "Search payments:",
-                "searchPlaceholder": "Type to filter...",
-                "lengthMenu": "Show _MENU_ entries",
-                "info": "Showing _START_ to _END_ of _TOTAL_ payments",
-                "infoEmpty": "No payments available",
-                "zeroRecords": "No matching payments found"
-            },
-            "columnDefs": [{
-                "targets": 0,
-                "orderable": true
-            }]
-        });
-
-        // Initialize Units Table
-        $('#unitsTable').DataTable({
-            ...commonConfig,
-            "language": {
-                "search": "Search units:",
-                "searchPlaceholder": "Type to filter...",
-                "lengthMenu": "Show _MENU_ entries",
-                "info": "Showing _START_ to _END_ of _TOTAL_ units",
-                "infoEmpty": "No units available",
-                "zeroRecords": "No matching units found"
-            },
-            "columnDefs": [{
-                "targets": -1,
-                "orderable": false
-            }]
-        });
-    });
-</script>
-{% endblock additional_scripts %}

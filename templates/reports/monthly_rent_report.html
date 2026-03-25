@@ -1,233 +1,181 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block additional_css %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-{% endblock additional_css %}
-
+{% block title %}Monthly Rent Report – REMS{% endblock %}
+{% block page_title %}Rent Reports{% endblock %}
 
 {% block content %}
-<div class="card mb-3">
-    <div class="card-header">
-        <h3 class="card-title">Monthly Rent Analysis: <b>{{year.name}}</b></h3>
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Monthly Rent Report</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">View, filter, and export rent invoice data</p>
     </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-8">
-                <div style="height: 400px;">
+    <a href="?export=csv{% if selected_month %}&month={{ selected_month }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_property %}&property={{ selected_property }}{% endif %}{% if selected_tenant %}&tenant={{ selected_tenant }}{% endif %}" class="rems-btn rems-btn--ghost text-success border-success">
+        <i class="fa-solid fa-file-csv me-2"></i> Export CSV
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="rems-card mb-4">
+    <div class="rems-card__header pb-0 border-0">
+        <h6 class="fw-700 mb-0"><i class="fa-solid fa-filter text-primary me-2"></i>Filter Options</h6>
+    </div>
+    <div class="rems-card__body py-3">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <select name="property" class="form-select">
+                    <option value="">All Properties</option>
+                    {% for p in properties %}
+                    <option value="{{ p.id }}" {% if selected_property == p.id %}selected{% endif %}>{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="tenant" class="form-select">
+                    <option value="">All Tenants</option>
+                    {% for t in tenants %}
+                    <option value="{{ t.id }}" {% if selected_tenant == t.id %}selected{% endif %}>{{ t.user.first_name }} {{ t.user.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="year" class="form-select">
+                    <option value="">Year</option>
+                    {% for y in years %}
+                    <option value="{{ y.id }}" {% if selected_year == y.id %}selected{% endif %}>{{ y.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="month" class="form-select">
+                    <option value="">Month</option>
+                    {% for m in months %}
+                    <option value="{{ m }}" {% if selected_month == m %}selected{% endif %}>{{ m }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="rems-btn rems-btn--primary w-100">Apply</button>
+                <a href="#" class="rems-btn rems-btn--ghost px-3"><i class="fa-solid fa-rotate-left"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Chart Section -->
+    <div class="col-12 col-xl-12">
+        <div class="rems-card h-100">
+            <div class="rems-card__header d-flex justify-content-between align-items-center">
+                <h5 class="rems-card__title"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Revenue Trend ({{ year.name|default:"Selected Year" }})</h5>
+            </div>
+            <div class="rems-card__body">
+                <div style="height: 300px; width: 100%;">
                     <canvas id="rentChart"></canvas>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div style="height: 400px;">
-                    <canvas id="rentPieChart"></canvas>
-                </div>
-            </div>
         </div>
     </div>
 </div>
-<div class="card shadow-sm">
-    <div class="card-header bg-light">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="col-3">
-                <h5 class="mb-0 text-primary">
-                    <i class="fas fa-file-invoice-dollar me-2"></i>Monthly Rent Bills
-                </h5>
-            </div>
-            <div class="col-9">
-                <form method="GET" class="row g-3 justify-content-end">
-                    <div class="col-auto">
-                        <label class="form-label small mb-1">Property</label>
-                        <select name="property" class="form-select form-select-sm">
-                            <option value="">All Properties</option>
-                            {% for property in properties %}
-                                <option value="{{ property.id }}" {% if selected_property == property.id %}selected{% endif %}>
-                                    {{ property.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <label class="form-label small mb-1">Tenant</label>
-                        <select name="tenant" class="form-select form-select-sm select2" style="width: 200px;">
-                            <option value="">All Tenants</option>
-                            {% for tenant in tenants %}
-                                <option value="{{ tenant.id }}" {% if selected_tenant == tenant.id %}selected{% endif %}>
-                                    {{ tenant.user.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <label class="form-label small mb-1">Month</label>
-                        <select name="month" class="form-select form-select-sm">
-                            <option value="">All Months</option>
-                            {% for month in months %}
-                                <option value="{{ month }}" {% if selected_month == month %}selected{% endif %}>
-                                    {{ month }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <label class="form-label small mb-1">Year</label>
-                        <select name="year" class="form-select form-select-sm">
-                            <option value="">All Years</option>
-                            {% for year in years %}
-                                <option value="{{ year.id }}" {% if selected_year == year.id %}selected{% endif %}>
-                                    {{ year.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-auto d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary btn-sm" title="Filter">
-                            <i class="fas fa-filter me-2"></i>
-                        </button>
-                    </div>
-                    <div class="col-auto d-flex align-items-end">
-                        <a href="?{{ request.GET.urlencode }}&export=csv" class="btn btn-success btn-sm" title="Export to CSV">
-                            <i class="fas fa-download me-2"></i>
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <div class="card-body">
-        <div class="loader" id="loader"></div>
-        <div class="table-responsive">
-            <table id="tenantsTable" class="table table-hover align-middle table-striped" style="width:100%">
-                <thead class="table-light">
-                    <tr>
-                        <th class="text-center">#</th>
-                        <th>Tenant</th>
-                        <th>Month</th>
-                        <th class="text-center">Expected</th>
-                        <th class="text-center">Paid</th>
-                        <th>Due Date</th>
-                       
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    {% for rent_bill in rent_bills %}
-                    <tr>
-                        <td class="text-center">{{forloop.counter}}</td>
-                        <td>{{rent_bill.tenant.user.name}} - (<b>{{rent_bill.unit.name}}</b>)</td>
-                        <td>{{rent_bill.month.name}} ({{rent_bill.year.name}})</td>
-                        <td class="text-center">{{rent_bill.amount_expected}}</td>
-                        <td class="text-center">{{rent_bill.amount_paid}}</td>
-                        <td>{{rent_bill.due_date}}</td>
-                        
-                    </tr>
-                    {% endfor %}
-                </tbody>
-               
-            </table>
-        </div>
-        {% if rent_bills.has_other_pages %}
-        <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
-                {% if rent_bills.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ rent_bills.previous_page_number }}&month={{ selected_month|default:'' }}&year={{ selected_year|default:'' }}&property={{ selected_property|default:'' }}&tenant={{ selected_tenant|default:'' }}">&laquo; Previous</a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">&laquo; Previous</span>
-                    </li>
-                {% endif %}
 
-                {% for num in rent_bills.paginator.page_range %}
-                    {% if rent_bills.number == num %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ num }}</span>
-                        </li>
-                    {% else %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}&month={{ selected_month|default:'' }}&year={{ selected_year|default:'' }}&property={{ selected_property|default:'' }}&tenant={{ selected_tenant|default:'' }}">{{ num }}</a>
-                        </li>
-                    {% endif %}
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Rent Invoices</h5>
+        <p class="rems-card__subtitle">Showing records based on filters</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
+            <thead>
+                <tr>
+                    <th>Invoice / Date</th>
+                    <th>Tenant</th>
+                    <th>Property / Unit</th>
+                    <th>Period</th>
+                    <th>Expected</th>
+                    <th>Paid</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in rent_bills %}
+                <tr>
+                    <td>
+                        <div class="fw-600">INV-{{ bill.id }}</div>
+                        <div class="text-muted" style="font-size:.75rem;">Due: {{ bill.due_date|date:"d M, Y" }}</div>
+                    </td>
+                    <td>
+                        <div class="fw-600">{{ bill.tenant.user.first_name }} {{ bill.tenant.user.last_name }}</div>
+                        <div class="text-muted" style="font-size:.70rem;">{{ bill.tenant.user.phone|default:"—" }}</div>
+                    </td>
+                    <td>
+                        <div class="fw-600">{{ bill.unit.property.name }}</div>
+                        <span class="rems-badge rems-badge--blue mt-1">{{ bill.unit.name }}</span>
+                    </td>
+                    <td>{{ bill.month.name|slice:":3" }} {{ bill.year.name }}</td>
+                    <td class="fw-600">Kes {{ bill.amount_expected|floatformat:0 }}</td>
+                    <td class="text-success fw-600">Kes {{ bill.amount_paid|floatformat:0 }}</td>
+                    <td>
+                        {% if bill.fully_paid %}
+                            <span class="rems-badge rems-badge--green">Fully Paid</span>
+                        {% elif bill.amount_paid > 0 %}
+                            <span class="rems-badge rems-badge--amber">Partial</span>
+                        {% else %}
+                            <span class="rems-badge rems-badge--red">Unpaid</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-file-excel fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No rent records found for the selected filters.</p>
+                        </div>
+                    </td>
+                </tr>
                 {% endfor %}
-
-                {% if rent_bills.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ rent_bills.next_page_number }}&month={{ selected_month|default:'' }}&year={{ selected_year|default:'' }}&property={{ selected_property|default:'' }}&tenant={{ selected_tenant|default:'' }}">Next &raquo;</a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">Next &raquo;</span>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
+            </tbody>
+        </table>
     </div>
+    {% if rent_bills.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=rent_bills %}
+    </div>
+    {% endif %}
 </div>
+{% endblock %}
 
-{% endblock content %}
-
-{% block additional_scripts %}
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#tenantsTable').DataTable({
-            "pageLength": 25,
-            "order": [],
-            "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                   '<"row"<"col-sm-12"tr>>' +
-                   '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-            "language": {
-                "lengthMenu": "Show _MENU_ entries",
-                "search": "Search:",
-                "info": "Showing _START_ to _END_ of _TOTAL_ entries"
-            }
-        });
-
-        // Initialize Select2 for tenant dropdown
-        $('.select2').select2({
-            theme: 'bootstrap-5',
-            placeholder: 'Select a tenant',
-            allowClear: true,
-            width: '100%'
-        });
-    });
-
-    
-</script>
-
+{% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('rentChart').getContext('2d');
-        
-        // Get the data from the template context
-        const monthlyData = JSON.parse('{{ monthly_data|safe }}');
-        
-        // Prepare data for the chart
-        const months = monthlyData.map(item => item.month);
-        const expectedAmounts = monthlyData.map(item => item.expected);
-        const paidAmounts = monthlyData.map(item => item.paid);
+document.addEventListener("DOMContentLoaded", function() {
+    const rawData = {{ monthly_data|safe }};
+    if(rawData && rawData.length > 0) {
+        const labels = rawData.map(d => d.month.substring(0, 3));
+        const expected = rawData.map(d => d.expected);
+        const paid = rawData.map(d => d.paid);
 
+        const ctx = document.getElementById('rentChart').getContext('2d');
         new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
-                labels: months,
+                labels: labels,
                 datasets: [
                     {
-                        label: 'Expected Rent',
-                        data: expectedAmounts,
-                        borderColor: 'rgb(255, 99, 132)',
-                        tension: 0.1,
-                        fill: false
+                        label: 'Expected Revenue (KES)',
+                        data: expected,
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)', // primary light
+                        borderColor: '#6366f1',
+                        borderWidth: 1,
+                        borderRadius: 4
                     },
                     {
-                        label: 'Paid Rent',
-                        data: paidAmounts,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1,
-                        fill: false
+                        label: 'Actual Collected (KES)',
+                        data: paid,
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)', // emerald
+                        borderColor: '#10b981',
+                        borderWidth: 1,
+                        borderRadius: 4
                     }
                 ]
             },
@@ -235,74 +183,18 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Monthly Rent Analysis'
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                    }
+                    legend: { position: 'top' },
+                    tooltip: { mode: 'index', intersect: false }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Amount (KES)'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Month'
-                        }
-                    }
+                    y: { beginAtZero: true, grid: { borderDash: [2,4] } },
+                    x: { grid: { display: false } }
                 }
             }
         });
-
-        // Add pie chart
-        const pieCtx = document.getElementById('rentPieChart').getContext('2d');
-        
-        // Calculate totals
-        const totalExpected = expectedAmounts.reduce((a, b) => a + b, 0);
-        const totalPaid = paidAmounts.reduce((a, b) => a + b, 0);
-        const totalUnpaid = totalExpected - totalPaid;
-
-        new Chart(pieCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Paid', 'Unpaid'],
-                datasets: [{
-                    data: [totalPaid, totalUnpaid],
-                    backgroundColor: [
-                        'rgb(75, 192, 192)',
-                        'rgb(255, 99, 132)'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Total Rent Collection Status'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const value = context.raw;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = ((value / total) * 100).toFixed(1);
-                                return `${context.label}: KES ${value.toLocaleString()} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    });
+    } else {
+        document.getElementById('rentChart').parentElement.innerHTML = "<div class='d-flex align-items-center justify-content-center h-100 text-muted'>Select a year to view revenue trends.</div>";
+    }
+});
 </script>
-{% endblock additional_scripts %}
+{% endblock %}

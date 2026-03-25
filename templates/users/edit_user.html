@@ -1,91 +1,97 @@
-<!-- Add this modal HTML after the table in your template -->
-<div class="modal fade" id="editUserModal{{user.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="tenantModalLabel">Edit User</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="tenantForm" method="POST" action="{% url 'edit-user' %}">
-                <div class="modal-body">
-                    {% csrf_token %}
-                    <input type="number" name="user_id" id="user_id" value="{{user.id}}" readonly hidden>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="first_name" class="form-label fw-bold">First Name</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{user.first_name}}" required>
-                        </div>
-                        <div class="col">
-                            <label for="last_name" class="form-label fw-bold">Last Name</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{user.last_name}}" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="contact" class="form-label fw-bold">Contact Number</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" value="{{user.phone}}" required>
-                        </div>
-                        <div class="col">
-                            <label for="email" class="form-label fw-bold">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{user.email}}">
-                        </div>
-                        
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="id_number" class="form-label fw-bold">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" value="{{user.username}}" required>
-                        </div>
-                        <div class="col">
-                            <label for="id_number" class="form-label fw-bold">ID Number</label>
-                            <input type="text" class="form-control" id="id_number" name="id_number" value="{{user.id_number}}" required>
-                        </div>
-                       
-                        <div class="col">
-                            <label for="rent" class="form-label fw-bold">Gender</label>
-                            <select class="form-select" id="gender" name="gender">
-                                <option value="{{user.gender}}" selected>{{user.gender}}</option>
-                                {% for gender in genders %}
-                                    {% if gender != user.gender %}
-                                        <option value="{{gender}}">{{gender}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
+{% extends "base.html" %}
+{% load static %}
 
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="move_in_date" class="form-label fw-bold">Role</label>
-                            <select class="form-select" id="role" name="role">
-                                <option value="{{user.role}}" selected>{{user.role}}</option>
-                                {% for role in roles %}
-                                    {% if role != user.role %}
-                                        <option value="{{role}}">{{role}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                       
-                        <div class="col">
-                            <label for="rent" class="form-label fw-bold">Marital Status</label>
-                            <select class="form-select" id="marital_status" name="marital_status">
-                                <option value="{{user.marital_status}}" selected>{{user.marital_status}}</option>
-                                {% for status in marital_statuses %}
-                                    {% if status != user.marital_status %}
-                                        <option value="{{status}}">{{status}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                   
-                </div>
-                <div class="text-center mb-3">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save User</button>
-                </div>
-            </form>
-        </div>
+{% block title %}Edit User – REMS{% endblock %}
+{% block page_title %}Edit User{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'users' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Edit User</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Update user account details</p>
     </div>
 </div>
+
+<form method="POST" action="{% url 'edit-user' %}">
+    {% csrf_token %}
+    <input type="hidden" name="user_id" value="{{ request.GET.id }}">
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+            <div class="rems-card">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title"><i class="fa-solid fa-user-gear me-2 text-primary"></i>User Information</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control" required id="editUserFirstName">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control" required id="editUserLastName">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Username <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" required id="editUserUsername">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Email</label>
+                            <input type="email" name="email" class="form-control" id="editUserEmail">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Phone</label>
+                            <input type="tel" name="phone" class="form-control" id="editUserPhone">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">ID Number</label>
+                            <input type="text" name="id_number" class="form-control" id="editUserIdNumber">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Gender</label>
+                            <select name="gender" class="form-select" id="editUserGender">
+                                <option value="">-- Select --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Marital Status</label>
+                            <select name="marital_status" class="form-select" id="editUserMaritalStatus">
+                                <option value="">-- Select --</option>
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Divorced">Divorced</option>
+                                <option value="Widowed">Widowed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Role <span class="text-danger">*</span></label>
+                            <select name="role" class="form-select" required id="editUserRole">
+                                <option value="">-- Select Role --</option>
+                                <option value="Caretaker">Caretaker</option>
+                                <option value="House Manager">House Manager</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="rems-card">
+                <div class="rems-card__header"><h5 class="rems-card__title">Save Changes</h5></div>
+                <div class="rems-card__body">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="rems-btn rems-btn--primary" id="saveUserBtn">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Save Changes
+                        </button>
+                        <a href="{% url 'users' %}" class="rems-btn rems-btn--ghost text-center">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

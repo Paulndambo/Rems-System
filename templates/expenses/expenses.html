@@ -1,115 +1,141 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Expenses – REMS{% endblock %}
+{% block page_title %}Expenses{% endblock %}
 
 {% block content %}
-<div class="">
-    <div class="card shadow-sm">
-        <div class="card-header bg-white py-3">
-            <div class="row g-3 align-items-center">
-                <div class="col-12 col-md-4">
-                    <h5 class="mb-0 text-primary">
-                        <i class="fas fa-money-bill me-2"></i>Expenses
-                    </h5>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
-                        <input type="text" 
-                               class="form-control border-start-0" 
-                               placeholder="Search expenses..." 
-                               id="searchInput" 
-                               value="{{ search_query }}">
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 text-md-end">
-                    <button class="btn btn-primary w-100 w-md-auto" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#newExpenseModal">
-                        <i class="fas fa-plus me-2"></i>New Expense
-                    </button>   
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Property Expenses</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Log and track maintenance and operational costs</p>
+    </div>
+    <a href="{% url 'new-expense' %}" class="rems-btn rems-btn--primary">
+        <i class="fa-solid fa-plus me-2"></i> Record Expense
+    </a>
+</div>
+
+<!-- Search & Fast Filters -->
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" value="{{ search_query }}" class="form-control search-input" placeholder="Search expenses by title, property, unit, or type...">
+            </div>
+            <button type="submit" class="rems-btn rems-btn--primary">Search</button>
+            {% if search_query %}
+            <a href="{% url 'expenses' %}" class="rems-btn rems-btn--ghost"><i class="fa-solid fa-xmark me-1"></i> Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Expenses Table -->
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Expense Records</h5>
+        <p class="rems-card__subtitle">Showing {{ page_obj.paginator.count|default:object_list|length }} record(s)</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
+            <thead>
+                <tr>
+                    <th>Ref ID</th>
+                    <th>Date</th>
+                    <th>Title & Desc</th>
+                    <th>Property / Unit</th>
+                    <th>Type</th>
+                    <th class="text-end">Amount</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in page_obj|default:object_list %}
+                <tr>
+                    <td class="text-muted fw-600">EXP-{{ expense.id }}</td>
+                    <td><div class="fw-600">{{ expense.spend_on|date:"d M, Y" }}</div></td>
+                    <td>
+                        <div class="fw-600 text-dark">{{ expense.title }}</div>
+                        <div class="text-muted text-truncate" style="font-size:.75rem; max-width: 250px;">{{ expense.description|default:"—" }}</div>
+                    </td>
+                    <td>
+                        <div class="fw-600">{{ expense.property.name|default:"General" }}</div>
+                        {% if expense.unit %}
+                        <span class="rems-badge rems-badge--blue mt-1">{{ expense.unit.name }}</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="rems-badge rems-badge--ghost border">{{ expense.expense_type|default:"Other" }}</span></td>
+                    <td class="text-end text-danger fw-600">Kes {{ expense.amount|floatformat:0 }}</td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-1">
+                            <a href="{% url 'edit-expense' %}?id={{ expense.id }}" class="action-btn action-btn--edit" title="Edit">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <button type="button" class="action-btn action-btn--delete" title="Delete" onclick="confirmDelete('{{ expense.id }}', '{{ expense.title }}')">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-file-invoice-dollar fa-3x text-muted mb-3"></i>
+                            <h5 class="fw-700">No Expenses Recorded</h5>
+                            <p class="text-muted">Start tracking costs by recording an expense.</p>
+                            <a href="{% url 'new-expense' %}" class="rems-btn rems-btn--primary mt-2">Record First Expense</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=page_obj %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteExpenseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rems-modal">
+            <div class="modal-header border-0 pb-0">
+                <div class="modal-danger-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
             </div>
-        </div>
-        
-        <div class="card-body">
-            <div class="loader" id="loader"></div>
-            <div class="table-responsive">
-                <table id="tenantsTable" class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="text-center">#</th>
-                            <th>Property</th>
-                            <th>Title</th>
-                            <th>Amount</th>
-                            <th>Type</th>
-                            <th>Spend On</th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        {% for expense in expenses %}
-                        <tr>
-                            <td class="text-center">{{forloop.counter}}</td>
-                            <td>{{expense.property.name}}{% if expense.unit %} ({{expense.unit.name}}){% endif %}</td>
-                            <td>{{expense.title}}</td>
-                            <td>
-                                <span class="badge bg-success fs-6">
-                                    {{expense.amount}}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-info text-dark">
-                                    {{expense.expense_type}}
-                                </span>
-                            </td>
-                            <td>{{expense.spend_on}}</td>
-                            <td class="text-center">
-                                <div class="btn-group">
-                                    <button class="btn btn-outline-primary btn-sm" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#editExpenseModal{{expense.id}}"
-                                            title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#deleteExpenseModal{{expense.id}}"
-                                            title="Delete">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                            {% include "expenses/edit_expense.html" %}
-                            {% include "expenses/delete_expense.html" %}
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
-                                <i class="fas fa-inbox fa-3x mb-3"></i>
-                                <p>No expenses found</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="modal-body text-center pt-2">
+                <h5 class="fw-700 mb-1">Delete Expense?</h5>
+                <p class="text-muted mb-0" style="font-size:.875rem">
+                    Are you sure you want to delete <strong id="expenseTitle"></strong>? This impacts your overall financial reports and cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-2">
+                <button type="button" class="rems-btn rems-btn--ghost" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{% url 'delete-expense' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="expense_id" id="deleteExpenseId">
+                    <button type="submit" class="rems-btn rems-btn--danger">
+                        <i class="fa-solid fa-trash-can me-1"></i> Confirm Delete
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}
 
-{% block additional_scripts %}
+{% block extra_js %}
 <script>
-    // Add responsive search functionality
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-        const searchText = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('#tableBody tr');
-        
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchText) ? '' : 'none';
-        });
-    });
+function confirmDelete(id, title) {
+    document.getElementById('deleteExpenseId').value = id;
+    document.getElementById('expenseTitle').textContent = title;
+    new bootstrap.Modal(document.getElementById('deleteExpenseModal')).show();
+}
 </script>
-{% endblock additional_scripts %}
+{% endblock %}

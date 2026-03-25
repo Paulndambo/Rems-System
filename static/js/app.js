@@ -1,29 +1,130 @@
-// Form Enhancements Only
+/* ===================================================
+   REMS – app.js
+   Sidebar toggle + submenu accordion + form enhancements
+   =================================================== */
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize form enhancements
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ─── Sidebar Toggle (Desktop) ─────────────────────────────────────────────
+    const wrapper        = document.getElementById('remsWrapper');
+    const toggleBtn      = document.getElementById('sidebarToggleBtn');
+    const sidebar        = document.getElementById('remsSidebar');
+    const overlay        = document.getElementById('sidebarOverlay');
+    const closeBtn       = document.getElementById('sidebarCloseBtn');
+
+    const COLLAPSED_KEY  = 'rems_sidebar_collapsed';
+    const isMobile       = () => window.innerWidth < 992;
+
+    // Restore saved desktop state
+    if (!isMobile() && localStorage.getItem(COLLAPSED_KEY) === '1') {
+        wrapper && wrapper.classList.add('sidebar-collapsed');
+    }
+
+    function collapseSidebar() {
+        if (isMobile()) {
+            sidebar && sidebar.classList.remove('mobile-open');
+            overlay && overlay.classList.remove('active');
+        } else {
+            wrapper && wrapper.classList.add('sidebar-collapsed');
+            localStorage.setItem(COLLAPSED_KEY, '1');
+        }
+    }
+
+    function expandSidebar() {
+        if (isMobile()) {
+            sidebar && sidebar.classList.add('mobile-open');
+            overlay && overlay.classList.add('active');
+        } else {
+            wrapper && wrapper.classList.remove('sidebar-collapsed');
+            localStorage.setItem(COLLAPSED_KEY, '0');
+        }
+    }
+
+    function toggleSidebar() {
+        if (isMobile()) {
+            const isOpen = sidebar && sidebar.classList.contains('mobile-open');
+            isOpen ? collapseSidebar() : expandSidebar();
+        } else {
+            const isCollapsed = wrapper && wrapper.classList.contains('sidebar-collapsed');
+            isCollapsed ? expandSidebar() : collapseSidebar();
+        }
+    }
+
+    toggleBtn  && toggleBtn.addEventListener('click',  toggleSidebar);
+    closeBtn   && closeBtn.addEventListener('click',   collapseSidebar);
+    overlay    && overlay.addEventListener('click',    collapseSidebar);
+
+    // Re-evaluate on resize
+    window.addEventListener('resize', function () {
+        if (!isMobile()) {
+            sidebar  && sidebar.classList.remove('mobile-open');
+            overlay  && overlay.classList.remove('active');
+            // restore saved desktop state
+            if (localStorage.getItem(COLLAPSED_KEY) === '1') {
+                wrapper && wrapper.classList.add('sidebar-collapsed');
+            } else {
+                wrapper && wrapper.classList.remove('sidebar-collapsed');
+            }
+        }
+    });
+
+    // ─── Submenu Accordion ────────────────────────────────────────────────────
+    const parentBtns = document.querySelectorAll('.nav-link--parent');
+
+    parentBtns.forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId  = btn.getAttribute('data-target');
+            const submenu   = document.getElementById(targetId);
+            const parentLi  = btn.closest('.nav-item--has-sub');
+
+            if (!submenu || !parentLi) return;
+
+            const isOpen = parentLi.classList.contains('open');
+
+            // Close all other open submenus
+            document.querySelectorAll('.nav-item--has-sub.open').forEach(function (openLi) {
+                if (openLi !== parentLi) {
+                    openLi.classList.remove('open');
+                    const openSub = openLi.querySelector('.nav-submenu');
+                    if (openSub) openSub.classList.remove('open');
+                    const openBtn = openLi.querySelector('.nav-link--parent');
+                    if (openBtn) openBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // Toggle this one
+            if (isOpen) {
+                parentLi.classList.remove('open');
+                submenu.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+            } else {
+                parentLi.classList.add('open');
+                submenu.classList.add('open');
+                btn.setAttribute('aria-expanded', 'true');
+            }
+        });
+    });
+
+    // ─── Form Enhancements ────────────────────────────────────────────────────
     initFormEnhancements();
 });
 
-// Form enhancements
+// ─── Form Enhancements ────────────────────────────────────────────────────────
 function initFormEnhancements() {
-    // Enhanced form validation
+    // Submission validation
     const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
+    forms.forEach(function (form) {
+        form.addEventListener('submit', function (e) {
             const requiredFields = form.querySelectorAll('[required]');
             let isValid = true;
 
-            requiredFields.forEach(field => {
+            requiredFields.forEach(function (field) {
                 if (!field.value.trim()) {
                     isValid = false;
                     field.classList.add('is-invalid');
-                    
-                    // Add shake animation
-                    field.style.animation = 'shake 0.5s ease-in-out';
-                    setTimeout(() => {
-                        field.style.animation = '';
-                    }, 500);
+                    field.style.animation = 'shake 0.4s ease';
+                    setTimeout(function () { field.style.animation = ''; }, 400);
                 } else {
                     field.classList.remove('is-invalid');
                 }
@@ -31,49 +132,49 @@ function initFormEnhancements() {
 
             if (!isValid) {
                 e.preventDefault();
-                alert('Please fill in all required fields');
             }
         });
     });
 
-    // Real-time form validation
+    // Real-time blur validation
     const inputs = document.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-            validateField(this);
+    inputs.forEach(function (input) {
+        input.addEventListener('blur', function () { validateField(this); });
+        input.addEventListener('input', function () {
+            if (this.classList.contains('is-invalid')) validateField(this);
         });
     });
 }
 
-// Field validation
 function validateField(field) {
-    const value = field.value.trim();
+    const value      = field.value.trim();
     const isRequired = field.hasAttribute('required');
-    
+
     if (isRequired && !value) {
         field.classList.add('is-invalid');
+        field.classList.remove('is-valid');
         return false;
     }
-    
-    // Email validation
+
+    // Email
     if (field.type === 'email' && value) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
             field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
             return false;
         }
     }
-    
-    // Phone validation
+
+    // Phone
     if (field.type === 'tel' && value) {
-        const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-        if (!phoneRegex.test(value.replace(/\s/g, ''))) {
+        if (!/^[\+]?[1-9][\d]{0,15}$/.test(value.replace(/\s/g, ''))) {
             field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
             return false;
         }
     }
-    
+
     field.classList.remove('is-invalid');
-    field.classList.add('is-valid');
+    if (value) field.classList.add('is-valid');
     return true;
 }

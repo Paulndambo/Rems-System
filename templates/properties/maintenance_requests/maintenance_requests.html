@@ -1,54 +1,108 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Maintenance Requests – REMS{% endblock %}
+{% block page_title %}Maintenance Requests{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="col">
-            <h5 class="mb-0">Maintenance Requests</h5>
-        </div>
-            <div class="col">
-                <input type="text" class="form-control" placeholder="Search..." 
-                id="searchInput" value="{{ search_query }}">
-            </div>
-            
-        </div>
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Maintenance Requests</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Track pending, in-progress, and completed maintenance tasks</p>
     </div>
-    <div class="card-body">
-        <table id="tenantsTable" class="table table-hover table-small table-responsive" style="width:100%">
+    <a href="{% url 'new-maintenance-request' %}" class="rems-btn rems-btn--primary">
+        <i class="fa-solid fa-plus me-2"></i> New Request
+    </a>
+</div>
+
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" value="{{ search_query }}" class="form-control search-input" placeholder="Search by request title or ID...">
+            </div>
+            <button type="submit" class="rems-btn rems-btn--primary">Search</button>
+        </form>
+    </div>
+</div>
+
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Requests</h5>
+        <p class="rems-card__subtitle">{{ page_obj.paginator.count }} request(s) found</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>Ref</th>
                     <th>Title</th>
-                    <th>Property</th>
-                    <th>Unit</th>
-                    <th>Tenant</th>
+                    <th>Property / Unit</th>
                     <th>Priority</th>
                     <th>Status</th>
-                    <th></th>
+                    <th>Cost</th>
+                    <th class="text-end">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for request in maintenance_requests %}
                 <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td>{{request.title}}</td>
-                    <td>{{request.property}}</td>
-                    <td>{{request.unit}}</td>
-                    <td>{{request.unit.tenant.user.name}}</td>
-                    <td><span class="tenant-status status-active">{{request.priority}}</span></td>
-                    <td><span class="tenant-status status-active">{{request.status}}</span></td>
+                    <td class="fw-600 text-muted">MR-{{ request.id }}</td>
                     <td>
-                        <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editRequestModal{{request.id}}"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteRequestModal{{request.id}}"><i class="fas fa-trash"></i></button>
+                        <div class="fw-600">{{ request.title }}</div>
+                        <div class="text-muted" style="font-size:.75rem;">{{ request.description|truncatechars:70 }}</div>
                     </td>
-                    {% include "properties/maintenance_requests/edit_maintenance_request.html" %}
-                    {% include "properties/maintenance_requests/delete_maintenance_request.html" %}
+                    <td>
+                        <div class="fw-600">{{ request.property.name|default:"—" }}</div>
+                        <div class="text-muted" style="font-size:.75rem;">Unit {{ request.unit.name|default:"—" }}</div>
+                    </td>
+                    <td>
+                        {% if request.priority == "High" %}
+                            <span class="rems-badge rems-badge--red">High</span>
+                        {% elif request.priority == "Medium" %}
+                            <span class="rems-badge rems-badge--amber">Medium</span>
+                        {% else %}
+                            <span class="rems-badge rems-badge--blue">Low</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if request.status == "Completed" %}
+                            <span class="rems-badge rems-badge--green">Completed</span>
+                        {% elif request.status == "In Progress" %}
+                            <span class="rems-badge rems-badge--amber">In Progress</span>
+                        {% else %}
+                            <span class="rems-badge rems-badge--red">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-600">Kes {{ request.cost|floatformat:0 }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'edit-maintenance-request' %}" class="rems-btn rems-btn--ghost" style="padding:.3rem .6rem; font-size:.75rem;">
+                            Edit
+                        </a>
+                        <a href="{% url 'delete-maintenance-request' %}" class="rems-btn rems-btn--ghost text-danger border-danger" style="padding:.3rem .6rem; font-size:.75rem;">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-screwdriver-wrench fa-3x text-muted mb-3"></i>
+                            <h5 class="fw-700">No Maintenance Requests</h5>
+                            <p class="text-muted mb-0">Create your first request to begin tracking maintenance work.</p>
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
-                
             </tbody>
         </table>
     </div>
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=page_obj %}
+    </div>
+    {% endif %}
 </div>
-{% endblock content %}
+{% endblock %}

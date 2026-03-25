@@ -1,84 +1,70 @@
-<!-- Add this modal HTML after the table in your template -->
-<div class="modal fade" id="collectUnitBillPaymentModal{{unit_bill.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="tenantModalLabel">Collect Unit Bill Payment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+{% extends "base.html" %}
+{% load static %}
 
-            <form id="tenantForm" method="POST" action="{% url 'collect-unit-bill-payment' %}">
-                <div class="modal-body">
-                    {% csrf_token %}
-                    <input type="number" name="unit_bill_id" id="unit_bill_id" value="{{unit_bill.id}}" readonly hidden>
-                    {% if not unit_bill.rent_fully_paid %}
-                    <div class="row">
-                        <div class="col">
-                            <p class="fw-bold">Rent Amount</p>
-                            <p class="text-muted">Balance: {{unit_bill.rent_balance}}</p>
-                        </div>  
-                        
-                        <div class="col">
-                            <label for="unit" class="form-label fw-bold">Amount Paying</label>
-                            <input type="number" class="form-control" id="rent_amount" name="rent_amount" max="{{unit_bill.rent_balance}}" min="0" step="0.01" value="0.00">
-                        </div>
-                    </div>
-                    <hr/>
-                    {% endif %}
-                    {% if not unit_bill.water_fully_paid %}
-                    <div class="row">
-                        <div class="col">
-                            <p class="fw-bold">Water Amount</p>
-                            <p class="text-muted">Balance: {{unit_bill.water_balance}}</p>
-                        </div>
-                        
-                        <div class="col">
-                            <label for="unit" class="form-label fw-bold">Amount Paying</label>
-                            <input type="number" class="form-control" id="water_amount" name="water_amount" max="{{unit_bill.water_balance}}" min="0" step="0.01" value="0.00">
-                        </div>
-                    </div>
-                    <hr/>
-                    {% endif %}
-                    {% if not unit_bill.garbage_fully_paid %}
-                    <div class="row">
+{% block title %}Collect Unit Payment – REMS{% endblock %}
+{% block page_title %}Collect Unit Payment{% endblock %}
 
-                        <div class="col">
-                            <p class="fw-bold">Garbage Amount</p>
-                            <p class="text-muted">Balance: {{unit_bill.garbage_balance}}</p>
-                        </div>
-                        
-                        <div class="col">   
-                            <label for="unit" class="form-label fw-bold">Amount Paying</label>
-                            <input type="number" class="form-control" id="garbage_amount" name="garbage_amount" max="{{unit_bill.garbage_balance}}" min="0" step="0.01" value="0.00">
-                        </div>
-                    </div>
-                    {% endif %}
-                <div class="row mb-3">
-
-                    <div class="col">
-                        <label for="unit" class="form-label fw-bold">Payment Method</label>
-                        <select class="form-select" id="payment_method" name="payment_method">
-                            <option value="" selected>Choose...</option>
-                            <option value="Cash">Cash</option>
-                            <option value="M-Pesa">M-Pesa</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
-                            <option value="Bank Deposit">Bank Deposit</option>
-                            <option value="Cheque">Cheque</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <label for="unit" class="form-label fw-bold">Payment Date</label>
-                        <input type="date" class="form-control" id="payment_date" name="payment_date">
-                    </div>
-                </div>
-                </div>
-                <div class="text-center mb-3">
-
-                    <button type="submit" class="btn btn-primary">Collect Payment</button>
-                </div>
-                
-            </form>
-
-        </div>
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'pending-bills' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Collect Unit Bill Payment</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Use this fallback form to post a manual payment by bill ID</p>
     </div>
 </div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <form method="POST" action="{% url 'collect-unit-bill-payment' %}">
+            {% csrf_token %}
+            <div class="rems-card mb-4">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title">Payment Details</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-600">Unit Bill ID</label>
+                            <input type="number" class="form-control" name="unit_bill_id" placeholder="e.g. 12" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-600">Rent Amount</label>
+                            <input type="number" class="form-control" step="0.01" min="0" name="rent_amount" value="0" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-600">Water Amount</label>
+                            <input type="number" class="form-control" step="0.01" min="0" name="water_amount" value="0" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-600">Garbage Amount</label>
+                            <input type="number" class="form-control" step="0.01" min="0" name="garbage_amount" value="0" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Payment Method</label>
+                            <select name="payment_method" class="form-select" required>
+                                <option value="">-- Select Method --</option>
+                                <option value="Cash">Cash</option>
+                                <option value="M-Pesa">M-Pesa</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Bank Deposit">Bank Deposit</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Payment Date</label>
+                            <input type="date" name="payment_date" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'pending-bills' %}" class="rems-btn rems-btn--ghost">Cancel</a>
+                <button type="submit" class="rems-btn rems-btn--primary">
+                    <i class="fa-solid fa-floppy-disk me-2"></i> Save Payment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,87 +1,83 @@
-<div class="modal fade" id="editUnitModal{{unit.id}}" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Property Unit</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{% url 'edit-unit' %}">
-                    {% csrf_token %}
-                    <input type="number" name="unit_id" id="unit_id" value="{{unit.id}}" readonly hidden>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label">Unit Number</label>
-                            <input type="text" class="form-control" name="unit_number" id="unit_number" value="{{unit.name}}" required>
-                        </div>
-                        <div class="col">
-                            <label class="form-label">Unit Type</label>
-                            <select class="form-select" name="unit_type" id="unit_type" required>
-                                <option value="{{unit.unit_type}}">{{unit.unit_type}}</option>
-                                {% for unit_type in unit_types %}
-                                    {% if unit_type != unit.unit_type %}
-                                        <option value="{{unit_type}}">{{unit_type}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col">
-                            <div class="mb-3">
-                                <label class="form-label">Floor</label>
-                                <input type="text" class="form-control" name="floor" id="floor" value="{{unit.floor}}" required>
-                            </div>
-                        </div>
-                       
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label">Monthly Rent</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" name="rent" id="rent" value="{{unit.rent}}" required>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <label class="form-label">Security Deposit</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" name="security_deposit" id="security_deposit" value="{{unit.security_deposit}}" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label">Water Price</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" name="water_price" id="water_price" value="{{unit.water_price}}" required>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <label class="form-label">Status</label>
-                            <select class="form-select" name="status" id="status" required>
-                                <option value="{{unit.status}}">{{unit.status}}</option>
-                                {% for status in unit_statuses %}
-                                    {% if status != unit.status %}
-                                        <option value="{{status}}">{{status}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    
+{% extends "base.html" %}
+{% load static %}
 
+{% block title %}Edit Unit – REMS{% endblock %}
+{% block page_title %}Edit Unit{% endblock %}
 
-                    <div class="text-center mt-2 mb-3">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Unit</button>
-                    </div>
-                </form>
-            </div>
-            
-        </div>
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'units' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Edit Unit</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Update a unit by entering its ID and new details</p>
     </div>
 </div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <form method="POST" action="{% url 'edit-unit' %}">
+            {% csrf_token %}
+            <div class="rems-card mb-4">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title">Unit Updates</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Unit ID <span class="text-danger">*</span></label>
+                            <input type="number" name="unit_id" class="form-control" placeholder="e.g. 12" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Unit Number/Name <span class="text-danger">*</span></label>
+                            <input type="text" name="unit_number" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Rent (KES) <span class="text-danger">*</span></label>
+                            <input type="number" name="rent" step="0.01" min="0" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Floor</label>
+                            <input type="text" name="floor" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Unit Type</label>
+                            <select name="unit_type" class="form-select">
+                                <option value="Single Room">Single Room</option>
+                                <option value="Bedsitter">Bedsitter</option>
+                                <option value="Studio">Studio</option>
+                                <option value="1 Bedroom">1 Bedroom</option>
+                                <option value="2 Bedroom">2 Bedroom</option>
+                                <option value="3 Bedroom">3 Bedroom</option>
+                                <option value="4 Bedroom">4 Bedroom</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="Vacant">Vacant</option>
+                                <option value="Occupied">Occupied</option>
+                                <option value="Under Maintenance">Under Maintenance</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Security Deposit (KES)</label>
+                            <input type="number" name="security_deposit" step="0.01" min="0" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Water Price / Unit (KES)</label>
+                            <input type="number" name="water_price" step="0.01" min="0" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'units' %}" class="rems-btn rems-btn--ghost">Cancel</a>
+                <button type="submit" class="rems-btn rems-btn--primary">
+                    <i class="fa-solid fa-pen-to-square me-2"></i> Update Unit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

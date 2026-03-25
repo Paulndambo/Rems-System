@@ -8,7 +8,7 @@ from django.db import transaction
 from django.contrib import messages
 from django.views.generic import ListView
 from django.http import JsonResponse
-
+from datetime import datetime, date
 from decimal import Decimal
 from collections import defaultdict
 
@@ -191,7 +191,6 @@ def generate_bill(request):
     
     context = {
         "months": MONTHS_LIST,
-        "years": Year.objects.filter(is_active=True),
         "payment_methods": PAYMENT_METHODS,
         "units": units,
         "properties": properties
@@ -199,16 +198,15 @@ def generate_bill(request):
     
     if request.method == "POST":
         unit_id = request.POST.get('unit')
-        unit = PropertyUnit.objects.get(name=unit_id)
+        unit = PropertyUnit.objects.get(id=unit_id)
 
         last_water_bill = WaterBill.objects.filter(unit=unit).order_by("-created_at").first()
         
-        year_id = request.POST.get('year')
         month_name = request.POST.get('month')
         previous_reading = last_water_bill.current_reading if last_water_bill else 0
         current_reading = request.POST.get('current_reading')
         
-        year = Year.objects.get(id=year_id)
+        year = Year.objects.get(name=str(datetime.now().year))
         month = Month.objects.get(name=month_name, year=year)
         
         try:

@@ -29,12 +29,13 @@ from apps.core.constants import MONTHS_LIST, PAYMENT_METHODS
 class ProcessTenantPayment(object):
     def __init__(
         self,
-        unit_bill,
-        rent_amount,
-        water_amount,
-        garbage_amount,
-        payment_method,
-        payment_date,
+        unit_bill: UnitMonthBill,
+        rent_amount: float,
+        water_amount: float,
+        garbage_amount: float,
+        payment_method: str,
+        payment_date: date,
+
     ) -> None:
         self.unit_bill = unit_bill
         self.rent_amount = rent_amount
@@ -156,11 +157,11 @@ class ProcessTenantPayment(object):
                 + Decimal(self.garbage_amount)
                 + Decimal(self.water_amount)
             )
-            if amount_paid >= self.unit_bill.amount_expected:
+            if self.unit_bill.amount_paid >= self.unit_bill.amount_expected:
                 self.unit_bill.fully_paid = True
                 self.unit_bill.status = PaymentStatuses.PAID.value
                 self.unit_bill.save()
-            elif amount_paid > 0:
+            elif self.unit_bill.amount_paid > 0 and self.unit_bill.amount_paid < self.unit_bill.amount_expected:
                 self.unit_bill.status = PaymentStatuses.PARTIALLY_PAID.value
                 self.unit_bill.save()
             else:

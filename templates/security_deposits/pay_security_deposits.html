@@ -1,44 +1,44 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Record Rent Payment – REMS{% endblock %}
-{% block page_title %}Rent Payment{% endblock %}
+{% block title %}Record Deposit Payment – REMS{% endblock %}
+{% block page_title %}Security Deposit Payment{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center gap-2 mb-4">
-    <a href="{% url 'rent-payments' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <a href="{% url 'security-deposits' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
     <div>
-        <h1 class="fs-4 fw-bold mb-0">Record Rent Payment</h1>
-        <p class="text-muted mb-0" style="font-size:.82rem">Log a manual payment against an existing rent bill</p>
+        <h1 class="fs-4 fw-bold mb-0">Record Payment</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Record a manual security deposit payment</p>
     </div>
 </div>
 
 <div class="row justify-content-center">
     <div class="col-12 col-xl-8">
-        <form method="POST" action="{% url 'pay-rent' %}">
+        <form method="POST" action="{% url 'pay-security-deposit' %}">
             {% csrf_token %}
             <div class="rems-card mb-4">
                 <div class="rems-card__header">
-                    <h5 class="rems-card__title"><i class="fa-solid fa-hand-holding-dollar me-2 text-primary"></i>Transaction Details</h5>
+                    <h5 class="rems-card__title"><i class="fa-solid fa-money-bill-transfer me-2 text-primary"></i>Payment Details</h5>
                 </div>
                 <div class="rems-card__body">
                     <div class="row g-4">
                         <div class="col-md-12">
-                            <label class="form-label fw-600">Rent Bill Invoice ID <span class="text-danger">*</span></label>
-                            <input type="number" name="rent_bill_id" class="form-control" placeholder="e.g. 42 (From Rent Bills table)" required>
+                            <label class="form-label fw-600">Deposit Reference ID <span class="text-danger">*</span></label>
+                            <input type="number" name="security_deposit_id" class="form-control" placeholder="e.g. 15 (Check table for ID)" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Amount Paid (KES) <span class="text-danger">*</span></label>
                             <input type="number" name="amount_paid" class="form-control" step="0.01" placeholder="Amount" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-600">Date Received <span class="text-danger">*</span></label>
+                            <label class="form-label fw-600">Payment Date <span class="text-danger">*</span></label>
                             <input type="date" name="payment_date" class="form-control" required>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <label class="form-label fw-600">Payment Method <span class="text-danger">*</span></label>
                             <select name="payment_method" class="form-select" required>
-                                <option value="">-- Let us know how they paid --</option>
+                                <option value="">-- Select Method --</option>
                                 <option value="Cash">Cash</option>
                                 <option value="M-Pesa">M-Pesa</option>
                                 <option value="Bank Transfer">Bank Transfer</option>
@@ -46,14 +46,18 @@
                                 <option value="Cheque">Cheque</option>
                             </select>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Transaction Reference Code</label>
+                            <input type="text" name="reference_number" class="form-control" placeholder="e.g. M-Pesa Code">
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="d-flex justify-content-end gap-2">
-                <a href="{% url 'rent-payments' %}" class="rems-btn rems-btn--ghost">Cancel</a>
+                <a href="{% url 'security-deposits' %}" class="rems-btn rems-btn--ghost">Cancel</a>
                 <button type="submit" class="rems-btn rems-btn--primary">
-                    <i class="fa-solid fa-floppy-disk me-2"></i> Save Payment Record
+                    <i class="fa-solid fa-check me-2"></i> Submit Payment
                 </button>
             </div>
         </form>

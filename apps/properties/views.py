@@ -63,12 +63,18 @@ MONTHS = [
 @login_required
 def property_detail(request, id):
     property = get_object_or_404(Property, id=id)
-    units = PropertyUnit.objects.filter(property=property)
+    all_units = PropertyUnit.objects.filter(property=property).order_by('name')
+    
+    # Paginate units (7 per page)
+    paginator = Paginator(all_units, 7)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
     maintenance_requests = MaintenanceRequest.objects.filter(
         unit__property=property, status="Pending"
     ).count()
 
-    unit_numbers = [unit.name for unit in units]
+    unit_numbers = [unit.name for unit in page_obj.object_list]
 
     rent_data = {unit: {month: "Unpaid" for month in MONTHS} for unit in unit_numbers}
 
@@ -77,7 +83,7 @@ def property_detail(request, id):
     )
     for bill in bills:
         month_name = bill.month.name
-        if month_name in MONTHS:
+        if month_name in MONTHS and bill.unit.name in rent_data:
             status = (
                 "Fully Paid"
                 if bill.fully_paid
@@ -85,13 +91,13 @@ def property_detail(request, id):
             )
             rent_data[bill.unit.name][month_name] = status
 
-    # Generate rows for the table
+    # Generate rows for the table using only the units on this page
     rows = []
     for unit in unit_numbers:
         row = [unit] + [rent_data[unit][month] for month in MONTHS]
         rows.append(row)
 
-    occupied_units = units.filter(is_occupied=True).count()
+    occupied_units = all_units.filter(is_occupied=True).count()
     tenants = Tenant.objects.all()
     house_managers = User.objects.filter(
         role__in=["House Manager", "Landlord", "Caretaker"]
@@ -99,7 +105,8 @@ def property_detail(request, id):
 
     context = {
         "property": property,
-        "units": units,
+        "units": page_obj,
+        "page_obj": page_obj,
         "unit_numbers": unit_numbers,
         "months": MONTHS,
         "rows": rows,

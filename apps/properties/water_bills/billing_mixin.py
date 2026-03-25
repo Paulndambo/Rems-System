@@ -12,7 +12,7 @@ from apps.core.constants import MONTHS_LIST, PAYMENT_METHODS
 
 
 class TenantBillingMixin(object):
-    def __init__(self, year, month, previous_reading, current_reading, unit):
+    def __init__(self, year: Year, month: Month, previous_reading: float, current_reading: float, unit: PropertyUnit):
         self.year = year
         self.month = month
         self.previous_reading = previous_reading

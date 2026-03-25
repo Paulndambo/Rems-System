@@ -1,144 +1,103 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Rent Bills – REMS{% endblock %}
+{% block page_title %}Rent Bills{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header bg-light py-3">
-        <div class="row align-items-center g-3">
-            <div class="col-12 col-md-8">
-                <h5 class="mb-0 text-primary d-flex align-items-center">
-                    <i class="fas fa-file-invoice-dollar me-2"></i>Monthly Rent Bills
-                </h5>
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="fas fa-search text-muted"></i>
-                    </span>
-                    <input type="text" class="form-control border-start-0 ps-0" 
-                        placeholder="Search bills..." 
-                        id="searchInput" 
-                        value="{{ search_query }}">
-                </div>
-            </div>
-        
-        </div>
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Rent Bills</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Current and previous rent invoices</p>
     </div>
-    
-    <div class="card-body">
-        <div class="loader" id="loader"></div>
-        <div class="table-responsive">
-            <table id="tenantsTable" class="table table-hover align-middle" style="width:100%">
-                <thead class="table-light">
-                    <tr>
-                        <th class="text-center" width="5%">#</th>
-                        <th>Tenant</th>
-                        <th>Month</th>
-                        <th class="text-end">Expected</th>
-                        <th class="text-end">Paid</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    {% for rent_bill in rent_bills %}
-                    <tr>
-                        <td class="text-center">{{forloop.counter}}</td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-sm bg-light rounded-circle me-2 d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-user text-primary"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-medium">{{rent_bill.tenant.user.name}}</div>
-                                    <small class="text-muted">{{rent_bill.unit.name}}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div>{{rent_bill.month.name}}</div>
-                            <small class="text-muted">{{rent_bill.year.name}}</small>
-                        </td>
-                        <td class="text-end fw-medium">{{rent_bill.amount_expected}}</td>
-                        <td class="text-end fw-medium">{{rent_bill.amount_paid}}</td>
-                     
-                        <td>
-                            {% if rent_bill.status == 'Pending' %}
-                                <span class="badge bg-warning-subtle text-warning px-2 py-1">Pending</span>
-                            {% elif rent_bill.status == 'Paid' %}
-                                <span class="badge bg-success-subtle text-success px-2 py-1">Paid</span>
-                            {% elif rent_bill.status == 'Partially Paid' %}
-                                <span class="badge bg-warning-subtle text-warning px-2 py-1">Partially Paid</span>
-                            {% elif rent_bill.status == 'Overdue' %}
-                                <span class="badge bg-danger-subtle text-danger px-2 py-1">Overdue</span>
-                            {% endif %}
-                        </td>
-                        
-                        <td>
-                            <div class="d-flex justify-content-center gap-2">
-                                <!--
-                                {% if not rent_bill.fully_paid %}
-                                <button class="btn btn-primary btn-sm" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#payRentBillModal{{rent_bill.id}}">
-                                    Collect Rent
-                                </button>
-                                {% endif %}
-                                -->
-                                <a href="{% url 'rent-receipt' rent_bill.id %}" 
-                                   class="btn btn-outline-danger btn-sm">
-                                    <i class="fas fa-print"></i>
+    <a href="{% url 'generate-rent-bill' %}" class="rems-btn rems-btn--primary">
+        <i class="fa-solid fa-file-invoice-dollar me-2"></i> Generate Bills
+    </a>
+</div>
 
-                                    <span class="d-none d-md-inline ms-1">Print</span>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% include "rent_bills/pay_rent_bill.html" %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" value="{{ search_query }}" class="form-control search-input" placeholder="Search by tenant name, unit…">
+            </div>
+            <button type="submit" class="rems-btn rems-btn--primary">Search</button>
+        </form>
     </div>
 </div>
-{% endblock content %}
 
-{% block additional_scripts %}
-<script>
-    $(document).ready(function() {
-        // Initialize DataTable with improved configuration
-        const table = $('#tenantsTable').DataTable({
-            pageLength: 10,
-            ordering: true,
-            info: true,
-            responsive: true,
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
-            language: {
-                search: "",
-                searchPlaceholder: "Search bills...",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                paginate: {
-                    first: '<i class="fas fa-angle-double-left"></i>',
-                    last: '<i class="fas fa-angle-double-right"></i>',
-                    next: '<i class="fas fa-angle-right"></i>',
-                    previous: '<i class="fas fa-angle-left"></i>'
-                }
-            },
-            drawCallback: function() {
-                $('.dataTables_paginate > .pagination').addClass('pagination-sm');
-            }
-        });
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Generated Invoices</h5>
+        <p class="rems-card__subtitle">{{ page_obj.paginator.count }} bill(s) found</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
+            <thead>
+                <tr>
+                    <th>Invoice No</th>
+                    <th>Tenant</th>
+                    <th>Unit</th>
+                    <th>Expected</th>
+                    <th>Paid</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in rent_bills %}
+                <tr>
+                    <td class="text-muted fw-600">INV-{{ bill.id }}</td>
+                    <td>
+                        <div class="fw-600">{{ bill.tenant.user.first_name }} {{ bill.tenant.user.last_name }}</div>
+                        <div class="text-muted" style="font-size:.75rem;">{{ bill.tenant.user.phone|default:"—" }}</div>
+                    </td>
+                    <td><span class="rems-badge rems-badge--blue">{{ bill.unit.name }}</span></td>
+                    <td class="fw-600">Kes {{ bill.amount_expected|floatformat:0 }}</td>
+                    <td class="text-success fw-600">Kes {{ bill.amount_paid|floatformat:0 }}</td>
+                    <td>{{ bill.due_date|date:"d M Y" }}</td>
+                    <td>
+                        {% if bill.fully_paid %}
+                            <span class="rems-badge rems-badge--green">Fully Paid</span>
+                        {% elif bill.amount_paid > 0 %}
+                            <span class="rems-badge rems-badge--amber">Partially Paid</span>
+                        {% else %}
+                            <span class="rems-badge rems-badge--red">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if not bill.fully_paid %}
+                        <a href="#" class="rems-btn rems-btn--primary" style="padding:.3rem .6rem; font-size:.75rem;">
+                            Pay <i class="fa-solid fa-arrow-right list-icon"></i>
+                        </a>
+                        <!-- If we had a direct unit pay URL, we'd link it. Instead we might trigger modal or redirect to pay-rent.html -->
+                        {% else %}
+                        <span class="rems-badge rems-badge--green"><i class="fa-solid fa-check me-1"></i> Done</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-file-invoice fa-3x text-muted mb-3"></i>
+                            <h5 class="fw-700">No Rent Bills Found</h5>
+                            <p class="text-muted">Generate bills for tenants to see them here.</p>
+                            <a href="{% url 'generate-rent-bill' %}" class="rems-btn rems-btn--primary mt-2">Generate Now</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-        // Style DataTable elements
-        $('.dataTables_filter input')
-            .addClass('form-control form-control-sm')
-            .css('width', '200px');
-        $('.dataTables_length select').addClass('form-select form-select-sm');
-
-        // Implement responsive search
-        $('#searchInput').on('keyup', function() {
-            table.search(this.value).draw();
-        });
-    });
-</script>
-{% endblock additional_scripts %}
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=page_obj %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

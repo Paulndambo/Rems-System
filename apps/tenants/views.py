@@ -234,7 +234,7 @@ def edit_tenant(request):
             unit.is_occupied = True
             unit.save()
         return redirect("tenants")
-    return render(request, "tenants/edit_tenant.html", {"tenant": tenant})
+    return render(request, "tenants/edit_tenant.html")
 
 
 @login_required

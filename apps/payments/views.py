@@ -154,7 +154,12 @@ class ExpenseView(ListView):
 @login_required
 def add_expense(request):
     if request.method != "POST":
-        return render(request, "expenses/add_expense.html")
+        context = {
+            "expense_types": EXPENSE_TYPES_LIST,
+            "properties": Property.objects.filter(is_active=True),
+            "units": PropertyUnit.objects.all(),
+        }
+        return render(request, "expenses/new_expense.html", context)
 
     Expense.objects.create(
         title=request.POST.get("title"),
@@ -188,9 +193,17 @@ def edit_expense(request):
         expense.unit_id = unit_id
         expense.save()
         return redirect("expenses")
-    return render(
-        request, "expenses/edit_expense.html", {"expense_types": EXPENSE_TYPES_LIST}
-    )
+    
+    expense_id = request.GET.get('id')
+    expense = Expense.objects.filter(id=expense_id).first() if expense_id else None
+    
+    context = {
+        "expense": expense,
+        "expense_types": EXPENSE_TYPES_LIST,
+        "properties": Property.objects.filter(is_active=True),
+        "units": PropertyUnit.objects.all(),
+    }
+    return render(request, "expenses/edit_expense.html", context)
 
 
 @login_required
