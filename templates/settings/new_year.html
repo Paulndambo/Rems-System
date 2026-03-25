@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add Year – REMS{% endblock %}
+{% block page_title %}Add New Year{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'years' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">New Year</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Create a new system year</p>
+    </div>
+</div>
+
+<form method="POST" action="{% url 'new-year' %}">
+    {% csrf_token %}
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+            <div class="rems-card">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title"><i class="fa-solid fa-user-gear me-2 text-primary"></i>Year Information</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-600">Year <span class="text-danger">*</span></label>
+                            <input type="text" name="name" id="name" class="form-control" required id="newYear" placeholder="Year name (e.g. 2024)">
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="rems-btn rems-btn--primary" id="createUserBtn">
+                            <i class="fa-solid fa-user-plus me-2"></i> Create Year
+                        </button>
+                        <a href="{% url 'years' %}" class="rems-btn rems-btn--ghost text-center">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
