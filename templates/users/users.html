@@ -97,10 +97,6 @@
                             <a href="{% url 'edit-user' %}?id={{ user.id }}" class="action-btn action-btn--edit" title="Edit">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </a>
-                            <button class="action-btn action-btn--delete" title="Delete"
-                                    onclick="confirmDeleteUser('{{ user.id }}','{{ user.get_full_name|default:user.username }}')">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
                         </div>
                     </td>
                 </tr>

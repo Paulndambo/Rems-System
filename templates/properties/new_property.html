@@ -25,38 +25,40 @@
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label class="form-label fw-600">Property Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" placeholder="e.g. Sunset Apartments" required>
+                            <input type="text" name="name" id="name" class="form-control" placeholder="e.g. Sunset Apartments" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Number of Units <span class="text-danger">*</span></label>
-                            <input type="number" name="units" class="form-control" placeholder="e.g. 24" required>
+                            <input type="number" name="units" id="units" class="form-control" placeholder="e.g. 24" required>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label fw-600">Address line <span class="text-danger">*</span></label>
-                            <input type="text" name="address" class="form-control" placeholder="123 Main Street" required>
+                            <input type="text" name="address" id="address" class="form-control" placeholder="123 Main Street" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">City <span class="text-danger">*</span></label>
-                            <input type="text" name="city" class="form-control" placeholder="e.g. Nairobi" required>
+                            <input type="text" name="city" id="city" class="form-control" placeholder="e.g. Nairobi" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Country <span class="text-danger">*</span></label>
-                            <input type="text" name="country" class="form-control" placeholder="e.g. Kenya" required>
+                            <input type="text" name="country" id="country" class="form-control" placeholder="e.g. Kenya" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Garbage Charge (KES) <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" name="garbage_charge" class="form-control" value="130.00" required>
+                            <input type="number" step="0.01" name="garbage_charge" id="garbage_charge" class="form-control" value="130.00" required>
                         </div>
-
-                        <!-- Fallback implementation: If view doesn't pass house_managers, we need a manual input. But the view requires ID. 
-                             Wait, the user should be passing house managers to the context but isn't right now. 
-                             I'll assume that the context *could* be provided or at least we provide an input. 
-                             As an agent I can just put standard HTML select but it might be empty if the context is missing. -->
                         <div class="col-md-6">
-                            <label class="form-label fw-600">House Manager ID <span class="text-danger">*</span></label>
-                            <p class="text-muted mb-1" style="font-size:.7rem;">Enter user ID for manager (e.g. 1)</p>
-                            <input type="number" name="house_manager" class="form-control" placeholder="User ID" required>
-                            <!-- Note: If I modified views.py, I would pass house_managers loop here. -->
+                            <label class="form-label fw-600">Water Charge (KES) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" name="water_charge" id="water_charge" class="form-control" value="250.00" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">House Manager<span class="text-danger">*</span></label>
+                            <select name="house_manager" id="house_manager" class="form-select" required>
+                                <option value="">Select a House Manager</option>
+                                {% for manager in house_managers %}
+                                    <option value="{{ manager.id }}">{{ manager.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
                 </div>

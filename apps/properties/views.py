@@ -122,6 +122,9 @@ def property_detail(request, id):
 
 @login_required
 def new_property(request):
+    house_managers = User.objects.filter(
+        role__in=["Landlord", "House Manager", "Caretaker"]
+    )
     if request.method == "POST":
         owner = request.user
         name = request.POST.get("name")
@@ -131,13 +134,16 @@ def new_property(request):
         country = request.POST.get("country")
         units = request.POST.get("units")
         house_manager = request.POST.get("house_manager")
+        
         user = User.objects.get(id=house_manager)
 
         garbage_charge = request.POST.get("garbage_charge")
+        water_charge = request.POST.get("water_charge")
         Property.objects.create(
             owner=owner,
             name=name,
             garbage_charge=garbage_charge,
+            water_charge=water_charge,
             address=address,
             city=city,
             country=country,
@@ -146,36 +152,8 @@ def new_property(request):
             house_manager=user,
         )
         return redirect("properties")
-    return render(request, "properties/new_property.html")
+    return render(request, "properties/new_property.html", {"house_managers": house_managers})
 
-
-@login_required
-def new_property(request):
-    if request.method == "POST":
-        owner = request.user
-        name = request.POST.get("name")
-        address = request.POST.get("address")
-        city = request.POST.get("city")
-
-        country = request.POST.get("country")
-        units = request.POST.get("units")
-        house_manager = request.POST.get("house_manager")
-        user = User.objects.get(id=house_manager)
-
-        garbage_charge = request.POST.get("garbage_charge")
-        Property.objects.create(
-            owner=owner,
-            name=name,
-            garbage_charge=garbage_charge,
-            address=address,
-            city=city,
-            country=country,
-            units=units,
-            is_active=True,
-            house_manager=user,
-        )
-        return redirect("properties")
-    return render(request, "properties/new_property.html")
 
 
 @login_required
@@ -293,10 +271,9 @@ def property_unit_detail(request, id):
 
 @login_required
 def new_property_unit(request):
+    property = Property.objects.filter(id=request.GET.get("property_id")).first()
     if request.method == "POST":
         property_id = request.POST.get("property_id")
-
-        property = Property.objects.get(id=property_id)
         name = request.POST.get("unit_number")
         rent = request.POST.get("rent")
         unit_type = request.POST.get("unit_type")
@@ -306,7 +283,7 @@ def new_property_unit(request):
         water_price = request.POST.get("water_price")
 
         PropertyUnit.objects.create(
-            property=property,
+            property_id=property_id,
             name=name,
             water_price=water_price,
             rent=rent,
@@ -317,13 +294,15 @@ def new_property_unit(request):
             security_deposit=security_deposit,
         )
         return redirect("property-detail", id=property_id)
-    return render(request, "properties/units/new_unit.html")
+    return render(request, "properties/units/new_unit.html", {"property": property})
 
 
 @login_required
 def edit_property_unit(request):
+    unit = PropertyUnit.objects.filter(id=request.GET.get("unit_id")).first()
     if request.method == "POST":
-        unit_id = request.POST.get("unit_id")
+        
+        unit_id = request.GET.get("unit_id")
         name = request.POST.get("unit_number")
         rent = request.POST.get("rent")
         unit_type = request.POST.get("unit_type")
@@ -331,6 +310,8 @@ def edit_property_unit(request):
         floor = request.POST.get("floor")
         security_deposit = request.POST.get("security_deposit")
         water_price = request.POST.get("water_price")
+
+        print(f"Unit ID: {request.GET.get("unit_id")}")
 
         unit = PropertyUnit.objects.get(id=unit_id)
         unit.name = name
@@ -344,7 +325,7 @@ def edit_property_unit(request):
         unit.save()
 
         return redirect("unit-detail", id=unit.id)
-    return render(request, "properties/units/edit_unit.html")
+    return render(request, "properties/units/edit_unit.html", {"unit": unit, "unit_types": UNIT_TYPES, "statuses": UNIT_STATUSES})
 
 
 @login_required

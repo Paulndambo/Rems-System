@@ -9,7 +9,7 @@
     <a href="{% url 'units' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
     <div>
         <h1 class="fs-4 fw-bold mb-0">Create New Unit</h1>
-        <p class="text-muted mb-0" style="font-size:.82rem">Add a rental unit to a property</p>
+        <p class="text-muted mb-0" style="font-size:.82rem">Add a rental unit to a {{ property.name }}</p>
     </div>
 </div>
 
@@ -24,20 +24,9 @@
                 <div class="rems-card__body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-600">Property ID <span class="text-danger">*</span></label>
-                            <input type="hidden" name="property_id" value="{{ request.GET.property_id }}">
-                            <input
-                                type="number"
-                                class="form-control"
-                                value="{{ request.GET.property_id }}"
-                                readonly
-                                disabled
-                            >
-                            {% if request.GET.property_id %}
-                            <small class="text-muted">Auto-filled from the selected property.</small>
-                            {% else %}
-                            <small class="text-danger">Open this form from a property details page to set property automatically.</small>
-                            {% endif %}
+                            <label class="form-label fw-600">Property Name <span class="text-danger">*</span></label>
+                            <input type="hidden" name="property_id" id="property_id" value="{{ request.GET.property_id }}">
+                            <input type="text" class="form-control" value="{{ property.name }}" disabled>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Unit Number/Name <span class="text-danger">*</span></label>

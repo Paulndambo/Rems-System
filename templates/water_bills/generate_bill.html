@@ -5,79 +5,113 @@
 {% block page_title %}Generate Bill{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center gap-2 mb-4">
-    <a href="{% url 'monthly-unit-bills' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
-    <div>
-        <h1 class="fs-4 fw-bold mb-0">Generate Unit Bill</h1>
-        <p class="text-muted mb-0" style="font-size:.82rem">Create monthly unit bill from latest meter reading</p>
-    </div>
-</div>
+
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <div class="row justify-content-center">
     <div class="col-12 col-xl-8">
         <form method="POST" action="{% url 'generate-bill' %}">
             {% csrf_token %}
+
             <div class="rems-card mb-4">
                 <div class="rems-card__header">
-                    <h5 class="rems-card__title">
-                        <i class="fa-solid fa-file-invoice me-2 text-primary"></i>
-                        Billing Cycle Details
-                    </h5>
+                    <h5>Generate Unit Bill</h5>
                 </div>
+
                 <div class="rems-card__body">
-                    <div class="rems-alert alert-info mb-4" role="alert">
-                        <i class="fa-solid fa-circle-info me-2"></i>
-                        Select a unit and month, then enter current meter reading. The system combines rent, water, and garbage into one bill.
+
+                    <!-- PROPERTY -->
+                    <div class="mb-3">
+                        <label class="form-label">Property *</label>
+                        <select id="property" name="property" class="form-select" required>
+                            <option value="">-- Select Property --</option>
+                            {% for property in properties %}
+                                <option value="{{ property.id }}">{{ property.name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label class="form-label fw-600">Unit <span class="text-danger">*</span></label>
-                            <select name="unit" id="unit" class="form-select" required>
-                                <option value="">-- Select Occupied Unit --</option>
-                                {% for unit in units %}
-                                {# view currently expects unit name in POST, not unit id #}
-                                <option value="{{ unit.id }}">
-                                    {{ unit.name }}{% if unit.property %} - {{ unit.property.name }}{% endif %}
-                                </option>
-                                {% endfor %}
-                            </select>
+                    <!-- HIDDEN SECTION -->
+                    <div id="dependent-fields" style="display:none;">
+
+                        <!-- UNIT -->
+                        <div class="mb-3">
+                            <label class="form-label">Unit *</label>
+                            <select id="unit" name="unit" class="form-select" required></select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-600">Month <span class="text-danger">*</span></label>
-                            <select name="month" id="month" class="form-select" required>
+
+                        <!-- MONTH -->
+                        <div class="mb-3">
+                            <label class="form-label">Month *</label>
+                            <select name="month" class="form-select" required>
                                 <option value="">-- Select Month --</option>
                                 {% for m in months %}
-                                <option value="{{ m }}">{{ m }}</option>
+                                    <option value="{{ m }}">{{ m }}</option>
                                 {% endfor %}
                             </select>
                         </div>
 
-                        <div class="col-md-12">
-                            <label class="form-label fw-600">Current Meter Reading <span class="text-danger">*</span></label>
-                            <input
-                                type="number"
-                                name="current_reading"
-                                id="current_reading"
-                                class="form-control"
-                                min="0"
-                                step="0.01"
-                                placeholder="e.g. 324.5"
-                                required
-                            >
-                            <small class="text-muted">Previous reading is auto-fetched from the latest water bill for this unit.</small>
+                        <!-- READING -->
+                        <div class="mb-3">
+                            <label class="form-label">Current Meter Reading *</label>
+                            <input type="number" name="current_reading" class="form-control" required />
                         </div>
+
                     </div>
+
                 </div>
             </div>
-
-            <div class="d-flex justify-content-end gap-2">
-                <a href="{% url 'monthly-unit-bills' %}" class="rems-btn rems-btn--ghost">Cancel</a>
-                <button type="submit" class="rems-btn rems-btn--primary">
-                    <i class="fa-solid fa-gears me-2"></i> Generate Bill
-                </button>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Generate Bill</button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- jQuery (required for Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const propertySelect = document.getElementById("property");
+    const dependentFields = document.getElementById("dependent-fields");
+
+    propertySelect.addEventListener("change", function () {
+        const propertyId = this.value;
+
+        if (!propertyId) {
+            dependentFields.style.display = "none";
+            return;
+        }
+
+        dependentFields.style.display = "block";
+
+        // Fetch units via AJAX
+        fetch(`/payments/get-units/?property_id=${propertyId}`)
+            .then(response => response.json())
+            .then(data => {
+                const unitSelect = $('#unit');
+
+                unitSelect.empty();
+
+                data.forEach(unit => {
+                    unitSelect.append(
+                        new Option(unit.name, unit.id)
+                    );
+                });
+
+                // Reinitialize Select2
+                unitSelect.select2({
+                    placeholder: "Search unit...",
+                    width: '100%'
+                });
+            });
+    });
+});
+</script>
+
 {% endblock %}

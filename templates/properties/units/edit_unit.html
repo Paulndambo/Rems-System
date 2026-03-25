@@ -15,7 +15,7 @@
 
 <div class="row justify-content-center">
     <div class="col-12 col-xl-8">
-        <form method="POST" action="{% url 'edit-unit' %}">
+        <form method="POST" action="{% url 'edit-unit' %}?unit_id={{ request.GET.unit_id }}">
             {% csrf_token %}
             <div class="rems-card mb-4">
                 <div class="rems-card__header">
@@ -25,47 +25,50 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-600">Unit ID <span class="text-danger">*</span></label>
-                            <input type="number" name="unit_id" class="form-control" placeholder="e.g. 12" required>
+                            <input type="text" name="unit_id" id="unit_id" value="{{ unit.id }}" class="form-control" disabled required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Unit Number/Name <span class="text-danger">*</span></label>
-                            <input type="text" name="unit_number" class="form-control" required>
+                            <input type="text" name="unit_number" class="form-control" value="{{ unit.name }}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Rent (KES) <span class="text-danger">*</span></label>
-                            <input type="number" name="rent" step="0.01" min="0" class="form-control" required>
+                            <input type="number" name="rent" step="0.01" min="0" class="form-control" value="{{ unit.rent|default:'0' }}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Floor</label>
-                            <input type="text" name="floor" class="form-control">
+                            <input type="text" name="floor" class="form-control" value="{{ unit.floor|default:'-' }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Unit Type</label>
                             <select name="unit_type" class="form-select">
-                                <option value="Single Room">Single Room</option>
-                                <option value="Bedsitter">Bedsitter</option>
-                                <option value="Studio">Studio</option>
-                                <option value="1 Bedroom">1 Bedroom</option>
-                                <option value="2 Bedroom">2 Bedroom</option>
-                                <option value="3 Bedroom">3 Bedroom</option>
-                                <option value="4 Bedroom">4 Bedroom</option>
+                                <option value="{{unit.unit_type}}">{{unit.unit_type}}</option>
+                                {% for unit_type in unit_types %}
+                                    {% if unit_type != unit.unit_type %}
+                                <option value="{{ unit_type }}">{{ unit_type }}</option>
+                                {% endif %}
+                                {% endfor %}
                             </select>
                         </div>
+                        
                         <div class="col-md-6">
                             <label class="form-label fw-600">Status</label>
                             <select name="status" class="form-select">
-                                <option value="Vacant">Vacant</option>
-                                <option value="Occupied">Occupied</option>
-                                <option value="Under Maintenance">Under Maintenance</option>
+                                <option value="{{unit.status}}">{{unit.status}}</option>
+                                {% for status in statuses %}
+                                {% if status != unit.status %}
+                                <option value="{{ status }}">{{ status }}</option>
+                                {% endif %}
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Security Deposit (KES)</label>
-                            <input type="number" name="security_deposit" step="0.01" min="0" class="form-control">
+                            <input type="number" name="security_deposit" step="0.01" min="0" value="{{ unit.security_deposit|default:'0' }}" class="form-control">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Water Price / Unit (KES)</label>
-                            <input type="number" name="water_price" step="0.01" min="0" class="form-control">
+                            <input type="number" name="water_price" step="0.01" min="0" value="{{ unit.water_price|default:'0' }}" class="form-control">
                         </div>
                     </div>
                 </div>

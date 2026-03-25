@@ -31,6 +31,7 @@ from apps.payments.unit_bills.views import (
     MonthlyUnitBillsView,
     unit_bill_receipt,
     generate_bill,
+    get_units_by_property
 )
 from apps.payments.views import SecurityDepositsView, pay_security_deposit
 
@@ -67,4 +68,5 @@ urlpatterns = [
     # Security Deposits
     path("security-deposits/", SecurityDepositsView.as_view(), name="security-deposits"),
     path("pay-security-deposit/", pay_security_deposit, name="pay-security-deposit"),
+    path("get-units/", get_units_by_property, name="get-units"),
 ]

@@ -87,42 +87,29 @@
         <table class="rems-table">
             <thead>
                 <tr>
-                    <th>Invoice / Date</th>
+                    <th>Date Paid</th>
                     <th>Tenant</th>
                     <th>Property / Unit</th>
                     <th>Period</th>
                     <th>Expected</th>
-                    <th>Paid</th>
-                    <th>Status</th>
+                    <th>AmountPaid</th>
                 </tr>
             </thead>
             <tbody>
                 {% for bill in rent_bills %}
                 <tr>
                     <td>
-                        <div class="fw-600">INV-{{ bill.id }}</div>
-                        <div class="text-muted" style="font-size:.75rem;">Due: {{ bill.due_date|date:"d M, Y" }}</div>
+                    {{ bill.created_at|date:"d M, Y" }}
                     </td>
                     <td>
                         <div class="fw-600">{{ bill.tenant.user.first_name }} {{ bill.tenant.user.last_name }}</div>
-                        <div class="text-muted" style="font-size:.70rem;">{{ bill.tenant.user.phone|default:"—" }}</div>
                     </td>
                     <td>
-                        <div class="fw-600">{{ bill.unit.property.name }}</div>
-                        <span class="rems-badge rems-badge--blue mt-1">{{ bill.unit.name }}</span>
+                        <div class="fw-600">{{ bill.unit.property.name }}({{ bill.unit.name }})</div>
                     </td>
                     <td>{{ bill.month.name|slice:":3" }} {{ bill.year.name }}</td>
                     <td class="fw-600">Kes {{ bill.amount_expected|floatformat:0 }}</td>
                     <td class="text-success fw-600">Kes {{ bill.amount_paid|floatformat:0 }}</td>
-                    <td>
-                        {% if bill.fully_paid %}
-                            <span class="rems-badge rems-badge--green">Fully Paid</span>
-                        {% elif bill.amount_paid > 0 %}
-                            <span class="rems-badge rems-badge--amber">Partial</span>
-                        {% else %}
-                            <span class="rems-badge rems-badge--red">Unpaid</span>
-                        {% endif %}
-                    </td>
                 </tr>
                 {% empty %}
                 <tr>

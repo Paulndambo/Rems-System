@@ -159,44 +159,15 @@ def new_tenant(request):
         except Exception as e:
             print(e)
             raise e
-        
-        """
-        unit = PropertyUnit.objects.get(id=rental_unit)
-
-        user = User.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            email=email if email else f"{first_name}.{last_name}@gmail.com",
-            phone=phone,
-            id_number=id_number,
-            gender=gender,
-            username=email if email else f"{first_name}.{last_name}",
-            marital_status=marital_status,
-            role="Tenant",
-        )
-
-        user.set_password("1234")
-        user.save()
-
-        tenant = Tenant.objects.create(
-            user=user,
-            move_in_date=move_in_date,
-            lease_duration=lease_duration,
-            lease_date=lease_date,
-            status="Active",
-            renews_every=lease_duration,
-        )
-        unit.tenant = tenant
-        unit.is_occupied = True
-        unit.save()
-        """
+    
         return redirect("tenants")
-    return render(request, "tenants/new_tenant.html")
+    return render(request, "tenants/new_tenant.html", {"units": PropertyUnit.objects.filter(is_occupied=False)})
 
 
 @login_required
 @transaction.atomic
 def edit_tenant(request):
+    tenant_object = Tenant.objects.filter(id=request.GET.get("id")).first()
     if request.method == "POST":
         tenant_id = request.POST.get("tenant_id")
         tenant = Tenant.objects.get(id=tenant_id)
@@ -210,6 +181,7 @@ def edit_tenant(request):
         lease_duration = request.POST.get("lease_duration")
         lease_date = request.POST.get("lease_date")
         marital_status = request.POST.get("marital_status")
+        occupation = request.POST.get("occupation")
 
         rental_unit = request.POST.get("rental_unit")
         unit = PropertyUnit.objects.filter(id=rental_unit).first()
@@ -225,6 +197,7 @@ def edit_tenant(request):
         tenant.user.marital_status = marital_status
         tenant.renews_every = lease_duration
         tenant.lease_date = lease_date
+        tenant.occupation = occupation
 
         tenant.user.save()
         tenant.save()
@@ -234,7 +207,14 @@ def edit_tenant(request):
             unit.is_occupied = True
             unit.save()
         return redirect("tenants")
-    return render(request, "tenants/edit_tenant.html")
+    
+    return render(request, "tenants/edit_tenant.html", {
+        "tenant": tenant_object, 
+        "units": PropertyUnit.objects.filter(Q(is_occupied=False) | Q(tenant=tenant_object)), 
+        "lease_durations": LEASE_DURATIONS, 
+        "marital_statuses": MARITAL_STATUSES,
+        "genders": ["Male", "Female", "Other"]
+    })
 
 
 @login_required

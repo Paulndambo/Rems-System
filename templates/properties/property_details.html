@@ -81,6 +81,7 @@
                     <li><span class="dl-label">Manager</span><span class="dl-val">{{ property.house_manager.first_name }} {{ property.house_manager.last_name }}</span></li>
                     <li><span class="dl-label">Country</span><span class="dl-val">{{ property.country }}</span></li>
                     <li><span class="dl-label">Garbage Charge</span><span class="dl-val">Kes {{ property.garbage_charge|floatformat:0 }}</span></li>
+                    <li><span class="dl-label">Water Charge</span><span class="dl-val">Kes {{ property.water_charge|floatformat:0 }}</span></li>
                     <li><span class="dl-label">Status</span><span class="rems-badge {% if property.is_active %}rems-badge--green{% else %}rems-badge--amber{% endif %}">{{ property.status }}</span></li>
                 </ul>
             </div>

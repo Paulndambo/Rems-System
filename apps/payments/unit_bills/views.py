@@ -186,30 +186,32 @@ class PendingBillsView(LoginRequiredMixin, ListView):
     
 @login_required    
 def generate_bill(request):
-    units = PropertyUnit.objects.filter(is_occupied=True)
     properties = Property.objects.all()
-    
+
     context = {
         "months": MONTHS_LIST,
         "payment_methods": PAYMENT_METHODS,
-        "units": units,
         "properties": properties
     }
-    
-    if request.method == "POST":
-        unit_id = request.POST.get('unit')
-        unit = PropertyUnit.objects.get(id=unit_id)
 
-        last_water_bill = WaterBill.objects.filter(unit=unit).order_by("-created_at").first()
-        
-        month_name = request.POST.get('month')
-        previous_reading = last_water_bill.current_reading if last_water_bill else 0
-        current_reading = request.POST.get('current_reading')
-        
-        year = Year.objects.get(name=str(datetime.now().year))
-        month = Month.objects.get(name=month_name, year=year)
-        
+    if request.method == "POST":
         try:
+            unit_id = request.POST.get('unit')
+            month_name = request.POST.get('month')
+            current_reading = request.POST.get('current_reading')
+
+            if not unit_id:
+                messages.error(request, "Please select a unit.")
+                return redirect("generate-bill")
+
+            unit = PropertyUnit.objects.get(id=unit_id)
+
+            last_water_bill = WaterBill.objects.filter(unit=unit).order_by("-created_at").first()
+            previous_reading = last_water_bill.current_reading if last_water_bill else 0
+
+            year = Year.objects.get(name=str(datetime.now().year))
+            month = Month.objects.get(name=month_name, year=year)
+
             biller = TenantBillingMixin(
                 year=year,
                 month=month,
@@ -217,12 +219,38 @@ def generate_bill(request):
                 current_reading=current_reading,
                 unit=unit
             )
-            res = biller.generate_bill()
-            messages.success(request, f"Bill successfully generated!!, You can go to monthly bills for {month}, {year.name}. You will find it")
+
+            biller.generate_bill()
+
+            messages.success(
+                request,
+                f"Bill successfully generated for {unit.name} - {month.name} {year.name}"
+            )
+
             return redirect(f"/payments/unit-bills/{month.id}/")
+
         except Exception as e:
-            raise e
-        
-        
-    
+            messages.error(request, str(e))
+            return redirect("generate-bill")
+
     return render(request, "water_bills/generate_bill.html", context)
+
+
+@login_required
+def get_units_by_property(request):
+    property_id = request.GET.get("property_id")
+
+    units = PropertyUnit.objects.filter(
+        property_id=property_id,
+        is_occupied=True
+    ).select_related("property")
+
+    data = [
+        {
+            "id": unit.id,
+            "name": f"{unit.name} - {unit.property.name}"
+        }
+        for unit in units
+    ]
+
+    return JsonResponse(data, safe=False)

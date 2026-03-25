@@ -95,8 +95,8 @@
                         <div class="fw-600">{{ pmt.tenant.user.first_name }} {{ pmt.tenant.user.last_name }}</div>
                     </td>
                     <td>
-                        <div class="fw-600">{{ pmt.water_bill.unit.property.name }}</div>
-                        <span class="rems-badge rems-badge--blue mt-1">{{ pmt.water_bill.unit.name }}</span>
+                        <div class="fw-600">{{ pmt.water_bill.unit.property.name }}({{ pmt.water_bill.unit.name }})</div>
+            
                     </td>
                     <td>{{ pmt.month.name|slice:":3" }} {{ pmt.year.name }}</td>
                     <td><span class="rems-badge rems-badge--ghost border">{{ pmt.payment_method }}</span></td>

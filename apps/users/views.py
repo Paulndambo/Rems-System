@@ -98,6 +98,8 @@ def new_user(request):
 
 
 def edit_user(request):
+    user_object = User.objects.filter(id=request.GET.get("id")).first()
+    print(f"User object: {user_object}")
     if request.method == "POST":
         user = User.objects.get(id=request.POST.get("user_id"))
         user.first_name = request.POST.get("first_name")
@@ -111,7 +113,7 @@ def edit_user(request):
         user.username = request.POST.get("username")
         user.save()
         return redirect("users")
-    return render(request, "users/edit_user.html")
+    return render(request, "users/edit_user.html", {"current_user": user_object, "marital_statuses": MARITAL_STATUSES, "genders": GENDERS, "roles": ROLES})
 
 
 def delete_user(request):
@@ -123,12 +125,14 @@ def delete_user(request):
 
 
 def change_password(request, id):
+    user = User.objects.get(id=id)
+
+    print(f"Changing password for user: {user.first_name} {user.last_name}")
+
     if request.method == "POST":
         password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
-
-        user = User.objects.get(id=id)
-
+        
         if password.casefold() == confirm_password.casefold():
             user.set_password(password)
             user.save()
@@ -136,4 +140,4 @@ def change_password(request, id):
         else:
             messages.error("Passwords do not match!!")
         return redirect("change-password", id=id)
-    return render(request, "accounts/change_password.html")
+    return render(request, "users/change_password.html", {"current_user": user})
