@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
-from apps.core.models import Month, Year
+from apps.core.models import Month, Year, UserAction
 from apps.tenants.models import Tenant
 from apps.payments.models import RentPayment, RentBill
 from apps.users.models import User
@@ -151,6 +151,12 @@ def new_property(request):
             is_active=True,
             house_manager=user,
         )
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Created property '{name}'",
+            action_type="Create",
+            description=f"Created property '{name}'",
+        )
         return redirect("properties")
     return render(request, "properties/new_property.html", {"house_managers": house_managers})
 
@@ -158,6 +164,7 @@ def new_property(request):
 
 @login_required
 def edit_property(request):
+    current_property = Property.objects.filter(id=request.GET.get("id")).first()
     if request.method == "POST":
         property_id = request.POST.get("property_id")
         name = request.POST.get("name")
@@ -166,6 +173,7 @@ def edit_property(request):
         country = request.POST.get("country")
         units = request.POST.get("units")
         garbage_charge = request.POST.get("garbage_charge")
+        water_charge = request.POST.get("water_charge")
 
         house_manager = request.POST.get("house_manager")
         user = User.objects.get(id=house_manager)
@@ -174,21 +182,35 @@ def edit_property(request):
 
         property.name = name
         property.garbage_charge = garbage_charge
+        property.water_charge = water_charge
         property.address = address
         property.city = city
         property.country = country
         property.units = units
         property.house_manager = user
         property.save()
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Edited property '{name}'",
+            action_type="Update",
+            description=f"Edited property '{name}'",
+        )
         return redirect(f"/properties/{property_id}")
-    return render(request, "properties/edit_property.html")
+    return render(request, "properties/edit_property.html", {"property": current_property, "house_managers": User.objects.filter(role__in=["Landlord", "House Manager", "Caretaker"])})
 
 
 @login_required
 def delete_property(request):
     if request.method == "POST":
         property_id = request.POST.get("property_id")
-        Property.objects.get(id=property_id).delete()
+        property = Property.objects.get(id=property_id)
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Deleted property '{property.name}'",
+            action_type="Delete",
+            description=f"Deleted property '{property.name}'",
+        )
+        property.delete()
         return redirect("properties")
     return render(request, "properties/delete_property.html")
 
@@ -293,6 +315,13 @@ def new_property_unit(request):
             floor=floor,
             security_deposit=security_deposit,
         )
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Created unit '{name}'",
+            action_type="Created",
+            description=f"Created unit '{name}' in property '{property.name}'"
+        )
+
         return redirect("property-detail", id=property_id)
     return render(request, "properties/units/new_unit.html", {"property": property})
 
@@ -324,6 +353,13 @@ def edit_property_unit(request):
         unit.security_deposit = security_deposit
         unit.save()
 
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Edited unit '{name}'",
+            action_type="Updated",
+            description=f"Edited unit '{name}' in property '{unit.property.name}'"
+        )
+
         return redirect("unit-detail", id=unit.id)
     return render(request, "properties/units/edit_unit.html", {"unit": unit, "unit_types": UNIT_TYPES, "statuses": UNIT_STATUSES})
 
@@ -333,6 +369,12 @@ def delete_property_unit(request):
     if request.method == "POST":
         unit_id = request.POST.get("unit_id")
         unit = PropertyUnit.objects.get(id=unit_id)
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Deleted unit '{unit.name}'",
+            action_type="Deleted",
+            description=f"Deleted unit '{unit.name}' from property '{unit.property.name}'"
+        )
         unit.delete()
         return redirect("units")
     return render(request, "properties/units/delete_unit.html")
@@ -349,6 +391,12 @@ def assign_tenant(request):
         unit.is_occupied = True
         unit.status = "Occupied"
         unit.save()
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Assigned tenant",
+            action_type="Update",
+            description=f"Assigned tenant '{tenant.first_name} {tenant.last_name}' to unit '{unit.name}' in property '{unit.property.name}'"
+        )
         return redirect("property-detail", id=unit.property.id)
     return render(request, "properties/units/assign_tenant.html")
 

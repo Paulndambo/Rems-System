@@ -17,7 +17,7 @@
         <a href="{% url 'new-unit' %}?property_id={{ property.id }}" class="rems-btn rems-btn--primary">
             <i class="fa-solid fa-plus me-1"></i> Add Unit
         </a>
-        <a href="{% url 'edit-property' %}" class="rems-btn rems-btn--ghost">
+        <a href="{% url 'edit-property' %}?id={{ property.id }}" class="rems-btn rems-btn--ghost">
             <i class="fa-solid fa-cog"></i> Settings
         </a>
     </div>

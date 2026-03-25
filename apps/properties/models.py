@@ -67,7 +67,6 @@ class PropertyUnit(AbstractBaseModel):
     unit_type = models.CharField(max_length=255, null=True, blank=True)
     tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=255, null=True, blank=True)
-    # size = models.FloatField(default=0)
     security_deposit = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     water_meter_number = models.CharField(max_length=255, null=True, blank=True)
     electricity_meter_number = models.CharField(max_length=255, null=True, blank=True)
@@ -80,8 +79,8 @@ class PropertyUnit(AbstractBaseModel):
 
 class MaintenanceRequest(AbstractBaseModel):
     title = models.CharField(max_length=255)
-    property = models.ForeignKey(Property, on_delete=models.CASCADE)
-    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE)
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="maintenancerequests", null=True, blank=True)
+    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE, related_name="maintenancerequests", null=True, blank=True)
     priority = models.CharField(max_length=255, choices=PriorityLevels.choices(), default=PriorityLevels.MEDIUM.value)
     description = models.TextField()
     status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())

@@ -24,24 +24,56 @@
                 <div class="rems-card__body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-600">Unit ID <span class="text-danger">*</span></label>
-                            <input type="number" name="unit" class="form-control" placeholder="e.g. 7" required>
+                            <label class="form-label fw-600">Related Property (Optional)</label>
+                            <select name="property" id="property" class="form-select">
+                                <option value="">None / General Expense</option>
+                                {% for p in properties %}
+                                <option value="{{ p.id }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Related Unit (Optional)</label>
+                            <select name="unit" id="unit" class="form-select">
+                                <option value="">None / Property Wide</option>
+                                {% for u in units %}
+                                <option value="{{ u.id }}">{{ u.property.name }} - {{ u.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label fw-600">Title <span class="text-danger">*</span></label>
+                            <input type="text" name="title" id="title" class="form-control" placeholder="e.g. Leaking sink in kitchen" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Priority <span class="text-danger">*</span></label>
-                            <select name="priority" class="form-select" required>
-                                <option value="High">High</option>
-                                <option value="Medium" selected>Medium</option>
-                                <option value="Low">Low</option>
+                            <select name="priority" id="priority" class="form-select" required>
+                                {% for level in priority_levels %}
+                                <option value="{{ level }}">{{ level }}</option>
+                                {% endfor %}
                             </select>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label fw-600">Title <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control" placeholder="e.g. Leaking sink in kitchen" required>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Cost (KES) <span class="text-danger">*</span></label>
+                            <input type="number" name="cost" id="cost" step="0.01" min="0" class="form-control" placeholder="e.g. 5000" required>
                         </div>
+
                         <div class="col-12">
                             <label class="form-label fw-600">Description <span class="text-danger">*</span></label>
-                            <textarea name="description" rows="4" class="form-control" placeholder="Describe the maintenance issue..." required></textarea>
+                            <textarea name="description" id="description" rows="4" class="form-control" placeholder="Describe the maintenance issue..." required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-600">Status <span class="text-danger">*</span></label>
+                            <select name="status" id="status" class="form-select" required>
+                                {% for status in maintenance_statuses %}
+                                    {% if status == "Pending" %}
+                                        <option value="{{ status }}" selected>{{ status }}</option>
+                                    {% else %}
+                                        <option value="{{ status }}">{{ status }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
                 </div>

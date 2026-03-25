@@ -77,10 +77,10 @@
                     </td>
                     <td class="fw-600">Kes {{ request.cost|floatformat:0 }}</td>
                     <td class="text-end">
-                        <a href="{% url 'edit-maintenance-request' %}" class="rems-btn rems-btn--ghost" style="padding:.3rem .6rem; font-size:.75rem;">
+                        <a href="{% url 'edit-maintenance-request' %}?maintenance_id={{ request.id }}" class="rems-btn rems-btn--ghost" style="padding:.3rem .6rem; font-size:.75rem;">
                             Edit
                         </a>
-                        <a href="{% url 'delete-maintenance-request' %}" class="rems-btn rems-btn--ghost text-danger border-danger" style="padding:.3rem .6rem; font-size:.75rem;">
+                        <a href="{% url 'delete-maintenance-request' %}?maintenance_id={{ request.id }}" class="rems-btn rems-btn--ghost text-danger border-danger" style="padding:.3rem .6rem; font-size:.75rem;">
                             Delete
                         </a>
                     </td>

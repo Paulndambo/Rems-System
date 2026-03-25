@@ -19,8 +19,11 @@
                 <form method="POST" action="{% url 'delete-maintenance-request' %}">
                     {% csrf_token %}
                     <div class="mb-3">
+                        <p><b>Request Title:</b> {{ maintenance_request.title }}</p>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label fw-600">Request ID <span class="text-danger">*</span></label>
-                        <input type="number" name="request_id" class="form-control" placeholder="e.g. 14" required>
+                        <input type="number" name="request_id" value="{{maintenance_request.id}}" readonly class="form-control" required>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{% url 'maintenance-requests' %}" class="rems-btn rems-btn--ghost">Cancel</a>

@@ -28,31 +28,42 @@
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label class="form-label fw-600">Property Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" placeholder="Property name" required>
+                            <input type="text" name="name" class="form-control" placeholder="Property name" value="{{property.name}}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Number of Units <span class="text-danger">*</span></label>
-                            <input type="number" name="units" class="form-control" placeholder="Total units" required>
+                            <input type="number" name="units" class="form-control" placeholder="Total units" value="{{property.units}}" required>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label fw-600">Address line <span class="text-danger">*</span></label>
-                            <input type="text" name="address" class="form-control" placeholder="Address" required>
+                            <input type="text" name="address" class="form-control" placeholder="Address" value="{{property.address}}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">City <span class="text-danger">*</span></label>
-                            <input type="text" name="city" class="form-control" placeholder="City" required>
+                            <input type="text" name="city" class="form-control" placeholder="City" value="{{property.city}}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Country <span class="text-danger">*</span></label>
-                            <input type="text" name="country" class="form-control" placeholder="Country" required>
+                            <input type="text" name="country" class="form-control" placeholder="Country" value="{{property.country}}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Garbage Charge (KES) <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" name="garbage_charge" class="form-control" required>
+                            <input type="number" step="0.01" name="garbage_charge" class="form-control" value="{{property.garbage_charge}}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-600">House Manager ID <span class="text-danger">*</span></label>
-                            <input type="number" name="house_manager" class="form-control" placeholder="Manager's User ID" required>
+                            <label class="form-label fw-600">Water Charge (KES) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" name="water_charge" class="form-control" value="{{property.water_charge}}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">House Manager <span class="text-danger">*</span></label>
+                            <select name="house_manager" class="form-control" required>
+                                <option value="">Select House Manager</option>
+                                {% for manager in house_managers %}
+                                    <option value="{{ manager.id }}" {% if manager.id == property.house_manager.id %}selected{% endif %}>
+                                        {{ manager.get_full_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
                 </div>

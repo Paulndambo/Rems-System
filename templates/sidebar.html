@@ -3,6 +3,7 @@
 {% url 'tenants' as url_tenants %}
 {% url 'users' as url_users %}
 {% url 'properties' as url_properties %}
+{% url 'units' as url_units %}
 {% url 'maintenance-requests' as url_maintenance %}
 {% url 'generate-bill' as url_generate_bill %}
 {% url 'monthly-unit-bills' as url_monthly_bills %}
@@ -102,6 +103,13 @@
                                class="nav-sublink {% if request.path == url_properties %}active{% endif %}"
                                id="nav-my-rentals">
                                 <i class="fa-solid fa-house-chimney"></i> My Rentals
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_units }}"
+                               class="nav-sublink {% if request.path == url_units %}active{% endif %}"
+                               id="nav-units">
+                                <i class="fa-solid fa-house-chimney"></i> Rental Units
                             </a>
                         </li>
                         <li>

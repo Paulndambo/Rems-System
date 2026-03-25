@@ -17,6 +17,7 @@
     <div class="col-12 col-xl-8">
         <form method="POST" action="{% url 'edit-maintenance-request' %}">
             {% csrf_token %}
+            <input type="hidden" name="maintenance_id" value="{{ request.GET.maintenance_id }}">
             <div class="rems-card mb-4">
                 <div class="rems-card__header">
                     <h5 class="rems-card__title">Update Details</h5>
@@ -25,35 +26,53 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-600">Request ID <span class="text-danger">*</span></label>
-                            <input type="number" name="request_id" class="form-control" placeholder="e.g. 14" required>
+                            <input type="number" name="request_id" value="{{ maintenance_request.id }}" class="form-control" readonly required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Related Property (Optional)</label>
+                            <select name="property" class="form-select">
+                                <option value="">None / General Expense</option>
+                                {% for p in properties %}
+                                <option value="{{ p.id }}" {% if p.id == maintenance_request.property.id %}selected{% endif %}>{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Related Unit (Optional)</label>
+                            <select name="unit" class="form-select">
+                                <option value="">None / Property Wide</option>
+                                {% for u in units %}
+                                <option value="{{ u.id }}" {% if u.id == maintenance_request.unit.id %}selected{% endif %}>{{ u.property.name }} - {{ u.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Priority <span class="text-danger">*</span></label>
                             <select name="priority" class="form-select" required>
-                                <option value="High">High</option>
-                                <option value="Medium" selected>Medium</option>
-                                <option value="Low">Low</option>
+                                {% for level in priority_levels %}
+                                <option value="{{ level }}" {% if level == maintenance_request.priority %}selected{% endif %}>{{ level }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Status <span class="text-danger">*</span></label>
                             <select name="status" class="form-select" required>
-                                <option value="Pending" selected>Pending</option>
-                                <option value="In Progress">In Progress</option>
-                                <option value="Completed">Completed</option>
+                                {% for status in maintenance_statuses %}
+                                <option value="{{ status }}" {% if status == maintenance_request.status %}selected{% endif %}>{{ status }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Cost (KES)</label>
-                            <input type="number" name="cost" step="0.01" min="0" class="form-control" value="0">
+                            <input type="number" name="cost" step="0.01" min="0" class="form-control" value="{{ maintenance_request.cost }}" placeholder="e.g. 1500.00">
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-600">Title <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control" required>
+                            <input type="text" name="title" class="form-control" value="{{ maintenance_request.title }}" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-600">Description <span class="text-danger">*</span></label>
-                            <textarea name="description" rows="4" class="form-control" required></textarea>
+                            <textarea name="description" rows="4" class="form-control" required>{{ maintenance_request.description }}</textarea>
                         </div>
                     </div>
                 </div>
