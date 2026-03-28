@@ -1,0 +1,34 @@
+{% load static %}
+{% url 'home' as u_home %}
+{% url 'units' as u_units %}
+{% url 'tenants' as u_tenants %}
+{% url 'monthly-unit-bills' as u_bills %}
+{% url 'maintenance-requests' as u_repairs %}
+
+<nav class="rems-bottom-nav d-lg-none" aria-label="Primary">
+    <a href="{{ u_home }}"
+       class="rems-bottom-nav__item {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+    <a href="{{ u_units }}"
+       class="rems-bottom-nav__item {% if request.resolver_match.url_name == 'units' or request.resolver_match.url_name == 'unit-detail' %}is-active{% endif %}">
+        <i class="fa-solid fa-table-cells-large"></i>
+        <span>Units</span>
+    </a>
+    <a href="{{ u_tenants }}"
+       class="rems-bottom-nav__item {% if request.resolver_match.url_name == 'tenants' or request.resolver_match.url_name == 'tenant-detail' or request.resolver_match.url_name == 'new-tenant' %}is-active{% endif %}">
+        <i class="fa-solid fa-users"></i>
+        <span>Tenants</span>
+    </a>
+    <a href="{{ u_bills }}"
+       class="rems-bottom-nav__item {% if request.resolver_match.url_name == 'monthly-unit-bills' or request.resolver_match.url_name == 'unit-bills' or request.resolver_match.url_name == 'unit-bill-details' or request.resolver_match.url_name == 'pending-bills' or request.resolver_match.url_name == 'generate-bill' or request.resolver_match.url_name == 'monthly-rent-bills' or request.resolver_match.url_name == 'rent-bills' %}is-active{% endif %}">
+        <i class="fa-solid fa-dollar-sign"></i>
+        <span>Bills</span>
+    </a>
+    <a href="{{ u_repairs }}"
+       class="rems-bottom-nav__item {% if request.resolver_match.url_name == 'maintenance-requests' or request.resolver_match.url_name == 'new-maintenance-request' or request.resolver_match.url_name == 'edit-maintenance-request' %}is-active{% endif %}">
+        <i class="fa-solid fa-wrench"></i>
+        <span>Repairs</span>
+    </a>
+</nav>

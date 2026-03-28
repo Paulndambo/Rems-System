@@ -1,199 +1,247 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Dashboard – REMS{% endblock %}
-{% block page_title %}Dashboard{% endblock %}
+{% block body_class %}page-dashboard{% endblock %}
+
+{% block title %}Home – REMS{% endblock %}
+{% block page_title %}Home{% endblock %}
+
+{% block topbar_meta_mobile %}
+<span class="topbar-meta__line1">{{ dashboard_period }}</span>
+<span class="topbar-meta__line2">{{ dashboard_property_name }}</span>
+{% endblock %}
 
 {% block content %}
 
-<!-- ===== STATS CARDS ===== -->
-<div class="row g-4 mb-4">
+<div class="dashboard-home">
+    <header class="dashboard-home__intro">
+        <h1 class="dashboard-home__page-title">Home</h1>
+        <p class="dashboard-home__meta d-none d-lg-block">
+            <span>{{ dashboard_period }}</span>
+            <span class="dashboard-home__meta-sep" aria-hidden="true">·</span>
+            <span>{{ dashboard_property_name }}</span>
+            <span class="dashboard-home__meta-sep d-none d-xl-inline" aria-hidden="true">·</span>
+            <span class="d-none d-xl-inline">{{ properties_count }} {% if properties_count == 1 %}property{% else %}properties{% endif %} · {{ tenants_count }} {% if tenants_count == 1 %}tenant{% else %}tenants{% endif %}</span>
+        </p>
+    </header>
 
-    <!-- Properties -->
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card stat-card--blue">
-            <div class="stat-card__icon">
-                <i class="fa-solid fa-building"></i>
-            </div>
-            <div class="stat-card__body">
-                <p class="stat-card__label">Total Properties</p>
-                <h2 class="stat-card__value">{{ properties_count }}</h2>
-                <p class="stat-card__sub">Active rentals on system</p>
-            </div>
-            <a href="{% url 'properties' %}" class="stat-card__link stretched-link" aria-label="View properties"></a>
+    <div class="dashboard-home__primary">
+    <div class="dashboard-home__col-main">
+    <!-- Quick actions -->
+    <div class="dashboard-home__quick-grid">
+        <a href="{% url 'pending-bills' %}" class="dash-action-card">
+            <span class="dash-action-card__icon dash-action-card__icon--green"><i class="fa-solid fa-dollar-sign"></i></span>
+            <span class="dash-action-card__label">Record Payment</span>
+        </a>
+        <a href="{% url 'generate-bill' %}" class="dash-action-card">
+            <span class="dash-action-card__icon dash-action-card__icon--blue"><i class="fa-solid fa-droplet"></i></span>
+            <span class="dash-action-card__label">Enter Water Readings</span>
+        </a>
+        <a href="{% url 'new-tenant' %}" class="dash-action-card">
+            <span class="dash-action-card__icon dash-action-card__icon--teal"><i class="fa-solid fa-user-plus"></i></span>
+            <span class="dash-action-card__label">New Tenant</span>
+        </a>
+        <a href="{% url 'new-maintenance-request' %}" class="dash-action-card">
+            <span class="dash-action-card__icon dash-action-card__icon--orange"><i class="fa-solid fa-wrench"></i></span>
+            <span class="dash-action-card__label">Repair Request</span>
+        </a>
+        <a href="{% url 'security-deposits' %}" class="dash-action-card">
+            <span class="dash-action-card__icon dash-action-card__icon--purple"><i class="fa-solid fa-receipt"></i></span>
+            <span class="dash-action-card__label">Security Deposits</span>
+        </a>
+        <a href="{% url 'new-property' %}" class="dash-action-card">
+            <span class="dash-action-card__icon dash-action-card__icon--grey"><i class="fa-solid fa-plus"></i></span>
+            <span class="dash-action-card__label">Add Property</span>
+        </a>
+    </div>
+
+    <!-- Summary stats (metrics) -->
+    <div class="dashboard-home__stats-grid">
+        <div class="dash-stat-card">
+            <div class="dash-stat-card__value dash-stat-card__value--green">KES {{ collected_this_month|floatformat:0 }}</div>
+            <div class="dash-stat-card__hint">this month</div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="dash-stat-card__value dash-stat-card__value--red">KES {{ outstanding_total|floatformat:0 }}</div>
+            <div class="dash-stat-card__hint">{{ tenants_unpaid_count }} tenant{{ tenants_unpaid_count|pluralize }}</div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="dash-stat-card__value dash-stat-card__value--teal">{{ occupancy_data.occupied }}/{{ occupancy_data.total_units }}</div>
+            <div class="dash-stat-card__hint">units</div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="dash-stat-card__value dash-stat-card__value--orange">{{ occupancy_data.vacant }}</div>
+            <div class="dash-stat-card__hint">available</div>
         </div>
     </div>
 
-    <!-- Tenants -->
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card stat-card--emerald">
-            <div class="stat-card__icon">
-                <i class="fa-solid fa-users"></i>
-            </div>
-            <div class="stat-card__body">
-                <p class="stat-card__label">Total Tenants</p>
-                <h2 class="stat-card__value">{{ tenants_count }}</h2>
-                <p class="stat-card__sub">Registered tenants</p>
-            </div>
-            <a href="{% url 'tenants' %}" class="stat-card__link stretched-link" aria-label="View tenants"></a>
-        </div>
-    </div>
-
-    <!-- Occupied Units -->
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card stat-card--violet">
-            <div class="stat-card__icon">
-                <i class="fa-solid fa-house-circle-check"></i>
-            </div>
-            <div class="stat-card__body">
-                <p class="stat-card__label">Occupied Units</p>
-                <h2 class="stat-card__value">{{ occupancy_data.occupied }}</h2>
-                <p class="stat-card__sub">{{ occupancy_data.vacant }} vacant unit(s)</p>
-            </div>
-            <a href="{% url 'units' %}" class="stat-card__link stretched-link" aria-label="View units"></a>
-        </div>
-    </div>
-
-    <!-- Revenue -->
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card stat-card--amber">
-            <div class="stat-card__icon">
-                <i class="fa-solid fa-sack-dollar"></i>
-            </div>
-            <div class="stat-card__body">
-                <p class="stat-card__label">Total Revenue</p>
-                <h2 class="stat-card__value">{{ total_revenue }}</h2>
-                <p class="stat-card__sub">Collected this year</p>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<!-- ===== CHARTS ROW ===== -->
-<div class="row g-4 mb-4">
-    <!-- Revenue Chart -->
-    <div class="col-12 col-lg-8">
-        <div class="rems-card h-100">
-            <div class="rems-card__header">
-                <div>
-                    <h5 class="rems-card__title">Revenue Overview</h5>
-                    <p class="rems-card__subtitle">Expected vs Collected rent per month</p>
+    <!-- Needs attention -->
+    <section class="dashboard-home__section" aria-labelledby="dash-attention-heading">
+        <h2 id="dash-attention-heading" class="dashboard-home__section-label">Needs attention</h2>
+        <div class="dash-attention-stack">
+            <a href="{% url 'pending-bills' %}" class="dash-attention dash-attention--rose">
+                <i class="fa-regular fa-clock dash-attention__icon"></i>
+                <div class="dash-attention__text">
+                    <span class="dash-attention__title">{{ tenants_unpaid_count }} tenant{{ tenants_unpaid_count|pluralize }} with unpaid balance</span>
+                    <span class="dash-attention__sub">Total outstanding: KES {{ outstanding_total|floatformat:0 }}</span>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <select class="form-select form-select-sm rems-select" id="yearFilter" style="width:auto;">
-                        {% for yr in available_years %}
-                        <option value="{{ yr }}" {% if yr == current_year %}selected{% endif %}>{{ yr }}</option>
-                        {% endfor %}
-                    </select>
+                <i class="fa-solid fa-chevron-right dash-attention__chev"></i>
+            </a>
+            <a href="{% url 'maintenance-requests' %}" class="dash-attention dash-attention--peach">
+                <i class="fa-regular fa-clock dash-attention__icon"></i>
+                <div class="dash-attention__text">
+                    <span class="dash-attention__title">{{ open_repairs_count }} open repair request{{ open_repairs_count|pluralize }}</span>
+                    <span class="dash-attention__sub">{{ high_priority_repairs }} high priority</span>
                 </div>
-            </div>
-            <div class="rems-card__body">
-                <canvas id="revenueChart" height="110"></canvas>
-            </div>
+                <i class="fa-solid fa-chevron-right dash-attention__chev"></i>
+            </a>
+            {% if pending_deposits_count %}
+            <a href="{% url 'security-deposits' %}" class="dash-attention dash-attention--sky">
+                <i class="fa-regular fa-clock dash-attention__icon"></i>
+                <div class="dash-attention__text">
+                    <span class="dash-attention__title">{{ pending_deposits_count }} pending deposit{{ pending_deposits_count|pluralize }}</span>
+                    <span class="dash-attention__sub">{% if first_pending_deposit %}{{ first_pending_deposit.name }} — KES {{ first_pending_deposit.amount|floatformat:0 }}{% else %}Review security deposits{% endif %}</span>
+                </div>
+                <i class="fa-solid fa-chevron-right dash-attention__chev"></i>
+            </a>
+            {% endif %}
         </div>
-    </div>
+    </section>
+    </div><!-- /.dashboard-home__col-main -->
 
-    <!-- Occupancy Doughnut -->
-    <div class="col-12 col-lg-4">
-        <div class="rems-card h-100">
-            <div class="rems-card__header">
-                <div>
-                    <h5 class="rems-card__title">Occupancy Rate</h5>
-                    <p class="rems-card__subtitle">Occupied vs Vacant units</p>
-                </div>
-            </div>
-            <div class="rems-card__body d-flex flex-column align-items-center justify-content-center">
-                <canvas id="occupancyChart" style="max-width:220px;max-height:220px;"></canvas>
-                <div class="d-flex gap-4 mt-3">
-                    <div class="text-center">
-                        <span class="legend-dot" style="background:#6366f1;"></span>
-                        <div class="legend-value">{{ occupancy_data.occupied }}</div>
-                        <div class="legend-label">Occupied</div>
+    <div class="dashboard-home__col-side">
+    <!-- This month's bills -->
+    <section class="dash-bills-card" aria-labelledby="dash-bills-heading">
+        <div class="dash-bills-card__head">
+            <h2 id="dash-bills-heading" class="dash-bills-card__title">This Month's Bills</h2>
+            <a href="{% url 'monthly-unit-bills' %}" class="dash-bills-card__link">View All</a>
+        </div>
+        <div class="dash-bills-card__body">
+            {% if home_bill_rows %}
+            <ul class="dash-bill-list">
+                {% for row in home_bill_rows %}
+                <li class="dash-bill-row">
+                    <span class="dash-bill-unit dash-bill-unit--{{ row.unit_tone }}">{{ row.unit_label }}</span>
+                    <div class="dash-bill-main">
+                        <span class="dash-bill-name">{{ row.tenant_name }}</span>
+                        <span class="dash-bill-line">Rent KES {{ row.rent|floatformat:0 }} + Water KES {{ row.water|floatformat:0 }}</span>
                     </div>
-                    <div class="text-center">
-                        <span class="legend-dot" style="background:#e2e8f0;"></span>
-                        <div class="legend-value">{{ occupancy_data.vacant }}</div>
-                        <div class="legend-label">Vacant</div>
+                    <div class="dash-bill-money">
+                        <span class="dash-bill-total">KES {{ row.total|floatformat:0 }}</span>
+                        {% if row.status == 'paid' %}
+                        <span class="dash-bill-tag dash-bill-tag--paid">Paid</span>
+                        {% elif row.status == 'partial' %}
+                        <span class="dash-bill-tag dash-bill-tag--bal">Bal KES {{ row.balance|floatformat:0 }}</span>
+                        {% else %}
+                        <span class="dash-bill-tag dash-bill-tag--due">Not paid</span>
+                        {% endif %}
+                    </div>
+                    {% if row.status != 'paid' %}
+                    <a href="{% url 'unit-bill-details' row.pk %}" class="dash-bill-pay" title="Record payment" aria-label="Record payment for {{ row.tenant_name }}">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                    </a>
+                    {% else %}
+                    <span class="dash-bill-pay-spacer" aria-hidden="true"></span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="dash-bills-empty text-muted mb-0">{% if has_current_month_bills %}No unit bills for this month yet.{% else %}No billing month is set up for the current calendar month.{% endif %}</p>
+            {% endif %}
+        </div>
+    </section>
+    </div><!-- /.dashboard-home__col-side -->
+    </div><!-- /.dashboard-home__primary -->
+
+    <!-- Desktop: charts + activity -->
+    <section class="dashboard-home__analytics d-none d-lg-block" aria-labelledby="dash-analytics-heading">
+        <h2 id="dash-analytics-heading" class="dashboard-home__section-label dashboard-home__section-label--analytics">Reports &amp; activity</h2>
+
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-lg-8">
+                <div class="rems-card h-100">
+                    <div class="rems-card__header">
+                        <div>
+                            <h5 class="rems-card__title">Revenue Overview</h5>
+                            <p class="rems-card__subtitle">Expected vs Collected rent per month</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <select class="form-select form-select-sm rems-select" id="yearFilter" style="width:auto;">
+                                {% for yr in available_years %}
+                                <option value="{{ yr }}" {% if yr == current_year %}selected{% endif %}>{{ yr }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="rems-card__body">
+                        <canvas id="revenueChart" height="110"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="rems-card h-100">
+                    <div class="rems-card__header">
+                        <div>
+                            <h5 class="rems-card__title">Occupancy Rate</h5>
+                            <p class="rems-card__subtitle">Occupied vs Vacant units</p>
+                        </div>
+                    </div>
+                    <div class="rems-card__body d-flex flex-column align-items-center justify-content-center">
+                        <canvas id="occupancyChart" style="max-width:220px;max-height:220px;"></canvas>
+                        <div class="d-flex gap-4 mt-3">
+                            <div class="text-center">
+                                <span class="legend-dot" style="background:#0d9488;"></span>
+                                <div class="legend-value">{{ occupancy_data.occupied }}</div>
+                                <div class="legend-label">Occupied</div>
+                            </div>
+                            <div class="text-center">
+                                <span class="legend-dot" style="background:#e5e7eb;"></span>
+                                <div class="legend-value">{{ occupancy_data.vacant }}</div>
+                                <div class="legend-label">Vacant</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-</div>
-
-<!-- ===== QUICK ACTIONS + RECENT ACTIVITY ===== -->
-<div class="row g-4">
-
-    <!-- Quick Actions -->
-    <div class="col-12 col-lg-4">
-        <div class="rems-card h-100">
-            <div class="rems-card__header">
-                <h5 class="rems-card__title">Quick Actions</h5>
-            </div>
-            <div class="rems-card__body">
-                <div class="d-grid gap-2">
-                    <a href="{% url 'new-tenant' %}" class="quick-action-btn" id="qa-new-tenant">
-                        <i class="fa-solid fa-user-plus"></i> Add New Tenant
-                    </a>
-                    <a href="{% url 'generate-bill' %}" class="quick-action-btn" id="qa-generate-bill">
-                        <i class="fa-solid fa-file-circle-plus"></i> Generate Bill
-                    </a>
-                    <a href="{% url 'new-property' %}" class="quick-action-btn" id="qa-new-property">
-                        <i class="fa-solid fa-building-circle-arrow-right"></i> Add Property
-                    </a>
-                    <a href="{% url 'monthly-unit-bills' %}" class="quick-action-btn" id="qa-monthly-bills">
-                        <i class="fa-regular fa-calendar-check"></i> View Monthly Bills
-                    </a>
-                    <a href="{% url 'pending-bills' %}" class="quick-action-btn quick-action-btn--warning" id="qa-pending-bills">
-                        <i class="fa-solid fa-triangle-exclamation"></i> View Pending Bills
-                    </a>
-                    <a href="{% url 'expenses' %}" class="quick-action-btn quick-action-btn--neutral" id="qa-expenses">
-                        <i class="fa-solid fa-money-bill-trend-up"></i> Manage Expenses
-                    </a>
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="rems-card h-100">
+                    <div class="rems-card__header">
+                        <div>
+                            <h5 class="rems-card__title">Recent Activity</h5>
+                            <p class="rems-card__subtitle">Latest transactions & events</p>
+                        </div>
+                    </div>
+                    <div class="rems-card__body p-0">
+                        {% if recent_activities %}
+                        <ul class="activity-list">
+                            {% for act in recent_activities %}
+                            <li class="activity-item">
+                                <div class="activity-icon activity-icon--{{ act.bg_class }}">
+                                    <i class="fa-solid {{ act.icon_class }}"></i>
+                                </div>
+                                <div class="activity-body">
+                                    <p class="activity-title">{{ act.title }}</p>
+                                    <p class="activity-desc">{{ act.description }}</p>
+                                </div>
+                                <div class="activity-time">{{ act.timestamp|timesince }} ago</div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-regular fa-clock-rotate-left fa-3x mb-3 text-muted"></i>
+                            <p class="text-muted">No recent activity found.</p>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Recent Activity -->
-    <div class="col-12 col-lg-8">
-        <div class="rems-card h-100">
-            <div class="rems-card__header">
-                <div>
-                    <h5 class="rems-card__title">Recent Activity</h5>
-                    <p class="rems-card__subtitle">Latest transactions & events</p>
-                </div>
-            </div>
-            <div class="rems-card__body p-0">
-                {% if recent_activities %}
-                <ul class="activity-list">
-                    {% for act in recent_activities %}
-                    <li class="activity-item">
-                        <div class="activity-icon activity-icon--{{ act.bg_class }}">
-                            <i class="fa-solid {{ act.icon_class }}"></i>
-                        </div>
-                        <div class="activity-body">
-                            <p class="activity-title">{{ act.title }}</p>
-                            <p class="activity-desc">{{ act.description }}</p>
-                        </div>
-                        <div class="activity-time">
-                            {{ act.timestamp|timesince }} ago
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <div class="empty-state">
-                    <i class="fa-regular fa-clock-rotate-left fa-3x mb-3 text-muted"></i>
-                    <p class="text-muted">No recent activity found.</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
+    </section>
 </div>
 
 {% endblock %}
@@ -201,83 +249,86 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <script>
-    // Chart.js global defaults
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.color = "#94a3b8";
 
-    // ——— Revenue Chart ———
-    const revCtx = document.getElementById('revenueChart').getContext('2d');
-    const revenueChart = new Chart(revCtx, {
-        type: 'bar',
-        data: {
-            labels: {{ chart_data.labels|safe }},
-            datasets: [
+    const revEl = document.getElementById('revenueChart');
+    if (revEl) {
+        const revenueChart = new Chart(revEl.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: {{ chart_data.labels|safe }},
+                datasets: [
                 {
                     label: 'Expected (Kes)',
                     data: {{ chart_data.expected_amounts|safe }},
-                    backgroundColor: 'rgba(99,102,241,0.18)',
-                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(100, 116, 139, 0.16)',
+                    borderColor: '#64748b',
                     borderWidth: 2,
                     borderRadius: 6,
                 },
                 {
                     label: 'Collected (Kes)',
                     data: {{ chart_data.paid_amounts|safe }},
-                    backgroundColor: 'rgba(16,185,129,0.18)',
-                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                    borderColor: '#0d9488',
                     borderWidth: 2,
                     borderRadius: 6,
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: { position: 'top', labels: { usePointStyle: true, padding: 20 } },
-                tooltip: { mode: 'index', intersect: false }
+                ]
             },
-            scales: {
-                x: { grid: { color: 'rgba(148,163,184,0.08)' } },
-                y: { grid: { color: 'rgba(148,163,184,0.08)' }, beginAtZero: true }
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, padding: 20 } },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(148,163,184,0.08)' } },
+                    y: { grid: { color: 'rgba(148,163,184,0.08)' }, beginAtZero: true }
+                }
             }
-        }
-    });
+        });
 
-    // Year filter
-    document.getElementById('yearFilter').addEventListener('change', function () {
-        const year = this.value;
-        fetch(`{% url 'chart_data_api' %}?year=${year}`)
-            .then(r => r.json())
-            .then(data => {
-                revenueChart.data.labels = data.revenue.labels;
-                revenueChart.data.datasets[0].data = data.revenue.expected_amounts;
-                revenueChart.data.datasets[1].data = data.revenue.paid_amounts;
-                revenueChart.update();
+        const yf = document.getElementById('yearFilter');
+        if (yf) {
+            yf.addEventListener('change', function () {
+                const year = this.value;
+                fetch(`{% url 'chart_data_api' %}?year=${year}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        revenueChart.data.labels = data.revenue.labels;
+                        revenueChart.data.datasets[0].data = data.revenue.expected_amounts;
+                        revenueChart.data.datasets[1].data = data.revenue.paid_amounts;
+                        revenueChart.update();
+                    });
             });
-    });
-
-    // ——— Occupancy Doughnut ———
-    const occCtx = document.getElementById('occupancyChart').getContext('2d');
-    new Chart(occCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Occupied', 'Vacant'],
-            datasets: [{
-                data: [{{ occupancy_data.occupied }}, {{ occupancy_data.vacant }}],
-                backgroundColor: ['#6366f1', '#e2e8f0'],
-                borderWidth: 0,
-                hoverOffset: 8,
-            }]
-        },
-        options: {
-            responsive: true,
-            cutout: '70%',
-            plugins: {
-                legend: { display: false },
-                tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } }
-            }
         }
-    });
+    }
+
+    const occEl = document.getElementById('occupancyChart');
+    if (occEl) {
+        new Chart(occEl.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Occupied', 'Vacant'],
+                datasets: [{
+                    data: [{{ occupancy_data.occupied }}, {{ occupancy_data.vacant }}],
+                    backgroundColor: ['#0d9488', '#e5e7eb'],
+                    borderWidth: 0,
+                    hoverOffset: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } }
+                }
+            }
+        });
+    }
 </script>
 {% endblock %}

@@ -1,4 +1,5 @@
 {% load static %}
+{# Sidebar: light surface + teal accents (tokens in static/css/main.css + sidebar.css) #}
 {% url 'home' as url_home %}
 {% url 'tenants' as url_tenants %}
 {% url 'users' as url_users %}
@@ -17,7 +18,7 @@
 {% url 'months' as url_months %}
 {% url 'logout' as url_logout %}
 
-<nav class="rems-sidebar" id="remsSidebar">
+<nav class="rems-sidebar" id="remsSidebar" aria-label="Main navigation">
 
     <!-- Brand / Logo -->
     <div class="sidebar-brand">
@@ -26,7 +27,6 @@
         </div>
         <div class="brand-text">
             <span class="brand-name">REMS</span>
-            <span class="brand-sub">Property Manager</span>
         </div>
         <button class="sidebar-close-btn d-md-none" id="sidebarCloseBtn">
             <i class="fa-solid fa-xmark"></i>

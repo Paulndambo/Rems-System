@@ -18,13 +18,13 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+    <!-- Custom CSS: main first so :root tokens exist before sidebar -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
 
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
 
 {% if user.is_authenticated %}
 <!-- ===== FULL LAYOUT WRAPPER ===== -->
@@ -45,21 +45,30 @@
                 <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Sidebar">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <div class="breadcrumb-area">
+                <div class="topbar-brand-mobile d-lg-none">
+                    <span class="topbar-brand-mobile__name">REMS</span>
+                </div>
+                <div class="breadcrumb-area d-none d-lg-flex">
                     <span class="page-title">{% block page_title %}Dashboard{% endblock %}</span>
                 </div>
             </div>
             <div class="topbar-right">
+                <div class="topbar-meta d-lg-none">
+                    {% block topbar_meta_mobile %}
+                    <span class="topbar-meta__line1">{% now "F Y" %}</span>
+                    {% endblock %}
+                </div>
                 <!-- Notifications -->
-                <button class="topbar-icon-btn" title="Notifications">
+                <button class="topbar-icon-btn d-none d-md-flex" title="Notifications">
                     <i class="fa-regular fa-bell"></i>
                     <span class="badge-dot"></span>
                 </button>
                 <!-- User Menu -->
                 <div class="topbar-user dropdown">
                     <button class="user-avatar-btn dropdown-toggle" data-bs-toggle="dropdown" id="userDropdown" title="Account">
-                        <div class="user-avatar">
-                            <i class="fa-solid fa-user"></i>
+                        <div class="user-avatar user-avatar--mobile">
+                            <i class="fa-solid fa-user d-none d-md-inline"></i>
+                            <span class="user-avatar__initials d-md-none">{% filter upper %}{% block mobile_user_initials %}{% if user.first_name and user.last_name %}{{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}{% else %}{{ user.username|slice:":2" }}{% endif %}{% endblock %}{% endfilter %}</span>
                         </div>
                         <div class="user-info d-none d-md-block">
                             <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
@@ -106,6 +115,8 @@
         <footer class="rems-footer">
             <span>&copy; {% now "Y" %} REMS &mdash; Real Estate Management System. All rights reserved.</span>
         </footer>
+
+        {% include "includes/bottom_nav.html" %}
 
     </div><!-- /.rems-main -->
 
