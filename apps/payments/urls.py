@@ -15,6 +15,13 @@ from apps.payments.views import (
     delete_expense,
     RentBillsView,
     generate_rent_bill,
+    temporary_month_bills_view,
+    generate_temporary_month_bill,
+    capture_current_meter_readings,
+    edit_current_meter_reading,
+    confirm_current_meter_readings,
+    pending_bills_view,
+    collect_pending_bill
 )
 from apps.payments.garbage_bills.views import (
     generate_garbage_bills,
@@ -31,7 +38,8 @@ from apps.payments.unit_bills.views import (
     MonthlyUnitBillsView,
     unit_bill_receipt,
     generate_bill,
-    get_units_by_property
+    get_units_by_property,
+    collect_unit_bill_payment_on_dashboard
 )
 from apps.payments.views import SecurityDepositsView, pay_security_deposit
 
@@ -69,4 +77,14 @@ urlpatterns = [
     path("security-deposits/", SecurityDepositsView.as_view(), name="security-deposits"),
     path("pay-security-deposit/", pay_security_deposit, name="pay-security-deposit"),
     path("get-units/", get_units_by_property, name="get-units"),
+
+    # Temporary Month Bills
+    path("temporary-month-bills/", temporary_month_bills_view, name="temporary-month-bills"),
+    path("generate-temporary-month-bill/", generate_temporary_month_bill, name="generate-temporary-month-bill"),
+    path("capture-current-meter-readings/", capture_current_meter_readings, name="capture-current-meter-readings"),
+    path("edit-current-meter-reading/", edit_current_meter_reading, name="edit-current-meter-reading"),
+    path("confirm-current-meter-readings/", confirm_current_meter_readings, name="confirm-current-meter-readings"),
+
+
+    path("collect-unit-bill-payment-on-dashboard/", collect_unit_bill_payment_on_dashboard, name="collect-unit-bill-payment-on-dashboard"),
 ]

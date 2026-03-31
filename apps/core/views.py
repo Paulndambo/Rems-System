@@ -121,6 +121,7 @@ def home(request):
     )
 
     unpaid_qs = UnitMonthBill.objects.filter(fully_paid=False)
+
     outstanding_total = unpaid_qs.aggregate(
         t=Sum(F("amount_expected") - F("amount_paid"))
     )["t"] or Decimal("0")
@@ -135,14 +136,14 @@ def home(request):
     home_bill_rows = []
     if current_month_obj:
         collected_this_month = (
-            UnitMonthBill.objects.filter(month=current_month_obj).aggregate(
+            UnitMonthBill.objects.filter(month=current_month_obj, fully_paid=False).aggregate(
                 s=Sum("amount_paid")
             )["s"]
             or Decimal("0")
         )
         unit_badge_tones = ("mint", "peach", "rose", "teal", "sage")
         for idx, ub in enumerate(
-            UnitMonthBill.objects.filter(month=current_month_obj)
+            UnitMonthBill.objects.filter(month=current_month_obj, fully_paid=False)
             .select_related("tenant__user", "unit")
             .order_by("unit__name")[:12]
         ):
@@ -161,9 +162,14 @@ def home(request):
             home_bill_rows.append(
                 {
                     "unit_label": unit_label,
+                    "property_name": ub.unit.property.name if ub.unit and ub.unit.property else "—",
                     "tenant_name": tname,
+                    "period": f"{ub.month.name} {ub.month.year.name}" if ub.month and ub.month.year else "—",
                     "rent": ub.rent_amount,
                     "water": ub.water_amount,
+                    "rent_balance": ub.rent_balance(),
+                    "water_balance": ub.water_balance(),
+                    "garbage_balance": ub.garbage_balance(),
                     "total": ub.amount_expected,
                     "status": pay_status,
                     "balance": bal,

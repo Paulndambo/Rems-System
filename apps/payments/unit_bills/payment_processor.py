@@ -168,16 +168,16 @@ class ProcessTenantPayment(object):
                 self.unit_bill.status = PaymentStatuses.PENDING.value
                 self.unit_bill.save()
 
-            whatsapp_notification = WhatsAppNotification(
-                message=format_bill_payment_message(
-                    tenant_name=f"{self.unit_bill.tenant.user.first_name} {self.unit_bill.tenant.user.last_name}",
-                    rent_amount=self.rent_amount,
-                    garbage_amount=self.garbage_amount,
-                    water_amount=self.water_amount,
-                ),
-                recipient=self.unit_bill.tenant.user.phone,
-            )
-            whatsapp_notification.send_message()
-            success = True
+            #whatsapp_notification = WhatsAppNotification(
+            #    message=format_bill_payment_message(
+            #        tenant_name=f"{self.unit_bill.tenant.user.first_name} {self.unit_bill.tenant.user.last_name}",
+            #        rent_amount=self.rent_amount,
+            #        garbage_amount=self.garbage_amount,
+            #        water_amount=self.water_amount,
+            #    ),
+            #    recipient=self.unit_bill.tenant.user.phone,
+            #)
+            #whatsapp_notification.send_message()
+            #success = True
         except Exception as e:
             raise e

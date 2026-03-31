@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
 
@@ -29,9 +29,11 @@ from apps.payments.models import (
     UnitMonthBill,
     SecurityDeposit,
     SecurityDepositPayment,
+    TemporaryMonthBill
 )
 from apps.properties.models import WaterBill, PropertyUnit, Property
 from apps.payments.models import GarbageBill
+from apps.properties.water_bills.billing_mixin import TenantBillingMixin              
 
 # Move global variable to top
 date_today = datetime.now().date()
@@ -555,7 +557,7 @@ class SecurityDepositsView(ListView):
 
 
 @login_required
-def pay_security_deposit(request):
+def pay_security_deposit(request: HttpRequest):
     if request.method == "POST":
         security_deposit_id = request.POST.get("security_deposit_id")
         amount_paid = Decimal(request.POST.get("amount_paid"))
@@ -598,3 +600,151 @@ def pay_security_deposit(request):
 
         return redirect("security-deposits")
     return render(request, "payments/pay_security_deposit.html")
+
+
+def temporary_month_bills_view(request: HttpRequest):
+    bills = TemporaryMonthBill.objects.filter(status__in=["Pending", "Captured"]).select_related("unit", "month", "year").order_by("-created_at")
+
+    context = {
+        "bills": bills,
+    }
+    return render(request, "water_bills/temporary_month_bills.html", context)
+
+
+@transaction.atomic
+def generate_temporary_month_bill(request: HttpRequest):
+    if request.method == "POST":
+        month = request.POST.get("month")
+        year = str(date_today.year)
+
+        month_obj = Month.objects.get(name=month, year__name=year)
+
+        for unit in PropertyUnit.objects.filter(is_occupied=True):
+            monthly_bill_exists = UnitMonthBill.objects.filter(
+                unit=unit, month=month_obj, year__name=year
+            ).exists()
+
+            temporary_month_bill_exists = TemporaryMonthBill.objects.filter(
+                unit=unit, month=month_obj, year__name=year
+            ).exists()
+
+            if monthly_bill_exists or temporary_month_bill_exists:
+                continue
+            else:
+                last_water_bill = WaterBill.objects.filter(unit=unit).order_by("-created_at").first()
+                previous_reading = last_water_bill.current_reading if last_water_bill else 0
+
+                TemporaryMonthBill.objects.create(
+                    unit=unit,
+                    month=month_obj,
+                    year=month_obj.year,
+                    rent_amount=unit.rent,
+                    garbage_amount=unit.property.garbage_charge,
+                    previous_reading=previous_reading,
+                )
+
+        return redirect("temporary-month-bills")
+    return render(request, "water_bills/generate_temporary_month_bill.html", {"months": MONTHS_LIST})
+
+
+
+def capture_current_meter_readings(request: HttpRequest):
+    if request.method == "POST":
+        bill_id = request.POST.get("bill_id")
+        current_reading = request.POST.get("current_reading")
+
+        bill = TemporaryMonthBill.objects.get(id=bill_id)
+        bill.current_reading = current_reading
+        bill.status = "Captured"
+        bill.save()
+
+        return redirect("temporary-month-bills")
+    return render(request, "water_bills/capture_current_meter_reading.html")
+
+
+@transaction.atomic
+def confirm_current_meter_readings(request: HttpRequest):
+    if request.method == "POST":
+        bill_id = request.POST.get("bill_id")
+
+        bill = TemporaryMonthBill.objects.get(id=bill_id)
+        bill.status = "Confirmed"
+        bill.save()
+
+        try:
+            biller = TenantBillingMixin(
+                year=bill.year,
+                month=bill.month,
+                previous_reading=bill.previous_reading,
+                current_reading=bill.current_reading,
+                unit=bill.unit
+            )
+
+            biller.generate_bill()
+
+            messages.success(request, f"Bill successfully generated for {bill.unit.name} - {bill.month.name} {bill.year.name}")
+        except Exception as e:
+            messages.error(request, f"Error confirming meter reading: {str(e)}")
+            raise e
+
+        return redirect("temporary-month-bills")
+    return render(request, "water_bills/confirm_current_meter_reading.html")
+
+
+
+def edit_current_meter_reading(request: HttpRequest):
+    if request.method == "POST":
+        bill_id = request.POST.get("bill_id")
+        current_reading = request.POST.get("current_reading")
+
+        bill = TemporaryMonthBill.objects.get(id=bill_id)
+        bill.current_reading = current_reading
+        bill.save()
+
+        return redirect("temporary-month-bills")
+    return render(request, "water_bills/edit_current_meter_reading.html")
+
+
+
+def pending_bills_view(request: HttpRequest):
+    bills = UnitMonthBill.objects.filter(status__in=["Pending", "Partially Paid"]).select_related("unit", "month", "year").order_by("-created_at")
+
+    context = {
+        "bills": bills,
+    }
+    return render(request, "water_bills/pending_bills.html", context)
+
+def collect_pending_bill(request: HttpRequest):
+    if request.method == "POST":
+        bill_id = request.POST.get("bill_id")
+        amount_paid = Decimal(request.POST.get("amount_paid"))
+        payment_method = request.POST.get("payment_method")
+        payment_date = request.POST.get("payment_date")
+
+        bill = UnitMonthBill.objects.get(id=bill_id)
+        bill.amount_paid += amount_paid
+        bill.save()
+
+        TenantPayment.objects.create(
+            tenant=bill.tenant,
+            unit=bill.unit,
+            amount_paid=amount_paid,
+            payment_date=payment_date,
+            month=bill.month,
+            year=bill.year,
+            payment_type="Unit Month Bill",
+            payment_method=payment_method,
+        )
+
+        if bill.amount_paid == bill.amount_expected:
+            bill.status = PaymentStatuses.PAID.value
+            bill.save()
+        elif bill.amount_paid < bill.amount_expected:
+            bill.status = PaymentStatuses.PARTIALLY_PAID.value
+            bill.save()
+        else:
+            bill.status = PaymentStatuses.PENDING.value
+            bill.save()
+
+        return redirect("pending-bills")
+    return render(request, "water_bills/collect_pending_bill.html")

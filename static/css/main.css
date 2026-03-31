@@ -38,21 +38,23 @@
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1);
     --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* Sidebar: same warm canvas as .rems-main (reads as one light shell vs white top bar) */
-    --sidebar-bg: #f8f7f2;
-    --sidebar-divider: rgba(26, 26, 26, 0.07);
-    --sidebar-divider-strong: var(--color-border-strong);
-    --sidebar-text: var(--text-secondary);
-    --sidebar-text-hover: var(--text-primary);
-    --sidebar-text-label: var(--text-muted);
-    --sidebar-submenu-bg: rgba(255, 255, 255, 0.65);
-    --sidebar-hover-bg: rgba(13, 148, 136, 0.1);
-    --sidebar-active-bg: linear-gradient(90deg, var(--color-primary-light) 0%, rgba(13, 148, 136, 0.07) 100%);
-    --sidebar-active-text: var(--color-primary-dark);
-    --sidebar-sublink-active-bg: rgba(255, 255, 255, 0.9);
-    --sidebar-sublink-active-text: var(--color-primary-dark);
-    --sidebar-brand-icon-shadow: 0 4px 14px rgba(13, 148, 136, 0.2);
-    --sidebar-shadow: none;
+    /* Sidebar: dark bluish rail (slate / indigo chrome) */
+    --sidebar-bg: #0f172a;
+    --sidebar-bg-deep: #0c1222;
+    --sidebar-divider: rgba(255, 255, 255, 0.06);
+    --sidebar-divider-strong: rgba(255, 255, 255, 0.1);
+    --sidebar-text: rgba(255, 255, 255, 0.68);
+    --sidebar-text-hover: #ffffff;
+    --sidebar-text-label: rgba(255, 255, 255, 0.34);
+    --sidebar-submenu-bg: rgba(0, 0, 0, 0.22);
+    --sidebar-hover-bg: rgba(255, 255, 255, 0.06);
+    --sidebar-active-bg: linear-gradient(90deg, rgba(99, 102, 241, 0.28) 0%, rgba(99, 102, 241, 0.08) 100%);
+    --sidebar-active-text: #a5b4fc;
+    --sidebar-accent: #6366f1;
+    --sidebar-sublink-active-bg: rgba(99, 102, 241, 0.15);
+    --sidebar-sublink-active-text: #a5b4fc;
+    --sidebar-brand-icon-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    --sidebar-shadow: 4px 0 24px rgba(0, 0, 0, 0.28);
 }
 
 /* ---------- Reset & Base ---------- */
@@ -557,6 +559,98 @@ img { max-width: 100%; }
 .rems-table tbody tr:last-child td { border-bottom: none; }
 .rems-table tbody tr { transition: background var(--transition); }
 .rems-table tbody tr:hover { background: rgba(13, 148, 136, 0.04); }
+
+/* Stacked “card” rows on narrow screens (labels from data-label via app.js) */
+@media (max-width: 767.98px) {
+    .table-responsive:has(table.rems-table.rems-table--labeled) {
+        overflow-x: visible !important;
+    }
+
+    table.rems-table.rems-table--labeled {
+        min-width: 0 !important;
+        width: 100%;
+    }
+
+    table.rems-table.rems-table--labeled thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    table.rems-table.rems-table--labeled tbody tr:not(.rems-table__row--full) {
+        display: block;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        margin-bottom: 0.75rem;
+        background: var(--color-surface);
+        box-shadow: var(--shadow-sm);
+    }
+
+    table.rems-table.rems-table--labeled tbody tr:not(.rems-table__row--full) td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+        text-align: right !important;
+        border-bottom: 1px solid var(--color-border);
+        padding: 0.65rem 1rem;
+        min-width: 0;
+        width: 100%;
+    }
+
+    table.rems-table.rems-table--labeled tbody tr:not(.rems-table__row--full) td:last-child {
+        border-bottom: none;
+    }
+
+    table.rems-table.rems-table--labeled tbody tr:not(.rems-table__row--full) td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-secondary);
+        text-align: left;
+        flex-shrink: 0;
+        max-width: 44%;
+        padding-right: 0.35rem;
+        line-height: 1.35;
+    }
+
+    table.rems-table.rems-table--labeled tbody tr:not(.rems-table__row--full) td:empty::before {
+        content: none;
+    }
+
+    /* Empty states, collapse rows, any single colspan row */
+    table.rems-table.rems-table--labeled tbody tr.rems-table__row--full {
+        display: block;
+        border: none;
+        margin-bottom: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    table.rems-table.rems-table--labeled tbody tr.rems-table__row--full td {
+        display: block;
+        width: 100% !important;
+        text-align: left !important;
+        padding: 0;
+        border: none;
+    }
+
+    table.rems-table.rems-table--labeled tbody tr.rems-table__row--full td::before {
+        content: none !important;
+    }
+
+    table.rems-table.rems-table--labeled tbody tr.rems-table__row--full + tr:not(.rems-table__row--full) {
+        margin-top: 0.5rem;
+    }
+}
 
 .table-avatar {
     width: 36px; height: 36px; border-radius: 50%;

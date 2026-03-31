@@ -33,7 +33,7 @@
             <span class="dash-action-card__icon dash-action-card__icon--green"><i class="fa-solid fa-dollar-sign"></i></span>
             <span class="dash-action-card__label">Record Payment</span>
         </a>
-        <a href="{% url 'generate-bill' %}" class="dash-action-card">
+        <a href="{% url 'temporary-month-bills' %}" class="dash-action-card">
             <span class="dash-action-card__icon dash-action-card__icon--blue"><i class="fa-solid fa-droplet"></i></span>
             <span class="dash-action-card__label">Enter Water Readings</span>
         </a>
@@ -113,7 +113,7 @@
     <!-- This month's bills -->
     <section class="dash-bills-card" aria-labelledby="dash-bills-heading">
         <div class="dash-bills-card__head">
-            <h2 id="dash-bills-heading" class="dash-bills-card__title">This Month's Bills</h2>
+            <h2 id="dash-bills-heading" class="dash-bills-card__title">This Month's Unpaid Bills</h2>
             <a href="{% url 'monthly-unit-bills' %}" class="dash-bills-card__link">View All</a>
         </div>
         <div class="dash-bills-card__body">
@@ -137,13 +137,14 @@
                         {% endif %}
                     </div>
                     {% if row.status != 'paid' %}
-                    <a href="{% url 'unit-bill-details' row.pk %}" class="dash-bill-pay" title="Record payment" aria-label="Record payment for {{ row.tenant_name }}">
+                    <a data-bs-toggle="modal" data-bs-target="#collectPendingUnitBillPaymentModal{{ row.pk }}"  class="dash-bill-pay" title="Record payment" aria-label="Record payment for {{ row.tenant_name }}">
                         <i class="fa-solid fa-dollar-sign"></i>
                     </a>
                     {% else %}
                     <span class="dash-bill-pay-spacer" aria-hidden="true"></span>
                     {% endif %}
                 </li>
+                {% include "unit_bills/collect_unit_bill_payment_on_dashboard.html" %}
                 {% endfor %}
             </ul>
             {% else %}

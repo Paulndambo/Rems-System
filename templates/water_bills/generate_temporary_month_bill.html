@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Generate Unit Bill – REMS{% endblock %}
-{% block page_title %}Generate Bill{% endblock %}
+{% block title %}Generate Unit Bills List – REMS{% endblock %}
+{% block page_title %}Generate Bills{% endblock %}
 
 {% block content %}
 
@@ -11,36 +11,17 @@
 
 <div class="row justify-content-center">
     <div class="col-12 col-xl-8">
-        <form method="POST" action="{% url 'generate-bill' %}">
+        <form method="POST" action="{% url 'generate-temporary-month-bill' %}">
             {% csrf_token %}
 
             <div class="rems-card mb-4">
                 <div class="rems-card__header">
-                    <h5>Generate Unit Bill</h5>
+                    <h5>Generate Unit Bills List</h5>
                 </div>
 
                 <div class="rems-card__body">
-
-                    <!-- PROPERTY 
-                    <div class="mb-3">
-                        <label class="form-label">Property *</label>
-                        <select id="property" name="property" class="form-select" required>
-                            <option value="">-- Select Property --</option>
-                            {% for property in properties %}
-                                <option value="{{ property.id }}">{{ property.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    -->
-
                     <!-- HIDDEN SECTION -->
                     <div id="dependent-fields">
-                        <!-- UNIT -->
-                        <div class="mb-3">
-                            <label class="form-label">Unit *</label>
-                            <select id="unit" name="unit" class="form-select" required></select>
-                        </div>
-
                         <!-- MONTH -->
                         <div class="mb-3">
                             <label class="form-label">Month *</label>
@@ -51,19 +32,11 @@
                                 {% endfor %}
                             </select>
                         </div>
-
-                        <!-- READING -->
-                        <div class="mb-3">
-                            <label class="form-label">Current Meter Reading *</label>
-                            <input type="number" name="current_reading" class="form-control" required />
-                        </div>
-
                     </div>
-
                 </div>
             </div>
             <div class="text-center">
-                <button type="submit" class="btn btn-primary">Generate Bill</button>
+                <button type="submit" class="btn btn-primary">Generate Bills</button>
             </div>
         </form>
     </div>

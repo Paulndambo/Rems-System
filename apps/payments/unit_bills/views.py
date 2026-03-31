@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.contrib import messages
 from django.views.generic import ListView
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from datetime import datetime, date
 from decimal import Decimal
 from collections import defaultdict
@@ -133,8 +133,34 @@ def collect_unit_bill_payment(request):
             payment_date = payment_date
         ).run()
 
-        return redirect("unit-bill-details", pk=unit_bill_id)
+        return redirect("pending-bills")
     return render(request, "unit_bills/collect_payment.html")
+
+
+@login_required
+@transaction.atomic
+def collect_unit_bill_payment_on_dashboard(request):
+    if request.method == "POST":
+        unit_bill_id = request.POST.get("unit_bill_id")
+        rent_amount = Decimal(request.POST.get("rent_amount", 0))
+        water_amount = Decimal(request.POST.get("water_amount", 0))
+        garbage_amount = Decimal(request.POST.get("garbage_amount", 0))
+        payment_method = request.POST.get("payment_method")
+        payment_date = request.POST.get("payment_date")
+
+        unit_bill = UnitMonthBill.objects.get(id=unit_bill_id)
+
+        ProcessTenantPayment(
+            unit_bill = unit_bill,
+            rent_amount = rent_amount,
+            water_amount = water_amount,
+            garbage_amount = garbage_amount,
+            payment_method = payment_method,
+            payment_date = payment_date
+        ).run()
+
+        return redirect("home")
+    return render(request, "unit_bills/collect_unit_bill_payment_on_dashboard.html")
 
 
 class PendingBillsView(LoginRequiredMixin, ListView):
@@ -144,7 +170,7 @@ class PendingBillsView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         # Not used in this version
-        return UnitMonthBill.objects.none()
+        return UnitMonthBill.objects.filter(fully_paid=False).order_by("-created_at")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -160,29 +186,8 @@ class PendingBillsView(LoginRequiredMixin, ListView):
                 Q(tenant__user__first_name__icontains=search_query) |
                 Q(tenant__user__last_name__icontains=search_query)
             )
-
-        # Group unpaid bills by unit
-        grouped_bills = {}
-
-        for bill in queryset.select_related("unit", "tenant", "tenant__user"):
-            unit_name = bill.unit.name if bill.unit else "Unknown Unit"
-            unit_id = bill.unit.id if bill.unit else None
-
-            key = unit_id  # safer to use ID as key
-            if key not in grouped_bills:
-                grouped_bills[key] = {
-                    "unit_name": unit_name,
-                    "tenant": f"{bill.tenant.user.first_name} {bill.tenant.user.last_name}" if bill.tenant and bill.tenant.user else "Unknown Tenant",
-                    "total_unpaid": Decimal("0.00"),
-                    "bills": []
-                }
-
-            balance = Decimal(bill.amount_expected) - Decimal(bill.amount_paid)
-            grouped_bills[key]["total_unpaid"] += balance
-            grouped_bills[key]["bills"].append(bill)
-
-        context["pending_bills"] = grouped_bills.values()
         return context
+    
     
 @login_required    
 def generate_bill(request):
@@ -237,13 +242,8 @@ def generate_bill(request):
 
 
 @login_required
-def get_units_by_property(request):
-    property_id = request.GET.get("property_id")
-
-    units = PropertyUnit.objects.filter(
-        property_id=property_id,
-        is_occupied=True
-    ).select_related("property")
+def get_units_by_property(request: HttpRequest):
+    units = PropertyUnit.objects.filter(is_occupied=True).select_related("property")
 
     data = [
         {

@@ -1,14 +1,13 @@
 /* ===================================================
-   REMS – Sidebar (scoped under .rems-sidebar so Bootstrap .nav-link etc. never win)
+   REMS – Sidebar (dark bluish rail; scoped under .rems-sidebar)
    =================================================== */
 
 .rems-sidebar {
     width: var(--sidebar-w);
     height: 100vh;
-    /* Explicit fallbacks if a proxy serves CSS without main.css variables */
-    background-color: #f8f7f2;
-    background-color: var(--sidebar-bg, #f8f7f2);
-    color: var(--text-primary, #1a1a1a);
+    background-color: #0f172a;
+    background: linear-gradient(180deg, var(--sidebar-bg, #0f172a) 0%, var(--sidebar-bg-deep, #0c1222) 100%);
+    color: rgba(255, 255, 255, 0.92);
     position: fixed;
     top: 0;
     left: 0;
@@ -17,8 +16,8 @@
     flex-direction: column;
     overflow: hidden;
     transition: width var(--transition, 0.25s ease), transform var(--transition, 0.25s ease);
-    box-shadow: var(--sidebar-shadow, none);
-    border-right: 1px solid var(--sidebar-divider, rgba(26, 26, 26, 0.07));
+    box-shadow: var(--sidebar-shadow, 4px 0 24px rgba(0, 0, 0, 0.28));
+    border-right: 1px solid var(--sidebar-divider, rgba(255, 255, 255, 0.06));
 }
 
 .rems-wrapper.sidebar-collapsed .rems-sidebar {
@@ -32,10 +31,10 @@
     align-items: center;
     gap: 0.85rem;
     padding: 1.25rem 1.1rem;
-    border-bottom: 1px solid var(--sidebar-divider, rgba(26, 26, 26, 0.07));
+    border-bottom: 1px solid var(--sidebar-divider, rgba(255, 255, 255, 0.06));
     flex-shrink: 0;
     white-space: nowrap;
-    background: rgba(255, 255, 255, 0.55);
+    background: transparent;
 }
 
 .rems-sidebar .brand-icon {
@@ -43,13 +42,13 @@
     width: 40px;
     height: 40px;
     border-radius: var(--radius-sm, 10px);
-    background: linear-gradient(135deg, #14b8a6, var(--color-primary-dark, #0f766e));
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.1rem;
     color: #fff;
-    box-shadow: var(--sidebar-brand-icon-shadow, 0 4px 14px rgba(13, 148, 136, 0.2));
+    box-shadow: var(--sidebar-brand-icon-shadow, 0 4px 14px rgba(99, 102, 241, 0.4));
 }
 
 .rems-sidebar .brand-text {
@@ -60,14 +59,14 @@
     display: block;
     font-size: 1rem;
     font-weight: 800;
-    color: var(--text-primary, #1a1a1a);
+    color: #ffffff;
     letter-spacing: 0.02em;
     line-height: 1.2;
 }
 .rems-sidebar .brand-sub {
     display: block;
     font-size: 0.7rem;
-    color: var(--sidebar-text-label, #9ca3af);
+    color: var(--sidebar-text-label, rgba(255, 255, 255, 0.4));
     font-weight: 400;
 }
 
@@ -76,8 +75,8 @@
     height: 28px;
     border: none;
     border-radius: 6px;
-    background: rgba(26, 26, 26, 0.06);
-    color: var(--text-secondary, #6b7280);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -86,8 +85,8 @@
     transition: background var(--transition, 0.25s ease), color var(--transition, 0.25s ease);
 }
 .rems-sidebar .sidebar-close-btn:hover {
-    background: rgba(26, 26, 26, 0.1);
-    color: var(--text-primary, #1a1a1a);
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
 }
 
 /* ----- Nav scroll ----- */
@@ -97,7 +96,7 @@
     overflow-x: hidden;
     padding: 0.75rem 0;
     scrollbar-width: thin;
-    scrollbar-color: rgba(26, 26, 26, 0.15) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
 }
 .rems-sidebar .sidebar-nav::-webkit-scrollbar {
     width: 4px;
@@ -106,7 +105,7 @@
     background: transparent;
 }
 .rems-sidebar .sidebar-nav::-webkit-scrollbar-thumb {
-    background: rgba(26, 26, 26, 0.12);
+    background: rgba(255, 255, 255, 0.12);
     border-radius: 2px;
 }
 
@@ -115,7 +114,7 @@
     padding: 0.5rem 0;
 }
 .rems-sidebar .nav-section + .nav-section {
-    border-top: 1px solid var(--sidebar-divider, rgba(26, 26, 26, 0.07));
+    border-top: 1px solid var(--sidebar-divider, rgba(255, 255, 255, 0.06));
 }
 
 .rems-sidebar .nav-section-label {
@@ -124,7 +123,7 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--sidebar-text-label, #9ca3af);
+    color: var(--sidebar-text-label, rgba(255, 255, 255, 0.34));
     padding: 0.5rem 1.1rem 0.3rem;
 }
 
@@ -134,14 +133,14 @@
     padding: 0;
 }
 
-/* ----- Links (scoped: beats Bootstrap .nav-link) ----- */
+/* ----- Links ----- */
 .rems-sidebar .nav-link {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     padding: 0.65rem 1.1rem;
     border-radius: 0;
-    color: var(--sidebar-text, #6b7280) !important;
+    color: var(--sidebar-text, rgba(255, 255, 255, 0.68)) !important;
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
@@ -156,15 +155,15 @@
 }
 
 .rems-sidebar .nav-link:hover {
-    background: var(--sidebar-hover-bg, rgba(13, 148, 136, 0.1)) !important;
-    color: var(--sidebar-text-hover, #1a1a1a) !important;
+    background: var(--sidebar-hover-bg, rgba(255, 255, 255, 0.06)) !important;
+    color: var(--sidebar-text-hover, #ffffff) !important;
 }
 
 .rems-sidebar .nav-link.active,
 .rems-sidebar .nav-link.active:hover {
-    background: rgba(13, 148, 136, 0.12) !important;
+    background: rgba(99, 102, 241, 0.2) !important;
     background: var(--sidebar-active-bg) !important;
-    color: var(--sidebar-active-text, #0f766e) !important;
+    color: var(--sidebar-active-text, #a5b4fc) !important;
 }
 .rems-sidebar .nav-link.active::before {
     content: "";
@@ -174,15 +173,15 @@
     bottom: 0;
     width: 3px;
     border-radius: 0 3px 3px 0;
-    background: var(--color-primary, #0d9488);
+    background: var(--sidebar-accent, #6366f1);
 }
 
 .rems-sidebar .nav-link--danger {
-    color: var(--sidebar-text, #6b7280) !important;
+    color: var(--sidebar-text, rgba(255, 255, 255, 0.68)) !important;
 }
 .rems-sidebar .nav-link--danger:hover {
-    background: var(--color-rose-light, rgba(180, 63, 63, 0.12)) !important;
-    color: var(--color-rose, #b43f3f) !important;
+    background: rgba(244, 63, 94, 0.12) !important;
+    color: #fda4af !important;
 }
 
 .rems-sidebar .nav-icon {
@@ -195,18 +194,18 @@
 }
 
 .rems-sidebar .nav-link.active .nav-icon {
-    color: var(--sidebar-active-text, #0f766e);
+    color: var(--sidebar-active-text, #a5b4fc);
 }
 
 .rems-sidebar .nav-arrow {
     margin-left: auto;
     font-size: 0.65rem;
-    color: var(--sidebar-text-label, #9ca3af);
+    color: var(--sidebar-text-label, rgba(255, 255, 255, 0.34));
     transition: transform var(--transition, 0.25s ease);
 }
 .rems-sidebar .nav-item--has-sub.open > .nav-link--parent .nav-arrow {
     transform: rotate(90deg);
-    color: var(--color-primary, #0d9488);
+    color: var(--sidebar-accent, #6366f1);
 }
 
 /* ----- Submenus ----- */
@@ -214,7 +213,7 @@
     list-style: none;
     margin: 0;
     padding: 0.25rem 0;
-    background: var(--sidebar-submenu-bg, rgba(255, 255, 255, 0.65));
+    background: var(--sidebar-submenu-bg, rgba(0, 0, 0, 0.22));
     overflow: hidden;
     max-height: 0;
     transition: max-height 0.3s ease;
@@ -228,7 +227,7 @@
     align-items: center;
     gap: 0.6rem;
     padding: 0.55rem 1.1rem 0.55rem 2.7rem;
-    color: var(--text-secondary, #6b7280) !important;
+    color: rgba(255, 255, 255, 0.52) !important;
     font-size: 0.82rem;
     font-weight: 500;
     transition: background var(--transition, 0.25s ease), color var(--transition, 0.25s ease);
@@ -237,12 +236,12 @@
     text-decoration: none !important;
 }
 .rems-sidebar .nav-sublink:hover {
-    background: rgba(255, 255, 255, 0.85) !important;
-    color: var(--text-primary, #1a1a1a) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.88) !important;
 }
 .rems-sidebar .nav-sublink.active {
-    color: var(--sidebar-sublink-active-text, #0f766e) !important;
-    background: var(--sidebar-sublink-active-bg, rgba(255, 255, 255, 0.9)) !important;
+    color: var(--sidebar-sublink-active-text, #a5b4fc) !important;
+    background: var(--sidebar-sublink-active-bg, rgba(99, 102, 241, 0.15)) !important;
 }
 .rems-sidebar .nav-sublink i {
     font-size: 0.75rem;

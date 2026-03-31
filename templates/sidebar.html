@@ -1,5 +1,5 @@
 {% load static %}
-{# Sidebar: light surface + teal accents (tokens in static/css/main.css + sidebar.css) #}
+{# Sidebar: dark bluish rail + indigo accents (tokens in static/css/main.css + sidebar.css) #}
 {% url 'home' as url_home %}
 {% url 'tenants' as url_tenants %}
 {% url 'users' as url_users %}
@@ -17,6 +17,8 @@
 {% url 'water-prices' as url_water_prices %}
 {% url 'months' as url_months %}
 {% url 'logout' as url_logout %}
+{% url 'temporary-month-bills' as url_temporary_month_bills %}
+{% url 'generate-temporary-month-bill' as url_generate_temporary_month_bill %}
 
 <nav class="rems-sidebar" id="remsSidebar" aria-label="Main navigation">
 
@@ -138,6 +140,7 @@
                         <span class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></span>
                     </button>
                     <ul class="nav-submenu {% if request.path == url_generate_bill or request.path == url_monthly_bills or request.path == url_pending_bills or request.path == url_security_deposits %}open{% endif %}" id="sub-bills">
+                        <!--
                         <li>
                             <a href="{{ url_generate_bill }}"
                                class="nav-sublink {% if request.path == url_generate_bill %}active{% endif %}"
@@ -145,11 +148,13 @@
                                 <i class="fa-solid fa-plus-circle"></i> Generate Bill
                             </a>
                         </li>
+                        -->
+                        
                         <li>
-                            <a href="{{ url_monthly_bills }}"
-                               class="nav-sublink {% if request.path == url_monthly_bills %}active{% endif %}"
-                               id="nav-monthly-bills">
-                                <i class="fa-regular fa-calendar-days"></i> Monthly Bills
+                            <a href="{{ url_temporary_month_bills }}"
+                               class="nav-sublink {% if request.path == url_temporary_month_bills %}active{% endif %}"
+                               id="nav-temporary-month-bills">
+                                <i class="fa-regular fa-calendar-days"></i> Record Water Bills
                             </a>
                         </li>
                         <li>

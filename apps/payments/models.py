@@ -18,7 +18,6 @@ class UnitMonthBill(AbstractBaseModel):
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     rent_amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     water_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
-
     water_amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     garbage_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     garbage_amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
@@ -33,8 +32,8 @@ class UnitMonthBill(AbstractBaseModel):
     fully_paid = models.BooleanField(default=False)
     whatsapp_notification_sent = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"{self.month.name} - {self.year.name}"
+    #def __str__(self):
+    #    return f"{self.month.name} - {self.year.name}"
 
     def unit_bill_receipt_link(self):
         return f"{BACKEND_BASE_URL}/payments/unit-bill-receipt/{self.id}/"
@@ -126,8 +125,6 @@ class RentBill(AbstractBaseModel):
     year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
     fully_paid = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"{self.tenant.user.name}" if self.tenant else f"{self.unit.name}"
 
     def balance(self):
         return self.amount_expected - self.amount_paid
@@ -155,8 +152,6 @@ class TenantPayment(AbstractBaseModel):
     year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
     payment_type = models.CharField(max_length=255, null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.tenant.user.name}"
 
 
 class GarbageBill(AbstractBaseModel):
@@ -169,8 +164,6 @@ class GarbageBill(AbstractBaseModel):
     status = models.CharField(max_length=255, choices=PaymentStatuses.choices(), default=PaymentStatuses.PENDING.value)
     fully_paid = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"{self.tenant.user.name}" if self.tenant else f"{self.unit.name}"
 
     def balance(self):
         return self.amount_expected - self.amount_paid
@@ -182,12 +175,6 @@ class GarbageBillPayment(AbstractBaseModel):
     payment_date = models.DateField()
     payment_method = models.CharField(max_length=255, choices=PaymentMethods.choices(), null=True, blank=True)
 
-    def __str__(self):
-        return (
-            f"{self.garbage_bill.tenant.user.name}"
-            if self.garbage_bill.tenant
-            else f"{self.garbage_bill.unit.name}"
-        )
 
 
 class SecurityDeposit(AbstractBaseModel):
@@ -214,3 +201,39 @@ class SecurityDepositPayment(AbstractBaseModel):
 
     def __str__(self):
         return f"{self.security_deposit.tenant.user.name}"
+    
+
+class TemporaryMonthBill(AbstractBaseModel):
+    unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.CASCADE)
+    month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
+    year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
+    rent_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    current_reading = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    previous_reading = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    garbage_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    status = models.CharField(max_length=255, choices=[
+        ("Pending", "Pending"),
+        ("Captured", "Captured"),
+        ("Confirmed", "Confirmed"),
+    ], default="Pending")
+
+    def __str__(self):
+        return f"{self.unit.name} - {self.month.name} {self.year.name}"
+
+    
+    def rent_and_garbage(self):
+        return self.rent_amount + self.garbage_amount
+    
+    def water_amount(self):
+        if self.current_reading > 0 :
+            return round((self.current_reading - self.previous_reading) * self.unit.water_price, 2)
+        return Decimal("0.00")
+    
+    def total(self):
+        return round(self.rent_and_garbage() + self.water_amount(), 2)
+    
+
+    def consumption(self):
+        if self.current_reading > 0:
+            return self.current_reading - self.previous_reading
+        return Decimal("0.00")

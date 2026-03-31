@@ -106,9 +106,75 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // ─── Responsive tables (stacked rows + labels on small screens) ──────────
+    initResponsiveRemsTables();
+
     // ─── Form Enhancements ────────────────────────────────────────────────────
     initFormEnhancements();
+    
+    // ─── Payment Collection Calculator ────────────────────────────────────────
+    initPaymentCalculator();
 });
+
+/**
+ * Copies thead labels onto each body cell as data-label so CSS can show
+ * key/value rows under 768px without horizontal scrolling.
+ * Skips rows with colspan (empty states, expandable detail rows).
+ */
+function initResponsiveRemsTables() {
+    document.querySelectorAll('table.rems-table').forEach(function (table) {
+        if (table.classList.contains('rems-table--no-mobile-stack')) {
+            return;
+        }
+
+        var theadRow = table.querySelector('thead tr');
+        if (!theadRow) {
+            return;
+        }
+
+        var headers = [];
+        theadRow.querySelectorAll('th').forEach(function (th) {
+            headers.push(th.textContent.replace(/\s+/g, ' ').trim());
+        });
+
+        table.querySelectorAll('tbody tr').forEach(function (tr) {
+            tr.classList.remove('rems-table__row--full');
+            var tds = Array.prototype.slice.call(tr.querySelectorAll(':scope > td'));
+
+            if (tds.length === 1) {
+                var span0 = parseInt(tds[0].getAttribute('colspan') || '1', 10);
+                if (span0 > 1) {
+                    tr.classList.add('rems-table__row--full');
+                    tds[0].removeAttribute('data-label');
+                    return;
+                }
+            }
+
+            var i;
+            for (i = 0; i < tds.length; i++) {
+                if (parseInt(tds[i].getAttribute('colspan') || '1', 10) > 1) {
+                    tr.classList.add('rems-table__row--full');
+                    tds.forEach(function (td) {
+                        td.removeAttribute('data-label');
+                    });
+                    return;
+                }
+            }
+
+            var colIndex = 0;
+            tds.forEach(function (td) {
+                td.removeAttribute('data-label');
+                var cs = parseInt(td.getAttribute('colspan') || '1', 10);
+                if (headers[colIndex]) {
+                    td.setAttribute('data-label', headers[colIndex]);
+                }
+                colIndex += cs;
+            });
+        });
+
+        table.classList.add('rems-table--labeled');
+    });
+}
 
 // ─── Form Enhancements ────────────────────────────────────────────────────────
 function initFormEnhancements() {
@@ -177,4 +243,94 @@ function validateField(field) {
     field.classList.remove('is-invalid');
     if (value) field.classList.add('is-valid');
     return true;
+}
+
+// ─── Payment Collection Calculator ────────────────────────────────────────────
+function initPaymentCalculator() {
+    // Find all collect payment forms
+    const collectForms = document.querySelectorAll('[id^="collectPaymentForm"]');
+    
+    collectForms.forEach(function(form) {
+        const rentInput = form.querySelector('[name="rent_amount"]');
+        const garbageInput = form.querySelector('[name="garbage_amount"]');
+        const waterInput = form.querySelector('[name="water_amount"]');
+        
+        if (!rentInput || !garbageInput || !waterInput) return;
+        
+        const totalDisplay = form.querySelector('.payment-total-display');
+        if (!totalDisplay) return;
+        
+        const totalAmountSpan = totalDisplay.querySelector('.total-amount');
+        
+        function calculateTotal() {
+            const rent = parseFloat(rentInput.value) || 0;
+            const garbage = parseFloat(garbageInput.value) || 0;
+            const water = parseFloat(waterInput.value) || 0;
+            const total = rent + garbage + water;
+            
+            if (totalAmountSpan) {
+                totalAmountSpan.textContent = total.toFixed(2);
+            }
+            
+            // Show/hide based on whether any payment is entered
+            if (total > 0) {
+                totalDisplay.style.display = 'block';
+            } else {
+                totalDisplay.style.display = 'none';
+            }
+            
+            // Validate amounts don't exceed max
+            validatePaymentAmount(rentInput);
+            validatePaymentAmount(garbageInput);
+            validatePaymentAmount(waterInput);
+        }
+        
+        function validatePaymentAmount(input) {
+            const value = parseFloat(input.value) || 0;
+            const max = parseFloat(input.getAttribute('max')) || 0;
+            
+            if (value > max) {
+                input.classList.add('is-invalid');
+                input.classList.remove('is-valid');
+            } else if (value > 0) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+            } else {
+                input.classList.remove('is-invalid', 'is-valid');
+            }
+        }
+        
+        // Calculate on input change
+        rentInput.addEventListener('input', calculateTotal);
+        garbageInput.addEventListener('input', calculateTotal);
+        waterInput.addEventListener('input', calculateTotal);
+        
+        // Initial calculation
+        calculateTotal();
+        
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            const rent = parseFloat(rentInput.value) || 0;
+            const garbage = parseFloat(garbageInput.value) || 0;
+            const water = parseFloat(waterInput.value) || 0;
+            const total = rent + garbage + water;
+            
+            if (total <= 0) {
+                e.preventDefault();
+                alert('Please enter at least one payment amount greater than 0.');
+                return false;
+            }
+            
+            // Validate max amounts
+            const rentMax = parseFloat(rentInput.getAttribute('max')) || 0;
+            const garbageMax = parseFloat(garbageInput.getAttribute('max')) || 0;
+            const waterMax = parseFloat(waterInput.getAttribute('max')) || 0;
+            
+            if (rent > rentMax || garbage > garbageMax || water > waterMax) {
+                e.preventDefault();
+                alert('Payment amounts cannot exceed the due amounts.');
+                return false;
+            }
+        });
+    });
 }

@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pending Unit Bills – REMS{% endblock %}
+{% block page_title %}Pending Bills{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Pending Unit Bills</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Unpaid and partially paid bills, grouped by unit</p>
+    </div>
+    <a href="{% url 'monthly-unit-bills' %}" class="rems-btn rems-btn--ghost">
+        <i class="fa-solid fa-calendar-days me-2"></i> Monthly Bills
+    </a>
+</div>
+
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request.GET.search }}"
+                    class="form-control search-input"
+                    placeholder="Search by tenant, unit, property…"
+                >
+            </div>
+            <button type="submit" class="rems-btn rems-btn--primary">Search</button>
+            {% if request.GET.search %}
+            <a href="{% url 'pending-bills' %}" class="rems-btn rems-btn--ghost">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Grouped Pending Balances</h5>
+        <p class="rems-card__subtitle">{{ pending_bills|length }} unit(s) with pending balances</p>
+    </div>
+
+    <div class="table-responsive">
+        <table class="rems-table">
+            <thead>
+                <tr>
+                    <th>Unit</th>
+                    <th>Tenant</th>
+                    <th>Pending Total</th>
+                    <th>Bill Count</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in pending_bills %}
+                <tr>
+                    <td>
+                        <div class="fw-700">{{ group.unit_name }}</div>
+                        {% if group.bills.0.unit.property %}
+                        <div class="text-muted" style="font-size:.75rem;">{{ group.bills.0.unit.property.name }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="fw-600">{{ group.tenant }}</div>
+                        <div class="text-muted" style="font-size:.75rem;">Latest: {% if group.bills.0.month %}{{ group.bills.0.month.name }}{% else %}—{% endif %}{% if group.bills.0.year %} {{ group.bills.0.year.name }}{% endif %}</div>
+                    </td>
+                    <td class="fw-700 text-danger">Kes {{ group.total_unpaid|floatformat:0 }}</td>
+                    <td>
+                        <span class="rems-badge rems-badge--amber">{{ group.bills|length }} bill(s)</span>
+                    </td>
+                    <td class="text-end">
+                        <button
+                            class="rems-btn rems-btn--ghost"
+                            style="padding:.3rem .6rem; font-size:.75rem;"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#pendingUnit{{ forloop.counter }}"
+                            aria-expanded="false"
+                            aria-controls="pendingUnit{{ forloop.counter }}"
+                        >
+                            View bills <i class="fa-solid fa-chevron-down ms-1"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr class="border-0">
+                    <td colspan="5" class="p-0 border-0">
+                        <div class="collapse" id="pendingUnit{{ forloop.counter }}">
+                            <div class="p-3 border-top" style="background:rgba(0,0,0,.01);">
+                                <div class="table-responsive">
+                                    <table class="rems-table mb-0" style="min-width:900px;">
+                                        <thead>
+                                            <tr>
+                                                <th>Bill Ref</th>
+                                                <th>Period</th>
+                                                <th>Expected</th>
+                                                <th>Paid</th>
+                                                <th>Balance</th>
+                                                <th>Status</th>
+                                                <th class="text-end">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for bill in group.bills %}
+                                            <tr>
+                                                <td class="text-muted fw-600">UB-{{ bill.id }}</td>
+                                                <td>
+                                                    <div class="fw-600">
+                                                        {% if bill.month %}{{ bill.month.name }}{% else %}—{% endif %}
+                                                        {% if bill.year %}{{ bill.year.name }}{% endif %}
+                                                    </div>
+                                                    <div class="text-muted" style="font-size:.72rem;">
+                                                        Rent: Kes {{ bill.rent_amount|floatformat:0 }} · Water: Kes {{ bill.water_amount|floatformat:0 }} · Garbage: Kes {{ bill.garbage_amount|floatformat:0 }}
+                                                    </div>
+                                                </td>
+                                                <td class="fw-600">Kes {{ bill.amount_expected|floatformat:0 }}</td>
+                                                <td class="text-success fw-600">Kes {{ bill.amount_paid|floatformat:0 }}</td>
+                                                <td class="fw-700 text-danger">Kes {{ bill.balance|floatformat:0 }}</td>
+                                                <td>
+                                                    {% if bill.fully_paid %}
+                                                        <span class="rems-badge rems-badge--green">Fully Paid</span>
+                                                    {% elif bill.amount_paid > 0 %}
+                                                        <span class="rems-badge rems-badge--amber">Partial</span>
+                                                    {% else %}
+                                                        <span class="rems-badge rems-badge--red">Unpaid</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-end">
+                                                    <a
+                                                        href="{% url 'unit-bill-details' bill.id %}"
+                                                        class="rems-btn rems-btn--primary"
+                                                        style="padding:.3rem .6rem; font-size:.75rem;"
+                                                        title="View details / collect payment"
+                                                    >
+                                                        Details <i class="fa-solid fa-angle-right ms-1"></i>
+                                                    </a>
+                                                    <a
+                                                        href="{% url 'unit-bill-receipt' bill.id %}"
+                                                        class="rems-btn rems-btn--ghost"
+                                                        style="padding:.3rem .6rem; font-size:.75rem;"
+                                                        title="Receipt"
+                                                    >
+                                                        Receipt
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="7">
+                                                    <div class="empty-state">
+                                                        <i class="fa-solid fa-receipt fa-3x text-muted mb-3"></i>
+                                                        <h5 class="fw-700">No pending bills in this group</h5>
+                                                        <p class="text-muted mb-0">This unit has no unpaid bills matching your filters.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-circle-check fa-3x text-muted mb-3" style="color:var(--color-green);"></i>
+                            <h5 class="fw-700">No Pending Bills</h5>
+                            <p class="text-muted mb-0">All unit bills appear to be fully paid{% if request.GET.search %} for this search{% endif %}.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -10,9 +10,25 @@ from .models import (
     GarbageBillPayment,
     SecurityDeposit,
     SecurityDepositPayment,
+    TemporaryMonthBill
 )
 
 # Register your models here.
+
+@admin.register(TemporaryMonthBill)
+class TemporaryMonthBillAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "unit",
+        "month",
+        "year",
+        "rent_amount",
+        "garbage_amount",
+        "current_reading",
+        "previous_reading",
+        "status",
+    ]
+    list_filter = ("year", "month", "unit")
 
 
 @admin.register(UnitMonthBill)
