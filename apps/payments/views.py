@@ -607,6 +607,7 @@ def temporary_month_bills_view(request: HttpRequest):
 
     context = {
         "bills": bills,
+        "months": MONTHS_LIST,
     }
     return render(request, "water_bills/temporary_month_bills.html", context)
 
