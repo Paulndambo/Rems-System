@@ -248,19 +248,11 @@ def caretaker_dashboard(request):
         status__in=[MaintenanceStatuses.COMPLETED.value, MaintenanceStatuses.PAID.value]
     ).order_by("-created_at")
 
-    total_rent = RentBill.objects.aggregate(total_amount=Sum("amount_expected"))[
-        "total_amount"
-    ]
-    total_water = WaterBill.objects.aggregate(total_amount=Sum("amount"))[
-        "total_amount"
-    ]
+    total_rent = RentBill.objects.aggregate(total_amount=Sum("amount_expected"))["total_amount"]
+    total_water = WaterBill.objects.aggregate(total_amount=Sum("amount"))["total_amount"]
 
-    total_rent_paid = RentBill.objects.aggregate(total_amount=Sum("amount_paid"))[
-        "total_amount"
-    ]
-    total_water_paid = WaterBill.objects.aggregate(total_amount=Sum("amount_paid"))[
-        "total_amount"
-    ]
+    total_rent_paid = RentBill.objects.aggregate(total_amount=Sum("amount_paid"))["total_amount"]
+    total_water_paid = WaterBill.objects.aggregate(total_amount=Sum("amount_paid"))["total_amount"]
 
     total_rent_due = total_rent - total_rent_paid
     total_water_due = total_water - total_water_paid

@@ -170,25 +170,38 @@ class PendingBillsView(LoginRequiredMixin, ListView):
     model = UnitMonthBill
     template_name = "unit_bills/pending_bills.html"
     context_object_name = "pending_bills"
+    paginate_by = 15
 
     def get_queryset(self):
-        # Not used in this version
-        return UnitMonthBill.objects.filter(fully_paid=False).order_by("-created_at")
+        qs = (
+            UnitMonthBill.objects.filter(fully_paid=False)
+            .select_related(
+                "unit",
+                "unit__property",
+                "tenant",
+                "tenant__user",
+                "month",
+                "year",
+            )
+            .order_by("-created_at")
+        )
+        search_query = (self.request.GET.get("search") or "").strip()
+        if search_query:
+            qs = qs.filter(
+                Q(unit__name__icontains=search_query)
+                | Q(unit__property__name__icontains=search_query)
+                | Q(tenant__user__first_name__icontains=search_query)
+                | Q(tenant__user__last_name__icontains=search_query)
+                | Q(tenant__user__username__icontains=search_query)
+                | Q(month__name__icontains=search_query)
+                | Q(year__name__icontains=search_query)
+                | Q(status__icontains=search_query)
+            )
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        search_query = self.request.GET.get("search", "")
-
-        queryset = UnitMonthBill.objects.filter(fully_paid=False)
-
-        if search_query:
-            queryset = queryset.filter(
-                Q(unit__name__icontains=search_query) |
-                Q(unit__property__name__icontains=search_query) |
-                Q(tenant__user__first_name__icontains=search_query) |
-                Q(tenant__user__last_name__icontains=search_query)
-            )
+        context["search_query"] = (self.request.GET.get("search") or "").strip()
         return context
     
     

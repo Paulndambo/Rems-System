@@ -31,7 +31,11 @@
 <div class="rems-wrapper" id="remsWrapper">
 
     <!-- Sidebar -->
-    {% include "sidebar.html" %}
+    {% if request.user.role == "Caretaker" %}
+        {% include "includes/caretaker_sidebar.html" %}
+    {% else %}
+        {% include "includes/sidebar.html" %}
+    {% endif %}
 
     <!-- Overlay for mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>

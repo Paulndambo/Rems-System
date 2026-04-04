@@ -15,10 +15,26 @@
     </a>
 </div>
 {% include "garbage_bills/generate_garbage_bills_list.html" %}
+
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap" role="search">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" value="{{ search_query }}" class="form-control search-input" placeholder="Tenant, unit, property, period, status, bill ID…" autocomplete="off">
+            </div>
+            <button type="submit" class="rems-btn rems-btn--primary">Search</button>
+            {% if search_query %}
+            <a href="{% url 'garbage-bills' %}" class="rems-btn rems-btn--ghost align-self-stretch">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
 <div class="rems-card">
     <div class="rems-card__header">
         <h5 class="rems-card__title">Garbage Unit Bills</h5>
-        <p class="rems-card__subtitle">{{ unit_bills|length }} bill(s)</p>
+        <p class="rems-card__subtitle">{{ page_obj.paginator.count }} bill(s) found{% if search_query %} · search: {{ search_query }}{% endif %}</p>
     </div>
     <div class="table-responsive">
         <table class="rems-table">
@@ -61,7 +77,7 @@
                 {% include "garbage_bills/collect_garbage_payment.html" %}
                 {% empty %}
                 <tr>
-                    <td colspan="8">
+                    <td colspan="7">
                         <div class="empty-state">
                             <i class="fa-solid fa-file-invoice fa-3x text-muted mb-3"></i>
                             <h5 class="fw-700">No Unit Bills Found</h5>
@@ -75,6 +91,11 @@
             </tbody>
         </table>
     </div>
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=page_obj %}
+    </div>
+    {% endif %}
 </div>
 {% include "water_bills/generate_unit_bills_list.html" %}
 {% endblock %}

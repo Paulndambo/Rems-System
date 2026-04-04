@@ -640,9 +640,20 @@ def generate_temporary_month_bill(request: HttpRequest):
                     month=month_obj,
                     year=month_obj.year,
                     rent_amount=unit.rent,
-                    garbage_amount=unit.property.garbage_charge,
                     previous_reading=previous_reading,
                 )
+
+                garbage_bill_exists = GarbageBill.objects.filter(
+                    unit=unit, month=month_obj, year__name=year
+                ).exists()
+                if not garbage_bill_exists:
+                    GarbageBill.objects.create(
+                        unit=unit,
+                        tenant=unit.tenant,
+                        amount_expected=unit.property.garbage_charge,
+                        month=month_obj,
+                        year=month_obj.year,
+                    )
 
         return redirect("temporary-month-bills")
     return render(request, "water_bills/generate_temporary_month_bill.html", {"months": MONTHS_LIST})

@@ -28,6 +28,7 @@ from django.views.generic import ListView
 from django.http import HttpRequest, JsonResponse
 from django.db.models import Q
 from django.db import transaction
+from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.properties.models import PropertyUnit, Property
 from apps.core.models import Month, Year
 from apps.payments.models import GarbageBill, GarbageBillPayment
@@ -36,28 +37,47 @@ from apps.core.due_date_normalizer import get_due_date
 
 date_today = datetime.now().date()
 # Create your views here.
-class GarbageBillsView(ListView):
+class GarbageBillsView(LoginRequiredMixin, ListView):
     model = GarbageBill
     template_name = "garbage_bills/garbage_bills.html"
     context_object_name = "garbage_bills"
     paginate_by = 15
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        search_query = self.request.GET.get("search", "")
-
+        qs = (
+            GarbageBill.objects.filter(fully_paid=False)
+            .select_related(
+                "unit",
+                "unit__property",
+                "tenant",
+                "tenant__user",
+                "month",
+                "year",
+            )
+        )
+        search_query = (self.request.GET.get("search") or "").strip()
         if search_query:
-            queryset = queryset.filter(
-                Q(id__icontains=search_query)
-                | Q(unit__name__icontains=search_query)
+            q = (
+                Q(unit__name__icontains=search_query)
                 | Q(unit__property__name__icontains=search_query)
                 | Q(tenant__user__first_name__icontains=search_query)
                 | Q(tenant__user__last_name__icontains=search_query)
+                | Q(tenant__user__username__icontains=search_query)
+                | Q(month__name__icontains=search_query)
+                | Q(year__name__icontains=search_query)
+                | Q(status__icontains=search_query)
             )
-        return queryset.filter(fully_paid=False).order_by("-created_at")
+            if search_query.isdigit():
+                try:
+                    q |= Q(pk=int(search_query))
+                except (ValueError, OverflowError):
+                    pass
+            qs = qs.filter(q)
+        return qs.order_by("-created_at")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["search_query"] = (self.request.GET.get("search") or "").strip()
         context["units"] = PropertyUnit.objects.all()
         context["months"] = MONTHS_LIST
         context["years"] = Year.objects.all()

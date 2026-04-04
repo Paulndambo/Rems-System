@@ -6,7 +6,7 @@
         <ul class="pagination pagination-sm mb-0 rems-pagination">
             {% if page_obj.has_previous %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status|urlencode }}{% endif %}">
                     <i class="fa-solid fa-chevron-left"></i>
                 </a>
             </li>
@@ -19,14 +19,14 @@
                     </li>
                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status|urlencode }}{% endif %}">{{ num }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
 
             {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status|urlencode }}{% endif %}">
                     <i class="fa-solid fa-chevron-right"></i>
                 </a>
             </li>

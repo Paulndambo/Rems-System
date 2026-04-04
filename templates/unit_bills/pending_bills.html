@@ -14,19 +14,22 @@
 
 <div class="rems-card mb-4">
     <div class="rems-card__body py-3">
-        <form method="GET" class="d-flex gap-2 flex-wrap">
+        <form method="GET" class="d-flex gap-2 flex-wrap" role="search">
             <div class="search-wrap flex-grow-1">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" name="search" value="{{ request.GET.search }}" class="form-control search-input" placeholder="Search by tenant, unit, property...">
+                <input type="text" name="search" value="{{ search_query }}" class="form-control search-input" placeholder="Tenant, unit, property, billing period, status…" autocomplete="off">
             </div>
             <button type="submit" class="rems-btn rems-btn--primary">Search</button>
+            {% if search_query %}
+            <a href="{% url 'pending-bills' %}" class="rems-btn rems-btn--ghost align-self-stretch">Clear</a>
+            {% endif %}
         </form>
     </div>
 </div>
 <div class="rems-card">
     <div class="rems-card__header">
         <h5 class="rems-card__title">Pending Bills</h5>
-        <p class="rems-card__subtitle">{{ unit_bills|length }} bill(s)</p>
+        <p class="rems-card__subtitle">{{ page_obj.paginator.count }} bill(s) found{% if search_query %} · search: {{ search_query }}{% endif %}</p>
     </div>
     <div class="table-responsive">
         <table class="rems-table">
@@ -76,7 +79,7 @@
                 {% include "unit_bills/collect_pending_bill.html" %}
                 {% empty %}
                 <tr>
-                    <td colspan="11">
+                    <td colspan="7">
                         <div class="empty-state">
                             <i class="fa-solid fa-check-circle fa-3x text-success mb-3"></i>
                             <h5 class="fw-700">No Pending Bills</h5>
@@ -88,5 +91,10 @@
             </tbody>
         </table>
     </div>
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=page_obj %}
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

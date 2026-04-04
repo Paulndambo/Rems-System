@@ -1,0 +1,119 @@
+{% load static %}
+{# Caretaker nav: same chrome as includes/sidebar.html (rems-sidebar + app.js toggles) #}
+{% url 'caretaker-dashboard' as url_dashboard %}
+{% url 'units' as url_units %}
+{% url 'tenants' as url_tenants %}
+{% url 'maintenance-requests' as url_maintenance %}
+{% url 'water-bills' as url_water_bills %}
+{% url 'pending-bills' as url_pending_bills %}
+{% url 'temporary-month-bills' as url_temporary_month_bills %}
+{% url 'logout' as url_logout %}
+{% url 'garbage-bills' as url_garbage_bills %}
+
+<nav class="rems-sidebar" id="remsSidebar" aria-label="Caretaker navigation">
+
+    <div class="sidebar-brand">
+        <div class="brand-icon">
+            <i class="fa-solid fa-broom"></i>
+        </div>
+        <div class="brand-text">
+            <span class="brand-name">REMS</span>
+            <span class="brand-sub">Caretaker</span>
+        </div>
+        <button type="button" class="sidebar-close-btn d-md-none" id="sidebarCloseBtn" aria-label="Close menu">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-nav" id="sidebarNav">
+
+        <div class="nav-section">
+            <span class="nav-section-label">Main</span>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ url_dashboard }}"
+                       class="nav-link {% if request.resolver_match.url_name == 'caretaker-dashboard' %}active{% endif %}"
+                       id="nav-caretaker-dashboard">
+                        <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-label">Property</span>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ url_units }}"
+                       class="nav-link {% if request.resolver_match.url_name == 'units' or request.resolver_match.url_name == 'unit-detail' or request.resolver_match.url_name == 'new-unit' or request.resolver_match.url_name == 'edit-unit' %}active{% endif %}"
+                       id="nav-caretaker-units">
+                        <span class="nav-icon"><i class="fa-solid fa-house-chimney"></i></span>
+                        <span class="nav-label">Rental Units</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_tenants }}"
+                       class="nav-link {% if request.resolver_match.url_name == 'tenants' or request.resolver_match.url_name == 'tenant-detail' or request.resolver_match.url_name == 'new-tenant' or request.resolver_match.url_name == 'edit-tenant' %}active{% endif %}"
+                       id="nav-caretaker-tenants">
+                        <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
+                        <span class="nav-label">Tenants</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_maintenance }}"
+                       class="nav-link {% if request.resolver_match.url_name == 'maintenance-requests' or request.resolver_match.url_name == 'new-maintenance-request' or request.resolver_match.url_name == 'edit-maintenance-request' or request.resolver_match.url_name == 'delete-maintenance-request' %}active{% endif %}"
+                       id="nav-caretaker-maintenance">
+                        <span class="nav-icon"><i class="fa-solid fa-screwdriver-wrench"></i></span>
+                        <span class="nav-label">Maintenance</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-label">Billing</span>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ url_temporary_month_bills }}"
+                       class="nav-link {% if request.resolver_match.url_name == 'temporary-month-bills' or request.resolver_match.url_name == 'capture-current-meter-readings' or request.resolver_match.url_name == 'confirm-current-meter-readings' or request.resolver_match.url_name == 'edit-current-meter-reading' %}active{% endif %}"
+                       id="nav-caretaker-water-readings">
+                        <span class="nav-icon"><i class="fa-solid fa-droplet"></i></span>
+                        <span class="nav-label">Record Water Bills</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ url_garbage_bills }}"
+                       class="nav-link {% if request.resolver_match.url_name == 'garbage-bills' %}active{% endif %}"
+                       id="nav-caretaker-garbage-bills">
+                        <span class="nav-icon"><i class="fa-solid fa-trash"></i></span>
+                        <span class="nav-label">Garbage Bills</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_pending_bills }}"
+                       class="nav-link {% if request.resolver_match.url_name == 'pending-bills' or request.resolver_match.url_name == 'monthly-unit-bills' %}active{% endif %}"
+                       id="nav-caretaker-pending-bills">
+                        <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
+                        <span class="nav-label">Pending Bills</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-label">Account</span>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ url_logout }}" class="nav-link nav-link--danger" id="nav-caretaker-logout">
+                        <span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+                        <span class="nav-label">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+</nav>

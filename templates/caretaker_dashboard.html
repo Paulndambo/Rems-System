@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_class %}page-dashboard{% endblock %}
+
+{% block title %}Dashboard – REMS{% endblock %}
+{% block page_title %}Caretaker dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-home">
+    <header class="dashboard-home__intro">
+        <h1 class="dashboard-home__page-title">Caretaker dashboard</h1>
+        <p class="dashboard-home__meta d-none d-lg-block">
+            <span>{% now "F Y" %}</span>
+            <span class="dashboard-home__meta-sep" aria-hidden="true">·</span>
+            <span>Outstanding rent &amp; water</span>
+        </p>
+    </header>
+
+    <div class="dashboard-home__stats-grid">
+        <div class="dash-stat-card">
+            <div class="dash-stat-card__value dash-stat-card__value--red">KES {{ total_rent_due|floatformat:0 }}</div>
+            <div class="dash-stat-card__hint">uncollected rent</div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="dash-stat-card__value dash-stat-card__value--teal">KES {{ total_water_due|floatformat:0 }}</div>
+            <div class="dash-stat-card__hint">uncollected water</div>
+        </div>
+    </div>
+
+    <section class="dashboard-home__section" aria-labelledby="caretaker-quick-heading">
+        <h2 id="caretaker-quick-heading" class="dashboard-home__section-label">Quick actions</h2>
+        <div class="dashboard-home__quick-grid">
+            <a href="{% url 'pending-bills' %}" class="dash-action-card">
+                <span class="dash-action-card__icon dash-action-card__icon--green"><i class="fa-solid fa-dollar-sign"></i></span>
+                <span class="dash-action-card__label">Record payment</span>
+            </a>
+            <a href="{% url 'temporary-month-bills' %}" class="dash-action-card">
+                <span class="dash-action-card__icon dash-action-card__icon--blue"><i class="fa-solid fa-droplet"></i></span>
+                <span class="dash-action-card__label">Record water readings</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-6">
+            <div class="rems-card h-100">
+                <div class="rems-card__header">
+                    <div>
+                        <h5 class="rems-card__title">Pending rent</h5>
+                        <p class="rems-card__subtitle">Bills not fully paid</p>
+                    </div>
+                </div>
+                <div class="rems-card__body p-0">
+                    <div class="table-responsive">
+                        <table class="table rems-table rems-table--labeled mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Tenant</th>
+                                    <th>Amount</th>
+                                    <th>Due</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rent_bill in rent_bills %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ rent_bill.unit.tenant.user.name }} <span class="text-muted">({{ rent_bill.unit.name }})</span></td>
+                                    <td>KES {{ rent_bill.amount_expected|floatformat:0 }}</td>
+                                    <td>{{ rent_bill.due_date|date:"M j, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr class="rems-table__row--full">
+                                    <td colspan="4">
+                                        <div class="empty-state py-4">
+                                            <i class="fa-regular fa-circle-check fa-2x mb-2 text-muted"></i>
+                                            <p class="text-muted mb-0 small">No pending rent bills.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="rems-card h-100">
+                <div class="rems-card__header">
+                    <div>
+                        <h5 class="rems-card__title">Pending water bills</h5>
+                        <p class="rems-card__subtitle">Open water charges</p>
+                    </div>
+                </div>
+                <div class="rems-card__body p-0">
+                    <div class="table-responsive">
+                        <table class="table rems-table rems-table--labeled mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Unit</th>
+                                    <th>Period</th>
+                                    <th>Amount</th>
+                                    <th>Reading</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for water_bill in water_bills %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ water_bill.unit.name }}</td>
+                                    <td>{{ water_bill.month.name }} <span class="text-muted">({{ water_bill.year.name }})</span></td>
+                                    <td>KES {{ water_bill.amount|floatformat:0 }}</td>
+                                    <td>{{ water_bill.current_reading }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr class="rems-table__row--full">
+                                    <td colspan="5">
+                                        <div class="empty-state py-4">
+                                            <i class="fa-regular fa-circle-check fa-2x mb-2 text-muted"></i>
+                                            <p class="text-muted mb-0 small">No pending water bills.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
