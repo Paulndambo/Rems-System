@@ -1,13 +1,13 @@
-<div class="modal fade" id="assignTenantModal{{ unit.id }}" tabindex="-1" aria-labelledby="assignTenantLabel{{ unit.id }}" aria-hidden="true">
+<div class="modal fade" id="removeTenantModal{{ unit.id }}" tabindex="-1" aria-labelledby="removeTenantLabel{{ unit.id }}" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="assignTenantLabel{{ unit.id }}">
-                    <i class="fa-solid fa-user-plus"></i> Assign Tenant
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="removeTenantLabel{{ unit.id }}">
+                    <i class="fa-solid fa-user-minus"></i> Remove Tenant
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="assignTenantForm{{ unit.id }}" method="POST" action="{% url 'assign-tenant' %}">
+            <form id="removeTenantForm{{ unit.id }}" method="POST" action="{% url 'remove-tenant' %}">
                 <div class="modal-body">
                     {% csrf_token %}
                     <input type="hidden" name="unit_id" value="{{ unit.id }}">
@@ -22,24 +22,14 @@
                                 <div class="col-6 fw-bold">Unit:</div>
                                 <div class="col-6">{{ unit.property.name }} ({{ unit.name }})</div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="card mb-3">
-                        <div class="card-body">
                             <div class="row mb-2">
-                                
-                            <select name="tenant_id" class="form-select" required>
-                                <option value="" disabled selected>Select Tenant</option>
-                                {% for tenant in tenants %}
-                                    <option value="{{ tenant.id }}">{{ tenant.user.first_name }} {{ tenant.user.last_name }}</option>
-                                {% endfor %}
+                                <div class="col-6 fw-bold">Current Tenant:</div>
+                                <div class="col-6">{{ unit.tenant.user.first_name }} {{ unit.tenant.user.last_name }}</div>
                             </div>
                         </div>
                     </div>
-
                     <p class="text-muted mb-0">
-                        <small>Once confirmed, the tenant will be assigned to this unit.</small>
+                        <small>Once confirmed, the tenant will be removed from this unit.</small>
                     </p>
                 </div>
                 <div class="modal-footer">

@@ -15,10 +15,15 @@
     </div>
     <div class="d-flex gap-2">
         <a href="{% url 'edit-unit' %}?unit_id={{ unit.id }}" class="rems-btn rems-btn--ghost"><i class="fa-solid fa-pen me-2"></i>Edit</a>
-        <a href="{% url 'assign-tenant' %}" class="rems-btn rems-btn--primary"><i class="fa-solid fa-user-plus me-2"></i>Assign Tenant</a>
+        {% if unit.is_occupied %}
+        <a data-bs-toggle="modal" data-bs-target="#removeTenantModal{{ unit.id }}" class="rems-btn rems-btn--danger"><i class="fa-solid fa-user-plus me-2"></i>Remove Tenant</a>
+        {% else %}
+        <a data-bs-toggle="modal" data-bs-target="#assignTenantModal{{ unit.id }}" class="rems-btn rems-btn--primary"><i class="fa-solid fa-user-plus me-2"></i>Assign Tenant</a>
+        {% endif %}
     </div>
 </div>
-
+{% include "properties/units/remove_tenant.html" %}
+{% include "properties/units/set_tenant.html" %}
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
         <div class="stat-card stat-card--blue">
@@ -113,64 +118,48 @@
                 </table>
             </div>
         </div>
-        <!--
-        <div class="rems-card">
-            <div class="rems-card__header">
-                <h5 class="rems-card__title">Maintenance Requests</h5>
-                <p class="rems-card__subtitle">{{ maintenance_requests.paginator.count }} request(s)</p>
-            </div>
-            <div class="table-responsive">
-                <table class="rems-table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Cost</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for request in maintenance_requests %}
-                        <tr>
-                            <td>{{ request.title }}</td>
-                            <td>{{ request.priority }}</td>
-                            <td>{{ request.status }}</td>
-                            <td>Kes {{ request.cost|floatformat:0 }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="4" class="text-muted">No maintenance requests found.</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    -->
     </div>
 </div>
 
 <div class="rems-card">
     <div class="rems-card__header">
-        <h5 class="rems-card__title">Rent Payments</h5>
-        <p class="rems-card__subtitle">{{ payments.paginator.count }} payment(s)</p>
+        <h5 class="rems-card__title">Monthly Bills</h5>
+        <p class="rems-card__subtitle">{{ monthly_bills.paginator.count }} bill(s)</p>
     </div>
     <div class="table-responsive">
         <table class="rems-table">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Method</th>
-                    <th>Amount</th>
+                    <th>#</th>
+                    <th>Tenant</th>
+                    <th>Period</th>
+                    <th>Total (Rent + Water)</th>
+                    <th>Paid</th>
+                    <th>Balance</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
-                {% for payment in payments %}
+                {% for bill in monthly_bills %}
                 <tr>
-                    <td>{{ payment.payment_date|date:"d M Y" }}</td>
-                    <td>{{ payment.payment_method|default:"—" }}</td>
-                    <td class="fw-600 text-success">Kes {{ payment.amount_paid|floatformat:0 }}</td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{% if bill.tenant and bill.tenant.user %}{{ bill.tenant.user.first_name }} {{ bill.tenant.user.last_name }}{% else %}—{% endif %}</td>
+                    <td>{{ bill.month.name }} {{ bill.year.name }}</td>
+                    <td class="fw-600 text-success">Kes {{ bill.amount_expected|floatformat:0 }}</td>
+                    <td class="fw-600 text-success">Kes {{ bill.amount_paid|floatformat:0 }}</td>
+                    <td class="fw-600 text-danger">Kes {{ bill.balance|floatformat:0 }}</td>
+                    <td>
+                        {% if bill.fully_paid %}
+                            <span class="rems-badge rems-badge--green">Fully Paid</span>
+                        {% elif bill.amount_paid > 0 %}
+                            <span class="rems-badge rems-badge--amber">Partially Paid</span>
+                        {% else %}
+                            <span class="rems-badge rems-badge--red">Unpaid</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="3" class="text-muted">No rent payments found.</td></tr>
+                <tr><td colspan="5" class="text-muted">No monthly bills found.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

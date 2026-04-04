@@ -1,3 +1,4 @@
+from django.http import HttpRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Avg, Sum
 from django.views.generic import ListView
@@ -46,7 +47,7 @@ class TenantListView(LoginRequiredMixin, ListView):
                 | Q(status__icontains=search_query)
             )
 
-        return queryset.order_by("propertyunit__name")
+        return queryset.order_by("tenantunit__name")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -57,7 +58,7 @@ class TenantListView(LoginRequiredMixin, ListView):
 
 
 @login_required
-def tenant_detail(request, pk):
+def tenant_detail(request: HttpRequest, pk: int):
     tenant = get_object_or_404(Tenant, pk=pk)
 
     # Get all the data
@@ -107,6 +108,8 @@ def tenant_detail(request, pk):
         else 0
     )
 
+    monthly_bills = tenant.unitmonthbills.all()
+
     context = {
         "tenant": tenant,
         "units": units,
@@ -119,6 +122,7 @@ def tenant_detail(request, pk):
         "total_expected_rent": (
             round(total_expected_rent, 2) if total_expected_rent else 0
         ),
+        "monthly_bills": monthly_bills
     }
 
     return render(request, "tenants/tenant_details.html", context)

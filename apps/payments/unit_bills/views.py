@@ -1,5 +1,6 @@
 from datetime import datetime, date
 from decimal import Decimal
+from typing import Any, Dict, List
 from django.db.models import Sum, F, Value, Q
 from django.db.models.functions import Coalesce
 from django.shortcuts import render, redirect
@@ -72,11 +73,11 @@ class UnitMonthBillsView(LoginRequiredMixin, ListView):
 
 
 @login_required
-def unit_bill_details(request, pk):
+def unit_bill_details(request: HttpRequest, pk: int):
     unit_bill = UnitMonthBill.objects.get(id=pk)
     payments = TenantPayment.objects.filter(unit_bill=unit_bill)
 
-    context = {
+    context: Dict[str, Any] = {
         "unit_bill": unit_bill,
         "payments": payments,
         "payment_methods": PAYMENT_METHODS
@@ -85,7 +86,7 @@ def unit_bill_details(request, pk):
 
 
 @login_required
-def unit_bill_receipt(request, unit_bill_id):
+def unit_bill_receipt(request: HttpRequest, unit_bill_id: int):
     bill = UnitMonthBill.objects.get(id=unit_bill_id)
     
     previous_bills = UnitMonthBill.objects.filter(tenant=bill.tenant).exclude(id=bill.id)
@@ -101,7 +102,7 @@ def unit_bill_receipt(request, unit_bill_id):
     
     total_month_bill = total_rent_pending + total_water_bills_pending + bill.amount_expected
     
-    context = {
+    context: Dict[str, Any] = {
         "bill": bill,
         "total_month_bill": total_month_bill,
         "total_rent_pending": total_rent_pending,
@@ -113,14 +114,15 @@ def unit_bill_receipt(request, unit_bill_id):
 
 @login_required
 @transaction.atomic
-def collect_unit_bill_payment(request):
+def collect_unit_bill_payment(request: HttpRequest):
     if request.method == "POST":
         unit_bill_id = request.POST.get("unit_bill_id")
-        rent_amount = Decimal(request.POST.get("rent_amount", 0))
-        water_amount = Decimal(request.POST.get("water_amount", 0))
-        garbage_amount = Decimal(request.POST.get("garbage_amount", 0))
+        rent_amount = float(request.POST.get("rent_amount", 0))
+        water_amount = float(request.POST.get("water_amount", 0))
+
         payment_method = request.POST.get("payment_method")
         payment_date = request.POST.get("payment_date")
+        reference = request.POST.get("reference")
 
         unit_bill = UnitMonthBill.objects.get(id=unit_bill_id)
 
@@ -128,9 +130,9 @@ def collect_unit_bill_payment(request):
             unit_bill = unit_bill,
             rent_amount = rent_amount,
             water_amount = water_amount,
-            garbage_amount = garbage_amount,
             payment_method = payment_method,
-            payment_date = payment_date
+            payment_date = payment_date,
+            reference_number=reference
         ).run()
 
         return redirect("pending-bills")
@@ -139,14 +141,15 @@ def collect_unit_bill_payment(request):
 
 @login_required
 @transaction.atomic
-def collect_unit_bill_payment_on_dashboard(request):
+def collect_unit_bill_payment_on_dashboard(request: HttpRequest):
     if request.method == "POST":
         unit_bill_id = request.POST.get("unit_bill_id")
-        rent_amount = Decimal(request.POST.get("rent_amount", 0))
-        water_amount = Decimal(request.POST.get("water_amount", 0))
-        garbage_amount = Decimal(request.POST.get("garbage_amount", 0))
+        rent_amount = float(request.POST.get("rent_amount", 0))
+        water_amount = float(request.POST.get("water_amount", 0))
         payment_method = request.POST.get("payment_method")
         payment_date = request.POST.get("payment_date")
+
+        reference = request.POST.get("reference")
 
         unit_bill = UnitMonthBill.objects.get(id=unit_bill_id)
 
@@ -154,9 +157,9 @@ def collect_unit_bill_payment_on_dashboard(request):
             unit_bill = unit_bill,
             rent_amount = rent_amount,
             water_amount = water_amount,
-            garbage_amount = garbage_amount,
             payment_method = payment_method,
-            payment_date = payment_date
+            payment_date = payment_date,
+            reference_number=reference
         ).run()
 
         return redirect("home")
@@ -190,10 +193,10 @@ class PendingBillsView(LoginRequiredMixin, ListView):
     
     
 @login_required    
-def generate_bill(request):
+def generate_bill(request: HttpRequest):
     properties = Property.objects.all()
 
-    context = {
+    context: Dict[str, Any] = {
         "months": MONTHS_LIST,
         "payment_methods": PAYMENT_METHODS,
         "properties": properties
@@ -245,7 +248,7 @@ def generate_bill(request):
 def get_units_by_property(request: HttpRequest):
     units = PropertyUnit.objects.filter(is_occupied=True).select_related("property")
 
-    data = [
+    data: List[Dict[str, Any]] = [
         {
             "id": unit.id,
             "name": f"{unit.name} - {unit.property.name}"

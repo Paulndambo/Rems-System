@@ -11,8 +11,8 @@ BACKEND_BASE_URL = settings.BACKEND_BASE_URL
 
 # Create your models here.
 class UnitMonthBill(AbstractBaseModel):
-    unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True)
-    tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True)
+    unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True, related_name="unitmonthbills")
+    tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True, related_name="unitmonthbills")
     month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
     year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
@@ -42,7 +42,6 @@ class UnitMonthBill(AbstractBaseModel):
         self.amount_expected = (
             Decimal(self.rent_amount)
             + Decimal(self.water_amount)
-            + Decimal(self.garbage_amount)
         )
         self.save()
 
@@ -55,17 +54,11 @@ class UnitMonthBill(AbstractBaseModel):
     def water_balance(self):
         return self.water_amount - self.water_amount_paid
 
-    def garbage_balance(self):
-        return self.garbage_amount - self.garbage_amount_paid
-
     def rent_fully_paid(self):
         return self.rent_amount == self.rent_amount_paid
 
     def water_fully_paid(self):
         return self.water_amount == self.water_amount_paid
-
-    def garbage_fully_paid(self):
-        return self.garbage_amount == self.garbage_amount_paid
 
     def unit_bill_status(self):
         return "Fully Paid" if self.amount_expected == self.amount_paid else "Pending"
@@ -74,8 +67,7 @@ class UnitMonthBill(AbstractBaseModel):
         message = ""
         if self.water_amount <= 0:
             message = "Water bill is missing"
-        elif self.garbage_amount <= 0:
-            message = "Garbage bill is missing"
+    
         elif self.rent_amount <= 0:
             message = "Rent bill is missing"
         return message
@@ -85,7 +77,6 @@ class UnitMonthBill(AbstractBaseModel):
         self.fully_paid = True
         self.amount_paid = self.amount_expected
         self.water_amount_paid = self.water_amount
-        self.garbage_amount_paid = self.garbage_amount
         self.rent_amount_paid = self.rent_amount
         self.save()
 
@@ -137,32 +128,17 @@ class RentPayment(AbstractBaseModel):
     payment_method = models.CharField(max_length=255, choices=PaymentMethods.choices(), null=True, blank=True)
 
 
-class TenantPayment(AbstractBaseModel):
-    unit_bill = models.ForeignKey("UnitMonthBill", on_delete=models.CASCADE, null=True, blank=True)
-    tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantpayments")
-    unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True)
-    rent_payment = models.ForeignKey("RentPayment", on_delete=models.SET_NULL, null=True, blank=True)
-    water_bill_payment = models.ForeignKey("WaterBillPayment", on_delete=models.SET_NULL, null=True, blank=True)
-    garbage_bill_payment = models.ForeignKey("GarbageBillPayment", on_delete=models.SET_NULL, null=True, blank=True)
-    security_deposit_payment = models.ForeignKey("SecurityDepositPayment", on_delete=models.SET_NULL, null=True, blank=True)
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_method = models.CharField(max_length=255, choices=PaymentMethods.choices(), null=True, blank=True)
-    payment_date = models.DateField()
-    month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
-    year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
-    payment_type = models.CharField(max_length=255, null=True, blank=True)
-
-
 
 class GarbageBill(AbstractBaseModel):
-    unit_bill = models.ForeignKey("UnitMonthBill", on_delete=models.CASCADE, null=True)
-    unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True)
-    tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True)
+    unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True, related_name="garbagebills")
+    tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True, related_name="garbagebills")
     amount_expected = models.DecimalField(max_digits=10, decimal_places=2)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     due_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=255, choices=PaymentStatuses.choices(), default=PaymentStatuses.PENDING.value)
     fully_paid = models.BooleanField(default=False)
+    month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True, related_name="garbagebills")
+    year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True, related_name="garbagebills")
 
 
     def balance(self):
@@ -210,30 +186,46 @@ class TemporaryMonthBill(AbstractBaseModel):
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     current_reading = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     previous_reading = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
-    garbage_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     status = models.CharField(max_length=255, choices=[
         ("Pending", "Pending"),
         ("Captured", "Captured"),
         ("Confirmed", "Confirmed"),
     ], default="Pending")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.unit.name} - {self.month.name} {self.year.name}"
-
     
-    def rent_and_garbage(self):
-        return self.rent_amount + self.garbage_amount
-    
-    def water_amount(self):
+    def water_amount(self) -> Decimal:
         if self.current_reading > 0 :
             return round((self.current_reading - self.previous_reading) * self.unit.water_price, 2)
         return Decimal("0.00")
     
-    def total(self):
-        return round(self.rent_and_garbage() + self.water_amount(), 2)
+    def total(self) -> Decimal:
+        return round(self.rent_amount + self.water_amount(), 2)
     
 
-    def consumption(self):
+    def consumption(self) -> Decimal:
         if self.current_reading > 0:
             return self.current_reading - self.previous_reading
         return Decimal("0.00")
+    
+
+
+class TenantPayment(AbstractBaseModel):
+    reference = models.CharField(max_length=255, null=True, blank=True)
+    tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantpayments")
+    unit = models.ForeignKey("properties.PropertyUnit", on_delete=models.SET_NULL, null=True, blank=True)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(max_length=255, choices=PaymentMethods.choices(), null=True, blank=True)
+    payment_date = models.DateField()
+    month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
+    year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
+    payment_type = models.CharField(max_length=255, choices=[
+        ("General Payment", "General Payment"),
+        ("Rent", "Rent"),
+        ("Water Bill", "Water Bill"),
+        ("Garbage Bill", "Garbage Bill"),
+        ("Security Deposit", "Security Deposit"),
+        ("Other", "Other"),
+    ], default="Rent")
+    

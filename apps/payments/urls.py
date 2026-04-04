@@ -25,8 +25,6 @@ from apps.payments.views import (
 )
 from apps.payments.garbage_bills.views import (
     generate_garbage_bills,
-    edit_garbage_bill,
-    delete_garbage_bill,
     GarbageBillsView,
     pay_garbage_bill,
 )
@@ -62,8 +60,6 @@ urlpatterns = [
     # Garbage Bills
     path("garbage-bills/", GarbageBillsView.as_view(), name="garbage-bills"),
     path("generate-garbage-bills/", generate_garbage_bills, name="generate-garbage-bills"),
-    path("edit-garbage-bill/", edit_garbage_bill, name="edit-garbage-bill"),
-    path("delete-garbage-bill/", delete_garbage_bill, name="delete-garbage-bill"),
     path("pay-garbage-bill/", pay_garbage_bill, name="pay-garbage-bill"),
     # Unit Bills
     path("monthly-unit-bills/", MonthlyUnitBillsView.as_view(), name="monthly-unit-bills"),

@@ -65,7 +65,7 @@ class PropertyUnit(AbstractBaseModel):
     is_occupied = models.BooleanField(default=False)
     floor = models.CharField(max_length=255, null=True, blank=True, default="1")  # models.PositiveIntegerField(default=1)
     unit_type = models.CharField(max_length=255, null=True, blank=True)
-    tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True)
+    tenant = models.OneToOneField("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantunit")
     status = models.CharField(max_length=255, null=True, blank=True)
     security_deposit = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     water_meter_number = models.CharField(max_length=255, null=True, blank=True)
@@ -74,6 +74,7 @@ class PropertyUnit(AbstractBaseModel):
 
     def __str__(self):
         return self.name
+    
     
 
 

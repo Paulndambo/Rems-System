@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Garbage Bills – REMS{% endblock %}
+{% block page_title %}Garbage Bills{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Garbage Bills</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Garbage bills for the selected month</p>
+    </div>
+    <a data-bs-toggle="modal" data-bs-target="#generateGarbageBillsModal" class="btn btn-primary mt-3">
+        <i class="fa-solid fa-plus"></i> Generate Garbage Bills
+    </a>
+</div>
+{% include "garbage_bills/generate_garbage_bills_list.html" %}
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Garbage Unit Bills</h5>
+        <p class="rems-card__subtitle">{{ unit_bills|length }} bill(s)</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
+            <thead>
+                <tr>
+                    <th>Unit</th>
+                    <th>Month</th>
+                    <th>Due Date</th>
+                    <th>Amount</th>
+                    <th>Paid</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in garbage_bills %}
+                <tr>
+                    <td class="fw-700">{{ bill.unit.property.name }}({{bill.unit.name}})</td>
+                    <td class="text-muted fw-600">{{ bill.month.name }} {{bill.year.name}}</td>
+                    <td class="text-muted fw-600">{{ bill.due_date|date:"M d, Y" }}</td>
+                    <td class="fw-600">Kes {{ bill.amount_expected }}</td>
+                    <td class="text-muted fw-600">{{ bill.amount_paid }}</td>
+                    <td>
+                        {% if bill.status == "Pending" %}
+                        <span class="badge bg-warning text-dark">{{ bill.status }}</span>
+                        {% elif bill.status == "Captured" %}
+                        <span class="badge bg-success">{{ bill.status }}</span>
+                        {% elif bill.status == "Confirmed" %}
+                        <span class="badge bg-primary">{{ bill.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not bill.fully_paid %}
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#collectGarbageBillPaymentModal{{ bill.id }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fa-solid fa-wallet"></i> Collect Payment
+                        </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% include "garbage_bills/collect_garbage_payment.html" %}
+                {% empty %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-file-invoice fa-3x text-muted mb-3"></i>
+                            <h5 class="fw-700">No Unit Bills Found</h5>
+                            <a data-bs-toggle="modal" data-bs-target="#generateUnitBillsModal" class="btn btn-primary mt-3">
+                                 <i class="fa-solid fa-plus"></i> Generate Units Bills
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% include "water_bills/generate_unit_bills_list.html" %}
+{% endblock %}

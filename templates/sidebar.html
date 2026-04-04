@@ -19,6 +19,7 @@
 {% url 'logout' as url_logout %}
 {% url 'temporary-month-bills' as url_temporary_month_bills %}
 {% url 'generate-temporary-month-bill' as url_generate_temporary_month_bill %}
+{% url 'garbage-bills' as url_garbage_bills %}
 
 <nav class="rems-sidebar" id="remsSidebar" aria-label="Main navigation">
 
@@ -140,15 +141,14 @@
                         <span class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></span>
                     </button>
                     <ul class="nav-submenu {% if request.path == url_generate_bill or request.path == url_monthly_bills or request.path == url_pending_bills or request.path == url_security_deposits %}open{% endif %}" id="sub-bills">
-                        <!--
+                        
                         <li>
-                            <a href="{{ url_generate_bill }}"
-                               class="nav-sublink {% if request.path == url_generate_bill %}active{% endif %}"
-                               id="nav-generate-bill">
-                                <i class="fa-solid fa-plus-circle"></i> Generate Bill
+                            <a href="{{ url_garbage_bills }}"
+                               class="nav-sublink {% if request.path == url_garbage_bills %}active{% endif %}"
+                               id="nav-garbage-bills">
+                                <i class="fa-solid fa-plus-circle"></i> Garbage Bills
                             </a>
                         </li>
-                        -->
                         
                         <li>
                             <a href="{{ url_temporary_month_bills }}"

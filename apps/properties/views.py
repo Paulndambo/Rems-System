@@ -5,7 +5,7 @@ from django.db.models import Avg
 from datetime import datetime
 from decimal import Decimal
 from django.views.generic import ListView
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.db.models import Q
 from django.db import transaction
 from django.core.paginator import Paginator
@@ -242,7 +242,7 @@ class PropertyUnitListView(LoginRequiredMixin, ListView):
 
 
 @login_required
-def property_unit_detail(request, id):
+def property_unit_detail(request: HttpRequest, id: int):
     unit = PropertyUnit.objects.get(id=id)
 
     # Get all data
@@ -278,6 +278,11 @@ def property_unit_detail(request, id):
     )
     total_rent = all_payments.aggregate(total_amount=Avg("amount_paid"))["total_amount"]
 
+    monthly_bills = unit.unitmonthbills.all().order_by("-created_at")
+
+    free_tenants = Tenant.objects.filter(tenantunit__isnull=True)
+    print(f"Free Tenants: {free_tenants}")
+
     context = {
         "unit": unit,
         "maintenance_requests": maintenance_requests,
@@ -287,12 +292,14 @@ def property_unit_detail(request, id):
         "maintenance_cost": round(maintenance_cost, 2) if maintenance_cost else 0,
         "unit_statuses": UNIT_STATUSES,
         "total_rent": round(total_rent, 2) if total_rent else 0,
+        "monthly_bills": monthly_bills,
+        "free_tenants": free_tenants,
     }
     return render(request, "properties/units/unit_details.html", context)
 
 
 @login_required
-def new_property_unit(request):
+def new_property_unit(request: HttpRequest):
     property = Property.objects.filter(id=request.GET.get("property_id")).first()
     if request.method == "POST":
         property_id = request.POST.get("property_id")
@@ -327,7 +334,7 @@ def new_property_unit(request):
 
 
 @login_required
-def edit_property_unit(request):
+def edit_property_unit(request: HttpRequest):
     unit = PropertyUnit.objects.filter(id=request.GET.get("unit_id")).first()
     if request.method == "POST":
         
@@ -365,7 +372,7 @@ def edit_property_unit(request):
 
 
 @login_required
-def delete_property_unit(request):
+def delete_property_unit(request: HttpRequest):
     if request.method == "POST":
         unit_id = request.POST.get("unit_id")
         unit = PropertyUnit.objects.get(id=unit_id)
@@ -381,10 +388,10 @@ def delete_property_unit(request):
 
 
 @login_required
-def assign_tenant(request):
+def assign_tenant(request: HttpRequest):
     if request.method == "POST":
         unit_id = request.POST.get("unit_id")
-        tenant_id = request.POST.get("tenant")
+        tenant_id = request.POST.get("tenant_id")
         unit = PropertyUnit.objects.get(id=unit_id)
         tenant = Tenant.objects.get(id=tenant_id)
         unit.tenant = tenant
@@ -395,13 +402,32 @@ def assign_tenant(request):
             user=request.user,
             action=f"Assigned tenant",
             action_type="Update",
-            description=f"Assigned tenant '{tenant.first_name} {tenant.last_name}' to unit '{unit.name}' in property '{unit.property.name}'"
+            description=f"Assigned tenant '{tenant.user.first_name} {tenant.user.last_name}' to unit '{unit.name}' in property '{unit.property.name}'"
         )
-        return redirect("property-detail", id=unit.property.id)
-    return render(request, "properties/units/assign_tenant.html")
+        return redirect("unit-detail", id=unit_id)
+    return render(request, "properties/units/set_tenant.html")
 
 
-def get_units_by_property(request):
+@login_required
+def remove_tenant(request: HttpRequest):
+    if request.method == "POST":
+        unit_id = request.POST.get("unit_id")
+        unit = PropertyUnit.objects.get(id=unit_id)
+        unit.tenant = None
+        unit.is_occupied = False
+        unit.status = "Vacant"
+        unit.save()
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Removed tenant",
+            action_type="Create",
+            description=f"Tenant Removed from unit '{unit.name}' in property '{unit.property.name}'"
+        )
+        return redirect("unit-detail", id=unit_id)
+    return render(request, "properties/units/remove_tenant.html")
+
+
+def get_units_by_property(request: HttpRequest):
     property_id = request.GET.get("property_id")
     if property_id:
         units = PropertyUnit.objects.filter(property_id=property_id)
