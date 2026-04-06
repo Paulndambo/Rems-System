@@ -31,7 +31,7 @@
 <div class="rems-wrapper" id="remsWrapper">
 
     <!-- Sidebar -->
-    {% if request.user.role == "Caretaker" %}
+    {% if request.user.role == "Caretaker" or request.user.role == "House Manager" %}
         {% include "includes/caretaker_sidebar.html" %}
     {% else %}
         {% include "includes/sidebar.html" %}
