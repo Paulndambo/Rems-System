@@ -233,15 +233,15 @@ def generate_bill(request: HttpRequest):
             year = Year.objects.get(name=str(datetime.now().year))
             month = Month.objects.get(name=month_name, year=year)
 
-            biller = TenantBillingMixin(
-                year=year,
-                month=month,
-                previous_reading=previous_reading,
-                current_reading=current_reading,
-                unit=unit
-            )
+            #biller = TenantBillingMixin(
+            #    year=year,
+            #    month=month,
+            #    previous_reading=previous_reading,
+            #    current_reading=current_reading,
+            #    unit=unit
+            #)
 
-            biller.generate_bill()
+            #biller.generate_bill()
 
             messages.success(
                 request,

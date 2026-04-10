@@ -11,7 +11,6 @@ from django.contrib import messages
 
 from apps.properties.models import PropertyUnit, WaterBill
 from apps.core.models import Month, Year
-from apps.payments.models import RentBill, UnitMonthBill, GarbageBill
 from apps.core.constants import MONTHS_LIST, PAYMENT_METHODS
 
 
@@ -19,8 +18,6 @@ from apps.properties.water_bills.billing_mixin import TenantBillingMixin
 
 # Create your views here.
 """Water Bills"""
-
-
 class WaterBillListView(LoginRequiredMixin, ListView):
     model = WaterBill
     template_name = "water_bills/bills.html"
@@ -78,14 +75,14 @@ def new_water_bill(request):
         month = Month.objects.get(name=month_name, year=year)
 
         try:
-            biller = TenantBillingMixin(
-                year=year,
-                month=month,
-                previous_reading=previous_reading,
-                current_reading=current_reading,
-                unit=unit,
-            )
-            res = biller.generate_bill()
+            #biller = TenantBillingMixin(
+            #    year=year,
+            #    month=month,
+            #    previous_reading=previous_reading,
+            #    current_reading=current_reading,
+            #    unit=unit,
+            #)
+            #res = biller.generate_bill()
             messages.success(
                 request, "You have successfully generated monthly bill for James!!"
             )

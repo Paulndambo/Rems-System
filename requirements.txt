@@ -9,3 +9,4 @@ whitenoise
 drf-yasg
 requests
 pillow
+Pillow

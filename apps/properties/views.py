@@ -311,7 +311,7 @@ def new_property_unit(request: HttpRequest):
         security_deposit = request.POST.get("security_deposit")
         water_price = request.POST.get("water_price")
 
-        PropertyUnit.objects.create(
+        unit = PropertyUnit.objects.create(
             property_id=property_id,
             name=name,
             water_price=water_price,
@@ -324,9 +324,9 @@ def new_property_unit(request: HttpRequest):
         )
         UserAction.objects.create(
             user=request.user,
-            action=f"Created unit '{name}'",
+            action=f"Created unit '{unit.name}'",
             action_type="Created",
-            description=f"Created unit '{name}' in property '{property.name}'"
+            description=f"Created unit '{unit.name}' in property '{unit.property.name}'"
         )
 
         return redirect("property-detail", id=property_id)

@@ -85,7 +85,7 @@ class MaintenanceRequest(AbstractBaseModel):
     priority = models.CharField(max_length=255, choices=PriorityLevels.choices(), default=PriorityLevels.MEDIUM.value)
     description = models.TextField()
     status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
-    image = models.ImageField(upload_to="maintenance/", blank=True, null=True)
+    image = models.FileField(upload_to="maintenance/", blank=True, null=True)
     cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
 
     def __str__(self):

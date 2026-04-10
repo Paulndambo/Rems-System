@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
+from apps.core.due_date_normalizer import get_due_date
 
 from apps.core.constants import (
     MaintenanceStatuses,
@@ -620,6 +621,8 @@ def generate_temporary_month_bill(request: HttpRequest):
 
         month_obj = Month.objects.get(name=month, year__name=year)
 
+        due_date = get_due_date(month_obj.name.capitalize(), int(month_obj.year.name))
+
         for unit in PropertyUnit.objects.filter(is_occupied=True):
             monthly_bill_exists = UnitMonthBill.objects.filter(
                 unit=unit, month=month_obj, year__name=year
@@ -653,6 +656,7 @@ def generate_temporary_month_bill(request: HttpRequest):
                         amount_expected=unit.property.garbage_charge,
                         month=month_obj,
                         year=month_obj.year,
+                        due_date=due_date
                     )
 
         return redirect("temporary-month-bills")

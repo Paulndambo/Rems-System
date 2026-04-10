@@ -238,7 +238,6 @@ def home(request: HttpRequest):
         "home_bill_rows": home_bill_rows,
         "has_current_month_bills": bool(current_month_obj),
     }
-
     return render(request, "home.html", context)
 
 
@@ -291,6 +290,9 @@ def years(request: HttpRequest):
 def new_year(request: HttpRequest):
     if request.method == "POST":
         name = request.POST.get("name")
+
+        if Year.objects.filter(name=name).exists():
+            return redirect("years")
 
         year = Year.objects.create(name=name)
 

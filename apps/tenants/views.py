@@ -144,6 +144,7 @@ def new_tenant(request):
         marital_status = request.POST.get("marital_status")
 
         rental_unit = request.POST.get("rental_unit")
+        occupation = request.POST.get("occuption")
         
         try:
             onboard_tenant = OnboardTenantMixin(
@@ -157,7 +158,8 @@ def new_tenant(request):
                 lease_duration=lease_duration, 
                 lease_date=lease_date, 
                 marital_status=marital_status, 
-                rental_unit=rental_unit
+                rental_unit=rental_unit,
+                occupation=occupation
             )
             onboard_tenant.run()
         except Exception as e:
