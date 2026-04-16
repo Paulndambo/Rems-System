@@ -14,7 +14,7 @@ class Property(AbstractBaseModel):
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True)
-    address = models.CharField(max_length=255)
+    address = models.CharField(max_length=255, null=True)
     city = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
     units = models.PositiveIntegerField()

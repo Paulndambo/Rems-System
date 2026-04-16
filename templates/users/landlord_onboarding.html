@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Landlord Self-Onboarding – REMS{% endblock %}
+
+{% block auth_content %}
+<section class="onboard-wrap">
+    <div class="onboard-card">
+        <div class="onboard-header">
+            <h1>Get Started as a Landlord</h1>
+            <p>Create your account and set up your first property in minutes.</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="onboard-alert onboard-alert--{{ message.tags|default:'info' }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" class="onboard-form">
+            {% csrf_token %}
+            <h3>Your details</h3>
+            <div class="onboard-grid">
+                <label>First name
+                    <input type="text" name="first_name" id="first_name" required>
+                </label>
+                <label>Last name
+                    <input type="text" name="last_name" id="last_name" required>
+                </label>
+                <label>Email
+                    <input type="email" name="email" id="email" required>
+                </label>
+                <label>Phone
+                    <input type="text" name="phone_number" id="phone_number" placeholder="+254...">
+                </label>
+                <label>Password
+                    <input type="password" name="password" id="password" required minlength="4">
+                </label>
+                <label>Confirm password
+                    <input type="password" name="confirm_password" id="confirm_password" required minlength="4">
+                </label>
+            </div>
+
+            <h3>First property setup</h3>
+            <div class="onboard-grid">
+                <label>Property name
+                    <input type="text" name="name" id="name" required>
+                </label>
+                <label>City
+                    <input type="text" name="city" id="city" required>
+                </label>
+                <label>Country
+                    <input type="text" name="country" id="country" value="Kenya" required>
+                </label>
+                <label>Number of units
+                    <input type="number" name="units_count" id="units_count" min="1" value="1" required>
+                </label>
+                <label>Garbage Charge
+                    <input type="number" name="garbage_cost" id="garbage_cost" min="0" step="0.01" placeholder="0.00" value="250" required>
+                </label>
+                <label>Water Charge (per unit)
+                    <input type="number" name="water_cost" id="water_cost" min="0" step="0.01" placeholder="0.00" value="150" required>
+                </label>
+            </div>
+
+            <button type="submit" class="onboard-btn">Create account and continue</button>
+            <p class="onboard-foot">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+        </form>
+    </div>
+</section>
+
+<style>
+.onboard-wrap {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 1.25rem;
+}
+.onboard-card {
+    width: min(900px, 100%);
+    background: rgba(15, 23, 42, .6);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 1rem;
+    padding: 1.3rem;
+}
+.onboard-header h1 { font-size: clamp(1.4rem, 2.4vw, 2rem); margin: 0; color: #fff; }
+.onboard-header p { color: #cbd5e1; margin: .4rem 0 1rem; }
+.onboard-form h3 { color: #99f6e4; font-size: .95rem; margin: 1rem 0 .6rem; }
+.onboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .8rem;
+}
+.onboard-grid label {
+    display: grid;
+    gap: .35rem;
+    font-size: .84rem;
+    color: #e2e8f0;
+}
+.onboard-grid input {
+    width: 100%;
+    padding: .7rem .8rem;
+    border-radius: .6rem;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(255,255,255,.06);
+    color: #fff;
+}
+.onboard-btn {
+    margin-top: 1rem;
+    width: 100%;
+    border: 0;
+    border-radius: .7rem;
+    padding: .75rem;
+    color: #fff;
+    font-weight: 600;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+}
+.onboard-foot {
+    text-align: center;
+    margin: .75rem 0 0;
+    color: #cbd5e1;
+    font-size: .86rem;
+}
+.onboard-foot a { color: #99f6e4; }
+.onboard-alert {
+    border-radius: .65rem;
+    padding: .6rem .75rem;
+    margin-bottom: .8rem;
+    font-size: .85rem;
+}
+.onboard-alert--error, .onboard-alert--danger { background: rgba(239,68,68,.2); color: #fecaca; }
+.onboard-alert--success { background: rgba(34,197,94,.2); color: #bbf7d0; }
+.onboard-alert--info, .onboard-alert--warning { background: rgba(59,130,246,.2); color: #bfdbfe; }
+@media (max-width: 760px) {
+    .onboard-grid { grid-template-columns: 1fr; }
+    .onboard-card { padding: 1rem; }
+}
+</style>
+{% endblock %}

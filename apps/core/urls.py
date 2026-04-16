@@ -1,5 +1,6 @@
 from django.urls import path
 from apps.core.views import (
+    landing_page,
     home,
     caretaker_dashboard,
     months,
@@ -13,7 +14,8 @@ from apps.core.views import (
 )
 
 urlpatterns = [
-    path("", home, name="home"),
+    path("", landing_page, name="landing-page"),
+    path("dashboard/", home, name="home"),
     path("months/", months, name="months"),
     path("years/", years, name="years"),
     path("new-year/", new_year, name="new-year"),

@@ -1,0 +1,1079 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}REMS | Professional Property Management Platform{% endblock %}
+
+{% block auth_content %}
+<div class="landing-page">
+    <!-- Navigation -->
+    <nav class="landing-nav">
+        <a href="{% url 'landing-page' %}" class="landing-brand">
+            <div class="landing-brand__icon">
+                <i class="fa-solid fa-building"></i>
+            </div>
+            <span class="landing-brand__text">REMS</span>
+        </a>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+
+        <!-- Navigation Actions -->
+        <div class="landing-nav__actions" id="navActions">
+            <a href="{% url 'login' %}" class="landing-btn landing-btn--ghost">
+                <span>Sign In</span>
+            </a>
+            <a href="{% url 'landlord-onboarding' %}" class="landing-btn landing-btn--primary">
+                <span>Get Started Free</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Hero Section -->
+    <section class="landing-hero">
+        <div class="landing-container">
+            <div class="landing-hero__content">
+                <div class="landing-badge">
+                    <i class="fa-solid fa-sparkles"></i>
+                    <span>Real Estate Management System</span>
+                </div>
+                <h1 class="landing-hero__title">
+                    Simplify property management with one
+                    <span class="text-gradient">intelligent platform</span>
+                </h1>
+                <p class="landing-hero__subtitle">
+                    Streamline rent collection, automate billing, manage tenants, and track maintenance—all from a single, powerful dashboard designed for modern landlords.
+                </p>
+                <div class="landing-hero__cta">
+                    <a href="{% url 'landlord-onboarding' %}" class="landing-btn landing-btn--primary landing-btn--large">
+                        <span>Start Managing Properties</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <a href="{% url 'login' %}" class="landing-btn landing-btn--outline landing-btn--large">
+                        <span>Sign In to Dashboard</span>
+                    </a>
+                </div>
+                <div class="landing-hero__trust">
+                    <div class="trust-item">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Secure & Reliable</span>
+                    </div>
+                    <div class="trust-item">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Lightning Fast</span>
+                    </div>
+                    <div class="trust-item">
+                        <i class="fa-solid fa-headset"></i>
+                        <span>24/7 Support</span>
+                    </div>
+                </div>
+            </div>
+            <div class="landing-hero__visual">
+                <div class="visual-card visual-card--1">
+                    <div class="visual-card__header">
+                        <div class="visual-icon visual-icon--green">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <div class="visual-label">Revenue This Month</div>
+                            <div class="visual-value">KES 450,000</div>
+                        </div>
+                    </div>
+                    <div class="visual-mini-chart"></div>
+                </div>
+                <div class="visual-card visual-card--2">
+                    <div class="visual-card__header">
+                        <div class="visual-icon visual-icon--blue">
+                            <i class="fa-solid fa-building"></i>
+                        </div>
+                        <div>
+                            <div class="visual-label">Properties</div>
+                            <div class="visual-value">12 Active</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="visual-card visual-card--3">
+                    <div class="visual-card__header">
+                        <div class="visual-icon visual-icon--purple">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <div class="visual-label">Occupancy Rate</div>
+                            <div class="visual-value">94%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="landing-features">
+        <div class="landing-container">
+            <div class="section-header">
+                <h2 class="section-title">Everything you need to manage rentals</h2>
+                <p class="section-subtitle">Powerful features designed to save you time and grow your business</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon feature-icon--teal">
+                        <i class="fa-solid fa-house-circle-check"></i>
+                    </div>
+                    <h3 class="feature-title">Portfolio Management</h3>
+                    <p class="feature-description">
+                        Organize multiple properties and units with ease. Monitor occupancy rates, track vacancies, and maintain complete oversight of your entire portfolio.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon feature-icon--blue">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <h3 class="feature-title">Smart Billing</h3>
+                    <p class="feature-description">
+                        Automate rent, water, and utility billing. Track payments in real-time, send reminders, and reduce late payments with streamlined workflows.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon feature-icon--orange">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                    </div>
+                    <h3 class="feature-title">Maintenance Tracking</h3>
+                    <p class="feature-description">
+                        Log maintenance requests, assign priorities, track progress, and ensure timely resolution. Keep tenants happy and properties in top condition.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon feature-icon--green">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <h3 class="feature-title">Financial Reports</h3>
+                    <p class="feature-description">
+                        Generate comprehensive reports on revenue, expenses, and profitability. Make data-driven decisions with clear financial insights.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon feature-icon--purple">
+                        <i class="fa-solid fa-users-gear"></i>
+                    </div>
+                    <h3 class="feature-title">Tenant Management</h3>
+                    <p class="feature-description">
+                        Maintain detailed tenant records, lease agreements, and contact information. Streamline move-ins, renewals, and move-outs effortlessly.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon feature-icon--pink">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </div>
+                    <h3 class="feature-title">Mobile Ready</h3>
+                    <p class="feature-description">
+                        Access your dashboard anywhere, anytime. Fully responsive design ensures you stay connected on desktop, tablet, or mobile.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="landing-benefits">
+        <div class="landing-container">
+            <div class="benefits-content">
+                <div class="benefits-text">
+                    <h2 class="section-title">Built for landlords who want to scale</h2>
+                    <p class="section-subtitle">Focus on growing your portfolio while REMS handles the operations</p>
+                    <ul class="benefits-list">
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Reduce administrative work by up to 70%</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Improve rent collection rates with automated reminders</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Make informed decisions with real-time analytics</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Keep tenants satisfied with faster response times</span>
+                        </li>
+                    </ul>
+                    <a href="{% url 'landlord-onboarding' %}" class="landing-btn landing-btn--primary landing-btn--large">
+                        <span>Get Started Today</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="benefits-stats">
+                    <div class="stat-box">
+                        <div class="stat-number">10K+</div>
+                        <div class="stat-label">Units Managed</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">On-time Payments</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Platform Uptime</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Active Landlords</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="landing-cta">
+        <div class="landing-container">
+            <div class="cta-card">
+                <h2 class="cta-title">Ready to modernize your property management?</h2>
+                <p class="cta-subtitle">Join forward-thinking landlords who trust REMS to manage their properties efficiently</p>
+                <div class="cta-actions">
+                    <a href="{% url 'landlord-onboarding' %}" class="landing-btn landing-btn--primary landing-btn--large">
+                        <span>Create Free Account</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <a href="{% url 'login' %}" class="landing-btn landing-btn--outline landing-btn--large">
+                        <span>Sign In</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="landing-container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="landing-brand__icon">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <span class="landing-brand__text">REMS</span>
+                </div>
+                <p class="footer-text">&copy; {% now "Y" %} REMS. Professional property management made simple.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<style>
+:root {
+    --color-primary: #14b8a6;
+    --color-primary-dark: #0f766e;
+    --color-accent: #99f6e4;
+    --color-bg-base: #0f172a;
+    --color-bg-elevated: rgba(30, 41, 59, 0.5);
+    --color-border: rgba(255, 255, 255, 0.1);
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #cbd5e1;
+    --color-text-muted: #94a3b8;
+    --spacing-unit: 1rem;
+    --border-radius: 1rem;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.landing-page {
+    min-height: 100vh;
+    background: var(--color-bg-base);
+    color: var(--color-text-primary);
+    overflow-x: hidden;
+}
+
+.landing-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 3vw, 2rem);
+}
+
+/* Navigation */
+.landing-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem clamp(1rem, 3vw, 2rem);
+    max-width: 1200px;
+    margin: 0 auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.landing-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    transition: var(--transition);
+    z-index: 101;
+}
+
+.landing-brand:hover {
+    transform: translateY(-2px);
+}
+
+.landing-brand__icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: white;
+    box-shadow: 0 4px 16px rgba(20, 184, 166, 0.3);
+}
+
+.landing-brand__text {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    letter-spacing: -0.02em;
+}
+
+.landing-nav__actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 101;
+    position: relative;
+}
+
+.hamburger-line {
+    width: 100%;
+    height: 2px;
+    background: var(--color-text-primary);
+    border-radius: 2px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+.mobile-menu-toggle.active .hamburger-line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.mobile-menu-toggle.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.mobile-menu-toggle.active .hamburger-line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 99;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+    opacity: 1;
+}
+
+/* Buttons */
+.landing-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    transition: var(--transition);
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.landing-btn--large {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+}
+
+.landing-btn--primary {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    box-shadow: 0 4px 16px rgba(20, 184, 166, 0.25);
+}
+
+.landing-btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(20, 184, 166, 0.35);
+}
+
+.landing-btn--ghost {
+    border-color: var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.landing-btn--ghost:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.landing-btn--outline {
+    border: 1px solid rgba(20, 184, 166, 0.3);
+    color: var(--color-accent);
+    background: transparent;
+}
+
+.landing-btn--outline:hover {
+    background: rgba(20, 184, 166, 0.1);
+    border-color: rgba(20, 184, 166, 0.5);
+}
+
+/* Hero Section */
+.landing-hero {
+    padding: clamp(3rem, 8vw, 6rem) 0 clamp(4rem, 10vw, 8rem);
+    position: relative;
+    overflow: hidden;
+}
+
+.landing-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(20, 184, 166, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.landing-hero .landing-container {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+}
+
+.landing-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(20, 184, 166, 0.1);
+    border: 1px solid rgba(20, 184, 166, 0.3);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.landing-badge i {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.landing-hero__title {
+    font-size: clamp(2.25rem, 5vw, 3.75rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 0 0 1.5rem;
+    letter-spacing: -0.02em;
+    animation: fadeInUp 0.7s ease-out 0.1s both;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.landing-hero__subtitle {
+    font-size: clamp(1.0625rem, 2vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 0 0 2rem;
+    max-width: 600px;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.landing-hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    animation: fadeInUp 0.9s ease-out 0.3s both;
+}
+
+.landing-hero__trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    animation: fadeInUp 1s ease-out 0.4s both;
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.trust-item i {
+    color: var(--color-accent);
+}
+
+/* Visual Cards */
+.landing-hero__visual {
+    position: relative;
+    height: 500px;
+    animation: fadeInUp 1s ease-out 0.5s both;
+}
+
+.visual-card {
+    position: absolute;
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: var(--transition);
+}
+
+.visual-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+.visual-card--1 {
+    top: 0;
+    left: 0;
+    width: 280px;
+    animation: float 6s ease-in-out infinite;
+}
+
+.visual-card--2 {
+    top: 140px;
+    right: 20px;
+    width: 240px;
+    animation: float 6s ease-in-out 1s infinite;
+}
+
+.visual-card--3 {
+    bottom: 60px;
+    left: 40px;
+    width: 220px;
+    animation: float 6s ease-in-out 2s infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.visual-card__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.visual-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.visual-icon--green {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.visual-icon--blue {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.visual-icon--purple {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+}
+
+.visual-label {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.visual-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.visual-mini-chart {
+    margin-top: 1rem;
+    height: 60px;
+    background: linear-gradient(to right, rgba(20, 184, 166, 0.2), rgba(20, 184, 166, 0.05));
+    border-radius: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.visual-mini-chart::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70%;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.3), rgba(20, 184, 166, 0.1));
+    clip-path: polygon(0 60%, 20% 40%, 40% 50%, 60% 20%, 80% 35%, 100% 10%, 100% 100%, 0 100%);
+}
+
+/* Features Section */
+.landing-features {
+    padding: clamp(4rem, 10vw, 8rem) 0;
+    background: rgba(15, 23, 42, 0.5);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+}
+
+.section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    margin: 0 0 1rem;
+    letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    color: var(--color-text-secondary);
+    margin: 0;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.feature-card {
+    background: var(--color-bg-elevated);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    transition: var(--transition);
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(20, 184, 166, 0.3);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.feature-icon--teal {
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: white;
+}
+
+.feature-icon--blue {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.feature-icon--orange {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.feature-icon--green {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.feature-icon--purple {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+}
+
+.feature-icon--pink {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+    color: white;
+}
+
+.feature-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+    color: var(--color-text-primary);
+}
+
+.feature-description {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* Benefits Section */
+.landing-benefits {
+    padding: clamp(4rem, 10vw, 8rem) 0;
+}
+
+.benefits-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+}
+
+.benefits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+}
+
+.benefits-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 1.0625rem;
+    color: var(--color-text-secondary);
+}
+
+.benefits-list i {
+    color: var(--color-primary);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.benefits-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.stat-box {
+    background: var(--color-bg-elevated);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.stat-box:hover {
+    transform: translateY(-4px);
+    border-color: rgba(20, 184, 166, 0.3);
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+}
+
+/* CTA Section */
+.landing-cta {
+    padding: clamp(4rem, 10vw, 6rem) 0;
+}
+
+.cta-card {
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(15, 118, 110, 0.05));
+    border: 1px solid rgba(20, 184, 166, 0.3);
+    border-radius: var(--border-radius);
+    padding: clamp(3rem, 6vw, 5rem);
+    text-align: center;
+}
+
+.cta-title {
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    font-weight: 800;
+    margin: 0 0 1rem;
+    letter-spacing: -0.02em;
+}
+
+.cta-subtitle {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    color: var(--color-text-secondary);
+    margin: 0 0 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cta-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Footer */
+.landing-footer {
+    padding: 3rem 0 2rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.footer-text {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .landing-hero .landing-container {
+        grid-template-columns: 1fr;
+    }
+
+    .landing-hero__visual {
+        display: none;
+    }
+
+    .benefits-content {
+        grid-template-columns: 1fr;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .landing-nav {
+        padding: 1rem clamp(1rem, 3vw, 1.5rem);
+    }
+
+    /* Show mobile menu toggle */
+    .mobile-menu-toggle {
+        display: flex;
+    }
+
+    /* Hide desktop menu, show as mobile dropdown */
+    .landing-nav__actions {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        background: rgba(15, 23, 42, 0.98);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        padding: 6rem 2rem 2rem;
+        gap: 1rem;
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+        border-left: 1px solid var(--color-border);
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .landing-nav__actions.active {
+        right: 0;
+    }
+
+    .mobile-menu-overlay {
+        display: block;
+    }
+
+    /* Full width buttons in mobile menu */
+    .landing-nav__actions .landing-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .landing-brand__text {
+        font-size: 1.25rem;
+    }
+
+    .landing-brand__icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: 1.125rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .landing-btn--large {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9375rem;
+    }
+
+    .landing-hero__cta {
+        flex-direction: column;
+    }
+
+    .landing-hero__cta .landing-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .benefits-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .cta-actions {
+        flex-direction: column;
+    }
+
+    .cta-actions .landing-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const navActions = document.getElementById('navActions');
+    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+    
+    function toggleMobileMenu() {
+        mobileMenuToggle.classList.toggle('active');
+        navActions.classList.toggle('active');
+        mobileMenuOverlay.classList.toggle('active');
+        
+        // Prevent body scroll when mobile menu is open
+        if (navActions.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+    
+    function closeMobileMenu() {
+        mobileMenuToggle.classList.remove('active');
+        navActions.classList.remove('active');
+        mobileMenuOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    // Toggle menu on button click
+    mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+    
+    // Close menu when clicking overlay
+    mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+    
+    // Close menu when clicking a navigation link
+    const navLinks = navActions.querySelectorAll('a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+    });
+    
+    // Close menu on window resize if open (when going from mobile to desktop)
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (window.innerWidth > 768 && navActions.classList.contains('active')) {
+                closeMobileMenu();
+            }
+        }, 250);
+    });
+});
+</script>
+{% endblock %}

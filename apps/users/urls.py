@@ -8,6 +8,7 @@ from apps.users.views import (
     edit_user,
     delete_user,
     change_password,
+    landlord_onboarding,
 )
 
 urlpatterns = [
@@ -18,4 +19,5 @@ urlpatterns = [
     path("edit-user/", edit_user, name="edit-user"),
     path("delete-user/", delete_user, name="delete-user"),
     path("change-password/<int:id>/", change_password, name="change-password"),
+    path("landlord-onboarding/", landlord_onboarding, name="landlord-onboarding"),
 ]

@@ -22,6 +22,12 @@ from django.views.decorators.http import require_GET
 
 
 # Create your views here.
+def landing_page(request: HttpRequest):
+    if request.user.is_authenticated:
+        return redirect("home")
+    return render(request, "landing.html")
+
+
 @login_required
 def home(request: HttpRequest):
     if request.user.role == UserRoles.CARETAKER.value or request.user.role == UserRoles.HOUSE_MANAGER.value:
