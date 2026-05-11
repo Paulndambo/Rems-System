@@ -1,5 +1,6 @@
 boto3
 cloudinary
+coverage
 Django
 django-cors-headers
 django-filter
@@ -11,3 +12,4 @@ requests
 pillow
 Pillow
 coverage
+firebase-admin
