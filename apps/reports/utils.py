@@ -20,7 +20,7 @@ def generate_csv(response, tenant_payments):
         writer.writerow(
             [
                 count,
-                payment.tenant.user.name,
+                payment.tenant.user.name(),
                 payment.unit.name,
                 payment.amount_paid,
                 payment.payment_method,

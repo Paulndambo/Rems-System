@@ -46,4 +46,3 @@ class UserAction(AbstractBaseModel):
 
 class Business(AbstractBaseModel):
     name = models.CharField(max_length=255)
-    

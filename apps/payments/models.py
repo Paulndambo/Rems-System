@@ -162,7 +162,7 @@ class SecurityDeposit(AbstractBaseModel):
     fully_paid = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.tenant.user.name}"
+        return self.tenant.user.name()
 
     def balance(self):
         return self.amount_expected - self.amount_paid

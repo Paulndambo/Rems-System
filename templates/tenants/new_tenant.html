@@ -83,16 +83,15 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-600">Move-in Date <span class="text-danger">*</span></label>
-                            <input type="date" name="move_in_date" class="form-control" required id="moveInDate">
+                            <input type="date" name="move_in_date" class="form-control" value="{% now 'Y-m-d' %}" required id="moveInDate">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Lease Date <span class="text-danger">*</span></label>
-                            <input type="date" name="lease_date" class="form-control" required id="leaseDate">
+                            <input type="date" name="lease_date" class="form-control" value="{% now 'Y-m-d' %}" required id="leaseDate">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Lease Duration <span class="text-danger">*</span></label>
                             <select name="lease_duration" class="form-select" required id="leaseDuration">
-                                <option value="">-- Select Duration --</option>
                                 <option value="3 Months">3 Months</option>
                                 <option value="6 Months">6 Months</option>
                                 <option value="9 Months">9 Months</option>
