@@ -11,7 +11,7 @@ class PropertyAdmin(admin.ModelAdmin):
 
 @admin.register(PropertyUnit)
 class PropertyUnitAdmin(admin.ModelAdmin):
-    list_display = ("id", "tenant", "name", "property", "rent", "is_occupied")
+    list_display = ("id", "tenant", "name", "property", "rent", "status", "is_occupied")
 
 
 @admin.register(WaterBill)

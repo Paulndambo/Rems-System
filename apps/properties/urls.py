@@ -11,6 +11,7 @@ from apps.properties.views import (
     delete_property_unit,
     property_unit_detail,
     assign_tenant,
+    remove_tenant,
     PropertyUnitListView,
     get_units_by_property,
 )
@@ -34,12 +35,16 @@ urlpatterns = [
     path("new-property/", new_property, name="new-property"),
     path("edit-property/", edit_property, name="edit-property"),
     path("delete-property/", delete_property, name="delete-property"),
+
     path("units/", PropertyUnitListView.as_view(), name="units"),
     path("unit/<int:id>/", property_unit_detail, name="unit-detail"),
     path("new-unit/", new_property_unit, name="new-unit"),
     path("edit-unit/", edit_property_unit, name="edit-unit"),
     path("delete-unit/", delete_property_unit, name="delete-unit"),
     path("assign-tenant/", assign_tenant, name="assign-tenant"),
+    path("remove-tenant/", remove_tenant, name="remove-tenant"),
+
+
     path("new-water-bill/", new_water_bill, name="new-water-bill"),
     path("edit-water-bill/", edit_water_bill, name="edit-water-bill"),
     path("delete-water-bill/", delete_water_bill, name="delete-water-bill"),

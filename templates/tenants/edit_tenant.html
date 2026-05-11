@@ -1,106 +1,145 @@
-<!-- Add this modal HTML after the table in your template -->
-<div class="modal fade" id="editTenantModal{{tenant.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="tenantModalLabel">Edit Tenant</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="tenantForm" method="POST" action="{% url 'edit-tenant' %}">
-                <div class="modal-body">
-                    {% csrf_token %}
-                    <input type="number" name="tenant_id" id="tenant_id" value="{{tenant.id}}" readonly hidden>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="first_name" class="form-label fw-bold">First Name</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{tenant.user.first_name}}" required>
-                        </div>
-                        <div class="col">
-                            <label for="last_name" class="form-label fw-bold">Last Name</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{tenant.user.last_name}}" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="contact" class="form-label fw-bold">Contact Number</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" value="{{tenant.user.phone}}" required>
-                        </div>
-                        <div class="col">
-                            <label for="email" class="form-label fw-bold">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{tenant.user.email}}">
-                        </div>
-                        <div class="col">
-                            <label for="id_number" class="form-label fw-bold">ID Number</label>
-                            <input type="text" class="form-control" id="id_number" name="id_number" value="{{tenant.user.id_number}}">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="move_in_date" class="form-label fw-bold">Lease Date</label>
-                            <input type="date" class="form-control" id="lease_date" name="lease_date" value="{{tenant.lease_date| date:'Y-m-d'}}">
-                        </div>
-                        <div class="col">
-                            <label for="move_in_date" class="form-label fw-bold">Move-in Date</label>
-                            <input type="date" class="form-control" id="move_in_date" name="move_in_date" value="{{tenant.move_in_date| date:'Y-m-d'}}">
-                        </div>
-                        <div class="col">
-                            <label for="rent" class="form-label fw-bold">Gender</label>
-                            <select class="form-select" id="gender" name="gender">
-                                <option value="{{tenant.user.gender}}" selected>{{tenant.user.gender}}</option>
-                                {% if tenant.user.gender == 'Male' %}
-                                    <option value="Female">Female</option>
-                                {% else %}
-                                    <option value="Male">Male</option>
-                                {% endif %}
-                            </select>
-                        </div>
-                    </div>
+{% extends "base.html" %}
+{% load static %}
 
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="move_in_date" class="form-label fw-bold">Lease Duration</label>
-                            <select class="form-select" id="lease_duration" name="lease_duration">
-                                <option value="{{tenant.lease_duration}}" selected>{{tenant.lease_duration}}</option>
-                                {% for duration in lease_durations %}
-                                    {% if duration != tenant.lease_duration %}
-                                        <option value="{{duration}}">{{duration}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                       
-                        <div class="col">
-                            <label for="rent" class="form-label fw-bold">Marital Status</label>
-                            <select class="form-select" id="marital_status" name="marital_status">
-                                <option value="{{tenant.user.marital_status}}" selected>{{tenant.user.marital_status}}</option>
-                                {% for status in marital_statuses %}
-                                    {% if status != tenant.user.marital_status %}
-                                        <option value="{{status}}">{{status}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="rental_unit" class="form-label fw-bold">Rental Unit</label>
-                            <select class="form-select" id="rental_unit" name="rental_unit">
-                                <option value="{{tenant.unit.id}}" selected>{{tenant.unit.property.name}} - (<b>{{tenant.unit.name}}</b>)</option>
-                                {% for unit in units %}
-                                    {% if unit.id != tenant.unit.id %}
-                                        <option value="{{unit.id}}">{{unit.property.name}} - (<b>{{unit.name}}</b>)</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                   
-                </div>
-                <div class="text-center mb-3">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Tenant</button>
-                </div>
-            </form>
-        </div>
+{% block title %}Edit Tenant – REMS{% endblock %}
+{% block page_title %}Edit Tenant{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'tenants' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Edit Tenant</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Update tenant information below</p>
     </div>
 </div>
+
+<form method="POST" action="{% url 'edit-tenant' %}">
+    {% csrf_token %}
+    <input type="hidden" name="tenant_id" value="{{ tenant.pk }}">
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+
+            <!-- Personal Info -->
+            <div class="rems-card mb-4">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title"><i class="fa-solid fa-user me-2 text-primary"></i>Personal Information</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control"
+                                   value="{{ tenant.user.first_name }}" required id="editFirstName">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control"
+                                   value="{{ tenant.user.last_name }}" required id="editLastName">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Email</label>
+                            <input type="email" name="email" class="form-control"
+                                   value="{{ tenant.user.email }}" id="editEmail">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Phone <span class="text-danger">*</span></label>
+                            <input type="tel" name="phone" class="form-control"
+                                   value="{{ tenant.user.phone }}" required id="editPhone">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">ID Number</label>
+                            <input type="text" name="id_number" class="form-control"
+                                   value="{{ tenant.user.id_number }}" id="editIdNumber">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Gender</label>
+                            <select name="gender" class="form-select" id="editGender">
+                                <option value="">-- Select --</option>
+                                {% for g in genders %}
+                                <option value="{{ g }}" {% if tenant.user.gender == g %}selected{% endif %}>{{ g }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Marital Status</label>
+                            <select name="marital_status" class="form-select" id="editMaritalStatus">
+                                <option value="">-- Select --</option>
+                                {% for ms in marital_statuses %}
+                                <option value="{{ ms }}" {% if tenant.user.marital_status == ms %}selected{% endif %}>{{ ms }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Occupation</label>
+                            <input type="text" name="occupation" class="form-control"
+                                   value="{{ tenant.occupation }}" id="editOccupation">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lease Info -->
+            <div class="rems-card">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title"><i class="fa-regular fa-file-lines me-2 text-primary"></i>Lease Details</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Move-in Date</label>
+                            <input type="date" name="move_in_date" class="form-control"
+                                   value="{{ tenant.move_in_date|date:'Y-m-d' }}" id="editMoveInDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Lease Date</label>
+                            <input type="date" name="lease_date" class="form-control"
+                                   value="{{ tenant.lease_date|date:'Y-m-d' }}" id="editLeaseDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Lease Duration</label>
+                            <select name="lease_duration" class="form-select" id="editLeaseDuration">
+                                <option value="">-- Select --</option>
+                                {% for dur in lease_durations %}
+                                <option value="{{ dur }}" {% if tenant.lease_duration == dur %}selected{% endif %}>{{ dur }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Rental Unit</label>
+                            <select name="rental_unit" class="form-select" id="editRentalUnit">
+                                <option value="">-- Keep Current --</option>
+                                {% for unit in units %}
+                                    {% if tenant.unit and tenant.unit.id == unit.id %}
+                                        <option value="{{ unit.id }}" selected>{{ unit.name }} – {{ unit.property.name }}</option>
+                                    {% else %}
+                                <option value="{{ unit.id }}">{{ unit.name }} – {{ unit.property.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="col-12 col-lg-4">
+            <div class="rems-card">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title">Save Changes</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="rems-btn rems-btn--primary" id="saveEditTenant">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Save Changes
+                        </button>
+                        <a href="{% url 'tenants' %}" class="rems-btn rems-btn--ghost text-center">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>
+{% endblock %}

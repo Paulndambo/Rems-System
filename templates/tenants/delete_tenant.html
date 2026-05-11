@@ -1,24 +1,33 @@
-<!-- Add this modal HTML after the table in your template -->
-<div class="modal fade" id="deleteTenantModal{{tenant.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="tenantModalLabel">Delete Tenant</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Delete Tenant – REMS{% endblock %}
+{% block page_title %}Delete Tenant{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center mt-5">
+    <div class="rems-card" style="max-width:480px;width:100%;">
+        <div class="rems-card__body text-center py-4">
+            <div class="modal-danger-icon mx-auto mb-3">
+                <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <form id="tenantForm" method="POST" action="{% url 'delete-tenant' %}">
-                <div class="modal-body">
+            <h4 class="fw-700 mb-2">Delete Tenant?</h4>
+            <p class="text-muted mb-4" style="font-size:.875rem">
+                This will permanently remove the tenant and all associated records. This action <strong>cannot be undone</strong>.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'tenants' %}" class="rems-btn rems-btn--ghost">
+                    <i class="fa-solid fa-xmark me-1"></i> Cancel
+                </a>
+                <form method="POST" action="{% url 'delete-tenant' %}">
                     {% csrf_token %}
-                    <input type="number" name="tenant_id" id="tenant_id" value="{{tenant.id}}" readonly hidden>
-                    <div class="row mb-2">
-                        <p>Are you sure you want to delete tenant named: <b>{{tenant.user.name}}</b>?</p>
-                   </div>
-                    
-                <div class="text-center mb-2">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                </div>
-            </form>
+                    <input type="hidden" name="tenant_id" value="{{ request.GET.id }}">
+                    <button type="submit" class="rems-btn rems-btn--danger" id="confirmDeleteTenantBtn">
+                        <i class="fa-solid fa-trash-can me-1"></i> Yes, Delete
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}

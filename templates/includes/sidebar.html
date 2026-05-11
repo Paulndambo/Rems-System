@@ -1,102 +1,269 @@
-<nav id="sidebar" class="vh-100 overflow-auto">
-    <div class="sidebar-header d-flex align-items-center position-sticky top-0 bg-primary p-3">
-        <!--
-        <img src="#" alt="REMS Logo" class="sidebar-logo me-2" width="30">
-        -->
-        <span class="nav-label text-white fw-bold">Yunukee</span>
+{% load static %}
+{# Sidebar: dark bluish rail + indigo accents (tokens in static/css/main.css + sidebar.css) #}
+{% url 'home' as url_home %}
+{% url 'tenants' as url_tenants %}
+{% url 'users' as url_users %}
+{% url 'properties' as url_properties %}
+{% url 'units' as url_units %}
+{% url 'maintenance-requests' as url_maintenance %}
+{% url 'generate-bill' as url_generate_bill %}
+{% url 'monthly-unit-bills' as url_monthly_bills %}
+{% url 'pending-bills' as url_pending_bills %}
+{% url 'security-deposits' as url_security_deposits %}
+{% url 'expenses' as url_expenses %}
+{% url 'reports:monthly-rent-report' as url_rent_report %}
+{% url 'reports:water-bills-report' as url_water_report %}
+{% url 'years' as url_years %}
+{% url 'water-prices' as url_water_prices %}
+{% url 'months' as url_months %}
+{% url 'logout' as url_logout %}
+{% url 'temporary-month-bills' as url_temporary_month_bills %}
+{% url 'generate-temporary-month-bill' as url_generate_temporary_month_bill %}
+{% url 'garbage-bills' as url_garbage_bills %}
+
+<nav class="rems-sidebar" id="remsSidebar" aria-label="Main navigation">
+
+    <!-- Brand / Logo -->
+    <div class="sidebar-brand">
+        <div class="brand-icon">
+            <i class="fa-solid fa-building-columns"></i>
+        </div>
+        <div class="brand-text">
+            <span class="brand-name">REMS</span>
+        </div>
+        <button class="sidebar-close-btn d-md-none" id="sidebarCloseBtn">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
     </div>
 
-    <ul class="list-unstyled components p-3">
-        <li class="mb-3">
-            <a href="{% url 'home' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3 {% if request.path == '/' %}active{% endif %}">
-                <i class="bi bi-grid-1x2-fill me-3"></i>
-                <span class="nav-label">Dashboard</span>
-            </a>
-        </li>
+    <!-- Navigation -->
+    <div class="sidebar-nav" id="sidebarNav">
 
-        <li class="mb-3">
-            <a href="#peopleSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
-                <div>
-                    <i class="bi bi-people-fill me-3"></i>
-                    <span class="nav-label">People</span>
-                </div>
-                <i class="bi bi-chevron-down fs-7"></i>
-            </a>
-            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="peopleSubmenu">
-                <li class="mb-2"><a href="{% url 'users' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Users</span></a></li>
-                <li class="mb-2"><a href="{% url 'tenants' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Tenants</span></a></li>
+        <!-- Dashboard -->
+        <div class="nav-section">
+            <span class="nav-section-label">Main</span>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ url_home }}"
+                       class="nav-link {% if request.path == url_home %}active{% endif %}"
+                       id="nav-dashboard">
+                        <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
             </ul>
-        </li>
-        
-        <li class="mb-3">
-            <a href="#propertiesSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
-                <div>
-                    <i class="bi bi-houses-fill me-3"></i>
-                    <span class="nav-label">Properties</span>
-                </div>
-                <i class="bi bi-chevron-down fs-7"></i>
-            </a>
-            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="propertiesSubmenu">
-                <li class="mb-2"><a href="{% url 'properties' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">My Rentals</span></a></li>
-                <li class="mb-2"><a href="{% url 'maintenance-requests' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Maintenance</span></a></li>
-            </ul>
-        </li>
-        
-        <li class="mb-3">
-            <a href="#paymentsSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
-                <div>
-                    <i class="bi bi-receipt me-3"></i>
-                    <span class="nav-label">Bills</span>
-                </div>
-                <i class="bi bi-chevron-down fs-7"></i>
-            </a>
-            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="paymentsSubmenu">
-                <li class="mb-2"><a href="{% url 'generate-bill' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Generate Bill</span></a></li>
-                <li class="mb-2"><a href="{% url 'monthly-unit-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Monthly Bills</span></a></li>
-                <!--
-                <li class="mb-2"><a href="{% url 'water-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Bills</span></a></li>
-                -->
-                <li class="mb-2"><a href="{% url 'pending-bills' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Pending Bills</span></a></li>
-                <li class="mb-2"><a href="{% url 'security-deposits' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Security Deposits</span></a></li>
-            </ul>
-        </li>
+        </div>
 
-        <li class="mb-3">
-            <a href="{% url 'expenses' %}" class="d-flex align-items-center text-decoration-none py-2 px-3 rounded-3 {% if 'expenses' in request.path %}active{% endif %}">
-                <i class="bi bi-wallet2 me-3"></i>
-                <span class="nav-label">Expenses</span>
-            </a>
-        </li>
-    
-        <li class="mb-3">
-            <a href="#reportsSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
-                <div>
-                    <i class="bi bi-graph-up me-3"></i>
-                    <span class="nav-label">Reports</span>
-                </div>
-                <i class="bi bi-chevron-down fs-7"></i>
-            </a>
-            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="reportsSubmenu">
-                <li class="mb-2"><a href="{% url 'reports:monthly-rent-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Rent Bills</span></a></li>
-                <li class="mb-2"><a href="{% url 'reports:water-bills-report' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Bills</span></a></li>
+        <!-- People -->
+        <div class="nav-section">
+            <span class="nav-section-label">People</span>
+            <ul class="nav-list">
+                <li class="nav-item nav-item--has-sub {% if request.path == url_tenants or request.path == url_users %}open{% endif %}">
+                    <button class="nav-link nav-link--parent"
+                            data-target="sub-people"
+                            aria-expanded="{% if request.path == url_tenants or request.path == url_users %}true{% else %}false{% endif %}"
+                            id="nav-people">
+                        <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
+                        <span class="nav-label">People</span>
+                        <span class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                    </button>
+                    <ul class="nav-submenu {% if request.path == url_tenants or request.path == url_users %}open{% endif %}" id="sub-people">
+                        <li>
+                            <a href="{{ url_tenants }}"
+                               class="nav-sublink {% if request.path == url_tenants %}active{% endif %}"
+                               id="nav-tenants">
+                                <i class="fa-solid fa-person-shelter"></i> Tenants
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_users }}"
+                               class="nav-sublink {% if request.path == url_users %}active{% endif %}"
+                               id="nav-users">
+                                <i class="fa-solid fa-user-gear"></i> Users
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
-        </li>
+        </div>
 
-        <hr class="my-3">
-
-        <li class="mb-3">
-            <a href="#settingsSubmenu" class="d-flex align-items-center justify-content-between text-decoration-none py-2 px-3 rounded-3" data-bs-toggle="collapse">
-                <div>
-                    <i class="bi bi-gear-fill me-3"></i>
-                    <span class="nav-label">Settings</span>
-                </div>
-                <i class="bi bi-chevron-down fs-7"></i>
-            </a>
-            <ul class="collapse list-unstyled submenu ps-4 mt-2" id="settingsSubmenu">
-                <li class="mb-2"><a href="{% url 'water-prices' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Water Prices</span></a></li>
-                <li class="mb-2"><a href="{% url 'years' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Years</span></a></li>
-                <li class="mb-2"><a href="{% url 'months' %}" class="d-block text-decoration-none py-2 px-3 rounded-3"><span class="nav-label">Months</span></a></li>
+        <!-- Properties -->
+        <div class="nav-section">
+            <span class="nav-section-label">Properties</span>
+            <ul class="nav-list">
+                <li class="nav-item nav-item--has-sub {% if request.path == url_properties or request.path == url_maintenance %}open{% endif %}">
+                    <button class="nav-link nav-link--parent"
+                            data-target="sub-properties"
+                            aria-expanded="{% if request.path == url_properties or request.path == url_maintenance %}true{% else %}false{% endif %}"
+                            id="nav-properties">
+                        <span class="nav-icon"><i class="fa-solid fa-building"></i></span>
+                        <span class="nav-label">Properties</span>
+                        <span class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                    </button>
+                    <ul class="nav-submenu {% if request.path == url_properties or request.path == url_maintenance %}open{% endif %}" id="sub-properties">
+                        <li>
+                            <a href="{{ url_properties }}"
+                               class="nav-sublink {% if request.path == url_properties %}active{% endif %}"
+                               id="nav-my-rentals">
+                                <i class="fa-solid fa-house-chimney"></i> My Rentals
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_units }}"
+                               class="nav-sublink {% if request.path == url_units %}active{% endif %}"
+                               id="nav-units">
+                                <i class="fa-solid fa-house-chimney"></i> Rental Units
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_maintenance }}"
+                               class="nav-sublink {% if request.path == url_maintenance %}active{% endif %}"
+                               id="nav-maintenance">
+                                <i class="fa-solid fa-screwdriver-wrench"></i> Maintenance
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
-        </li>
-    </ul>
-</nav>
+        </div>
+
+        <!-- Bills -->
+        <div class="nav-section">
+            <span class="nav-section-label">Billing</span>
+            <ul class="nav-list">
+                <li class="nav-item nav-item--has-sub {% if request.path == url_generate_bill or request.path == url_monthly_bills or request.path == url_pending_bills or request.path == url_security_deposits %}open{% endif %}">
+                    <button class="nav-link nav-link--parent"
+                            data-target="sub-bills"
+                            aria-expanded="{% if request.path == url_generate_bill or request.path == url_monthly_bills or request.path == url_pending_bills or request.path == url_security_deposits %}true{% else %}false{% endif %}"
+                            id="nav-bills">
+                        <span class="nav-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+                        <span class="nav-label">Bills</span>
+                        <span class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                    </button>
+                    <ul class="nav-submenu {% if request.path == url_generate_bill or request.path == url_monthly_bills or request.path == url_pending_bills or request.path == url_security_deposits %}open{% endif %}" id="sub-bills">
+                        
+                        <li>
+                            <a href="{{ url_garbage_bills }}"
+                               class="nav-sublink {% if request.path == url_garbage_bills %}active{% endif %}"
+                               id="nav-garbage-bills">
+                                <i class="fa-solid fa-plus-circle"></i> Garbage Bills
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="{{ url_temporary_month_bills }}"
+                               class="nav-sublink {% if request.path == url_temporary_month_bills %}active{% endif %}"
+                               id="nav-temporary-month-bills">
+                                <i class="fa-regular fa-calendar-days"></i> Record Water Bills
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_pending_bills }}"
+                               class="nav-sublink {% if request.path == url_pending_bills %}active{% endif %}"
+                               id="nav-pending-bills">
+                                <i class="fa-solid fa-clock-rotate-left"></i> Pending Bills
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_security_deposits }}"
+                               class="nav-sublink {% if request.path == url_security_deposits %}active{% endif %}"
+                               id="nav-security-deposits">
+                                <i class="fa-solid fa-shield-halved"></i> Security Deposits
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Expenses -->
+        <div class="nav-section">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ url_expenses }}"
+                       class="nav-link {% if request.path == url_expenses %}active{% endif %}"
+                       id="nav-expenses">
+                        <span class="nav-icon"><i class="fa-solid fa-money-bill-trend-up"></i></span>
+                        <span class="nav-label">Expenses</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Reports -->
+        <div class="nav-section">
+            <span class="nav-section-label">Analytics</span>
+            <ul class="nav-list">
+                <li class="nav-item nav-item--has-sub {% if request.path == url_rent_report or request.path == url_water_report %}open{% endif %}">
+                    <button class="nav-link nav-link--parent"
+                            data-target="sub-reports"
+                            aria-expanded="{% if request.path == url_rent_report or request.path == url_water_report %}true{% else %}false{% endif %}"
+                            id="nav-reports">
+                        <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span>
+                        <span class="nav-label">Reports</span>
+                        <span class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                    </button>
+                    <ul class="nav-submenu {% if request.path == url_rent_report or request.path == url_water_report %}open{% endif %}" id="sub-reports">
+                        <li>
+                            <a href="{{ url_rent_report }}"
+                               class="nav-sublink {% if request.path == url_rent_report %}active{% endif %}"
+                               id="nav-rent-bills-report">
+                                <i class="fa-solid fa-file-lines"></i> Rent Bills
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_water_report }}"
+                               class="nav-sublink {% if request.path == url_water_report %}active{% endif %}"
+                               id="nav-water-bills-report">
+                                <i class="fa-solid fa-droplet"></i> Water Bills
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Settings -->
+        <div class="nav-section">
+            <span class="nav-section-label">System</span>
+            <ul class="nav-list">
+                <li class="nav-item nav-item--has-sub {% if request.path == url_years or request.path == url_water_prices or request.path == url_months %}open{% endif %}">
+                    <button class="nav-link nav-link--parent"
+                            data-target="sub-settings"
+                            aria-expanded="{% if request.path == url_years or request.path == url_water_prices or request.path == url_months %}true{% else %}false{% endif %}"
+                            id="nav-settings">
+                        <span class="nav-icon"><i class="fa-solid fa-gear"></i></span>
+                        <span class="nav-label">Settings</span>
+                        <span class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                    </button>
+                    <ul class="nav-submenu {% if request.path == url_years or request.path == url_water_prices or request.path == url_months %}open{% endif %}" id="sub-settings">
+                        <li>
+                            <a href="{{ url_years }}"
+                               class="nav-sublink {% if request.path == url_years %}active{% endif %}"
+                               id="nav-years">
+                                <i class="fa-regular fa-calendar"></i> Years
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_water_prices }}"
+                               class="nav-sublink {% if request.path == url_water_prices %}active{% endif %}"
+                               id="nav-water-prices">
+                                <i class="fa-solid fa-faucet-drip"></i> Water Prices
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Logout -->
+                <li class="nav-item">
+                    <a href="{{ url_logout }}" class="nav-link nav-link--danger" id="nav-logout">
+                        <span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+                        <span class="nav-label">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div><!-- /.sidebar-nav -->
+
+</nav><!-- /.rems-sidebar -->

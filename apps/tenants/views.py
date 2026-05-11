@@ -1,3 +1,4 @@
+from django.http import HttpRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Avg, Sum
 from django.views.generic import ListView
@@ -46,7 +47,7 @@ class TenantListView(LoginRequiredMixin, ListView):
                 | Q(status__icontains=search_query)
             )
 
-        return queryset.order_by("propertyunit__name")
+        return queryset.order_by("tenantunit__name")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -57,7 +58,7 @@ class TenantListView(LoginRequiredMixin, ListView):
 
 
 @login_required
-def tenant_detail(request, pk):
+def tenant_detail(request: HttpRequest, pk: int):
     tenant = get_object_or_404(Tenant, pk=pk)
 
     # Get all the data
@@ -107,6 +108,8 @@ def tenant_detail(request, pk):
         else 0
     )
 
+    monthly_bills = tenant.unitmonthbills.all()
+
     context = {
         "tenant": tenant,
         "units": units,
@@ -119,6 +122,7 @@ def tenant_detail(request, pk):
         "total_expected_rent": (
             round(total_expected_rent, 2) if total_expected_rent else 0
         ),
+        "monthly_bills": monthly_bills
     }
 
     return render(request, "tenants/tenant_details.html", context)
@@ -140,6 +144,7 @@ def new_tenant(request):
         marital_status = request.POST.get("marital_status")
 
         rental_unit = request.POST.get("rental_unit")
+        occupation = request.POST.get("occuption")
         
         try:
             onboard_tenant = OnboardTenantMixin(
@@ -153,50 +158,22 @@ def new_tenant(request):
                 lease_duration=lease_duration, 
                 lease_date=lease_date, 
                 marital_status=marital_status, 
-                rental_unit=rental_unit
+                rental_unit=rental_unit,
+                occupation=occupation
             )
             onboard_tenant.run()
         except Exception as e:
             print(e)
             raise e
-        
-        """
-        unit = PropertyUnit.objects.get(id=rental_unit)
-
-        user = User.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            email=email if email else f"{first_name}.{last_name}@gmail.com",
-            phone=phone,
-            id_number=id_number,
-            gender=gender,
-            username=email if email else f"{first_name}.{last_name}",
-            marital_status=marital_status,
-            role="Tenant",
-        )
-
-        user.set_password("1234")
-        user.save()
-
-        tenant = Tenant.objects.create(
-            user=user,
-            move_in_date=move_in_date,
-            lease_duration=lease_duration,
-            lease_date=lease_date,
-            status="Active",
-            renews_every=lease_duration,
-        )
-        unit.tenant = tenant
-        unit.is_occupied = True
-        unit.save()
-        """
+    
         return redirect("tenants")
-    return render(request, "tenants/new_tenant.html")
+    return render(request, "tenants/new_tenant.html", {"units": PropertyUnit.objects.filter(is_occupied=False)})
 
 
 @login_required
 @transaction.atomic
 def edit_tenant(request):
+    tenant_object = Tenant.objects.filter(id=request.GET.get("id")).first()
     if request.method == "POST":
         tenant_id = request.POST.get("tenant_id")
         tenant = Tenant.objects.get(id=tenant_id)
@@ -210,6 +187,7 @@ def edit_tenant(request):
         lease_duration = request.POST.get("lease_duration")
         lease_date = request.POST.get("lease_date")
         marital_status = request.POST.get("marital_status")
+        occupation = request.POST.get("occupation")
 
         rental_unit = request.POST.get("rental_unit")
         unit = PropertyUnit.objects.filter(id=rental_unit).first()
@@ -225,6 +203,7 @@ def edit_tenant(request):
         tenant.user.marital_status = marital_status
         tenant.renews_every = lease_duration
         tenant.lease_date = lease_date
+        tenant.occupation = occupation
 
         tenant.user.save()
         tenant.save()
@@ -234,7 +213,14 @@ def edit_tenant(request):
             unit.is_occupied = True
             unit.save()
         return redirect("tenants")
-    return render(request, "tenants/edit_tenant.html", {"tenant": tenant})
+    
+    return render(request, "tenants/edit_tenant.html", {
+        "tenant": tenant_object, 
+        "units": PropertyUnit.objects.filter(Q(is_occupied=False) | Q(tenant=tenant_object)), 
+        "lease_durations": LEASE_DURATIONS, 
+        "marital_statuses": MARITAL_STATUSES,
+        "genders": ["Male", "Female", "Other"]
+    })
 
 
 @login_required

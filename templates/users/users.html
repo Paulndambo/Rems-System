@@ -1,184 +1,176 @@
 {% extends "base.html" %}
-{% block additional_styles %}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* Simple card styles */
-        .card {
-            margin: 1rem;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-        }
+{% load static %}
 
-        .card-header {
-            background-color: #f8f9fa;
-            padding: 1rem;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        /* Simple table styles */
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table thead th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-
-        /* Simple status badge */
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.875rem;
-        }
-
-        .status-active {
-            background-color: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .status-inactive {
-            background-color: #f8d7da;
-            color: #842029;
-        }
-
-        .status-pending {
-            background-color: #fff3cd;
-            color: #664d03;
-        }
-
-        /* Simple action buttons */
-        .btn-action {
-            padding: 4px 8px;
-            margin: 0 2px;
-        }
-
-        /* Search bar */
-        .search-wrapper {
-            max-width: 300px;
-        }
-
-        /* Pagination styles */
-        .pagination-wrapper {
-            padding: 1rem;
-            background-color: #fff;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .pagination {
-            margin-bottom: 0;
-        }
-    </style>
-{% endblock additional_styles %}
+{% block title %}Users – REMS{% endblock %}
+{% block page_title %}Users{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Users</h5>
-            <div class="d-flex gap-3">
-                <div class="search-wrapper">
-                    <input type="text" class="form-control" 
-                        placeholder="Search users..." 
-                        id="searchInput" 
-                        value="{{ search_query }}">
-                </div>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUserModal">
-                    <i class="fas fa-plus me-1"></i>New User
-                </button>
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">System Users</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Manage caretakers, house managers and admin users</p>
+    </div>
+    <a href="{% url 'new-user' %}" class="rems-btn rems-btn--primary" id="btn-add-user">
+        <i class="fa-solid fa-user-plus me-2"></i> Add User
+    </a>
+</div>
+
+<!-- Search -->
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" value="{{ request.GET.search }}"
+                       class="form-control search-input" id="userSearch"
+                       placeholder="Search by name or ID…">
             </div>
+            <button type="submit" class="rems-btn rems-btn--primary">
+                <i class="fa-solid fa-search me-1"></i> Search
+            </button>
+            {% if request.GET.search %}
+            <a href="{% url 'users' %}" class="rems-btn rems-btn--ghost">
+                <i class="fa-solid fa-xmark me-1"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="rems-card">
+    <div class="rems-card__header">
+        <div>
+            <h5 class="rems-card__title">All Users</h5>
+            <p class="rems-card__subtitle">{{ page_obj.paginator.count }} user(s) found</p>
         </div>
     </div>
-
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Contact</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{user.name}}</td>
-                        <td>{{user.phone}}</td>
-                        <td>{{user.role}}</td>
-                        <td><span class="status-badge status-{{user.status|lower}}">{{user.status}}</span></td>
-                        <td class="text-end">
-                            <a href="{% url 'change-password' user.id %}" class="btn btn-sm btn-light btn-action">
-                                <i class="fas fa-lock text-primary"></i>
+    <div class="table-responsive">
+        <table class="rems-table" id="usersTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td class="text-muted" style="font-size:.8rem">{{ forloop.counter }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="table-avatar table-avatar--violet">
+                                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                            </div>
+                            <div>
+                                <div class="fw-600" style="font-size:.875rem">{{ user.first_name }} {{ user.last_name }}</div>
+                                <div style="font-size:.75rem;color:var(--text-muted)">{{ user.email|default:"—" }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><code style="font-size:.8rem;color:var(--color-primary)">{{ user.username }}</code></td>
+                    <td>{{ user.phone|default:"—" }}</td>
+                    <td>
+                        <span class="rems-badge
+                            {% if user.role == 'Caretaker' %}rems-badge--blue
+                            {% elif user.role == 'House Manager' %}rems-badge--violet
+                            {% else %}rems-badge--amber{% endif %}">
+                            {{ user.role }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="rems-badge {% if user.is_active %}rems-badge--green{% else %}rems-badge--red{% endif %}">
+                            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-1">
+                            <a href="{% url 'change-password' user.id %}" class="action-btn action-btn--view" title="Change Password">
+                                <i class="fa-solid fa-key"></i>
                             </a>
-                            <button class="btn btn-sm btn-light btn-action" data-bs-toggle="modal" data-bs-target="#editUserModal{{user.id}}" title="Edit">
-                                <i class="fas fa-edit text-primary"></i>
-                            </button>
-                            <button class="btn btn-sm btn-light btn-action" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{user.id}}" title="Delete">
-                                <i class="fas fa-trash text-danger"></i>
-                            </button>
-                        </td>
-                        {% include "users/edit_user.html" %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="pagination-wrapper">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="text-muted small">
-                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
-                </div>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination">
-                        {% if page_obj.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page=1" aria-label="First">
-                                    <span aria-hidden="true">&laquo;&laquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
-                        {% endif %}
+                            <a href="{% url 'edit-user' %}?id={{ user.id }}" class="action-btn action-btn--edit" title="Edit">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-user-slash fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No users found.</p>
+                            <a href="{% url 'new-user' %}" class="rems-btn rems-btn--primary">
+                                <i class="fa-solid fa-user-plus me-2"></i> Add First User
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-                        {% for num in page_obj.paginator.page_range %}
-                            {% if page_obj.number == num %}
-                                <li class="page-item active">
-                                    <span class="page-link">{{ num }}</span>
-                                </li>
-                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span style="font-size:.8rem;color:var(--text-muted)">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        <nav>
+            <ul class="pagination pagination-sm mb-0 rems-pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"><i class="fa-solid fa-chevron-left"></i></a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if num == page_obj.number %}active{% endif %}"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"><i class="fa-solid fa-chevron-right"></i></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
 
-                        {% if page_obj.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
-                                    <span aria-hidden="true">&raquo;&raquo;</span>
-                                </a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rems-modal">
+            <div class="modal-header border-0 pb-0">
+                <div class="modal-danger-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            </div>
+            <div class="modal-body text-center pt-2">
+                <h5 class="fw-700 mb-1">Delete User?</h5>
+                <p class="text-muted mb-0" style="font-size:.875rem">
+                    You are about to delete <strong id="deleteUserName"></strong>. This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-2">
+                <button type="button" class="rems-btn rems-btn--ghost" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{% url 'delete-user' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" id="deleteUserId">
+                    <button type="submit" class="rems-btn rems-btn--danger" id="confirmDeleteUserBtn">
+                        <i class="fa-solid fa-trash-can me-1"></i> Yes, Delete
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}
 
+{% block extra_js %}
+<script>
+function confirmDeleteUser(id, name) {
+    document.getElementById('deleteUserId').value = id;
+    document.getElementById('deleteUserName').textContent = name;
+    new bootstrap.Modal(document.getElementById('deleteUserModal')).show();
+}
+</script>
+{% endblock %}

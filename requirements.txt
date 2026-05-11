@@ -5,3 +5,9 @@ django-cors-headers
 django-filter
 djangorestframework
 djangorestframework-simplejwt
+whitenoise
+drf-yasg
+requests
+pillow
+Pillow
+coverage

@@ -1,202 +1,92 @@
 {% extends "base.html" %}
-{% block additional_styles %}
-    <style>
-        /* Improved styling */
-        .card {
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            margin-bottom: 2rem;
-        }
+{% load static %}
 
-        .card-header {
-            background: linear-gradient(to right, #f8f9fa, #ffffff);
-            border-bottom: 1px solid #edf2f7;
-            padding: 1.25rem;
-        }
+{% block title %}Property Units – REMS{% endblock %}
+{% block page_title %}Units{% endblock %}
 
-        .search-wrapper {
-            position: relative;
-            max-width: 300px;
-        }
-
-        .search-wrapper i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-
-        #searchInput {
-            padding-left: 35px;
-            border-radius: 20px;
-            border: 1px solid #dee2e6;
-            transition: all 0.3s ease;
-        }
-
-        #searchInput:focus {
-            box-shadow: 0 0 0 0.2rem rgba(44, 123, 229, 0.15);
-            border-color: #2c7be5;
-        }
-
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table thead th {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-            color: #495057;
-            font-weight: 600;
-            padding: 1rem;
-        }
-
-        .table td {
-            padding: 1rem;
-            vertical-align: middle;
-        }
-
-        /* Status badges */
-        .badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 500;
-            font-size: 0.875rem;
-        }
-
-        .unit-vacant {
-            background-color: #def7ec;
-            color: #03543f;
-        }
-
-        .unit-occupied {
-            background-color: #e1effe;
-            color: #1e429f;
-        }
-
-        .unit-maintenance {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        /* Buttons */
-        .btn-sm {
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-sm:hover {
-            transform: translateY(-1px);
-        }
-
-        /* Responsive table */
-        @media (max-width: 992px) {
-            .table-responsive-wrapper {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                margin: 0 -1rem;
-            }
-
-            .table {
-                min-width: 800px;
-            }
-        }
-
-        /* Mobile optimizations */
-        @media (max-width: 576px) {
-            .card-header .d-flex {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .search-wrapper {
-                width: 100%;
-                max-width: 100%;
-            }
-        }
-    </style>
-{% endblock additional_styles %}
 {% block content %}
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="col-auto">
-                    <h5 class="mb-0 text-primary">Property Units</h5>
-                </div>
-                <div class="col-md-4">
-                    <div class="search-wrapper">
-                        <i class="fas fa-search"></i>
-                        <input type="text" class="form-control" placeholder="Search units..." 
-                        id="searchInput" value="{{ search_query }}">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive-wrapper">
-                <div class="loader" id="loader"></div>
-                <table id="tenantsTable" class="table table-hover table-small">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Property</th>
-                            <th>Unit No.</th>
-                            <th>Type</th>
-                            <th>Rent</th>
-                            <th>Status</th>
-                            <th>Tenant</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for unit in units %}
-                        <tr>
-                            <td>{{forloop.counter}}</td>
-                            <td>{{unit.property}}</td>
-                            <td>{{unit.name}}</td>
-                            <td>{{unit.unit_type}}</td>
-                            <td>{{unit.rent}}</td>
-                            <td>
-                                {% if unit.status == 'Vacant' %}
-                                    <span class="badge unit-vacant">Vacant</span>
-                                {% elif unit.status == 'Occupied' %}
-                                    <span class="badge unit-occupied">Occupied</span>
-                                {% else %}
-                                    <span class="badge unit-maintenance">Maintenance</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if unit.tenant %}
-                                    <a href="{% url 'tenant-detail' unit.tenant.id %}" class="text-decoration-none text-primary">
-                                        {{ unit.tenant.user.name }}
-                                    </a>
-                                {% else %}
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignTenantModal{{unit.id}}">
-                                        <i class="fas fa-user-plus"></i> Assign
-                                    </button>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <a href="{% url 'unit-detail' unit.id %}" class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    
-                                </div>
-                            </td>
-                            
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Property Units</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">View and manage all units across properties</p>
     </div>
 </div>
 
-{% for unit in units %}
-    {% include "properties/units/edit_unit_copy.html" %}
-{% endfor %}
-{% endblock content %}
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" value="{{ search_query }}" class="form-control search-input" placeholder="Search by unit, property, id...">
+            </div>
+            <button type="submit" class="rems-btn rems-btn--primary">Search</button>
+        </form>
+    </div>
+</div>
+
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Unit Directory</h5>
+        <p class="rems-card__subtitle">{{ page_obj.paginator.count }} unit(s) found</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
+            <thead>
+                <tr>
+                    <th>Unit</th>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Rent</th>
+                    <th>Tenant</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in units %}
+                <tr>
+                    <td class="fw-600">{{ unit.name }}</td>
+                    <td>{{ unit.property.name|default:"—" }}</td>
+                    <td>{{ unit.unit_type|default:"—" }}</td>
+                    <td class="fw-600">Kes {{ unit.rent|floatformat:0 }}</td>
+                    <td>
+                        {% if unit.tenant and unit.tenant.user %}
+                            {{ unit.tenant.user.first_name }} {{ unit.tenant.user.last_name }}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if unit.is_occupied %}
+                            <span class="rems-badge rems-badge--green">Occupied</span>
+                        {% elif unit.status == "Under Maintenance" %}
+                            <span class="rems-badge rems-badge--amber">Under Maintenance</span>
+                        {% else %}
+                            <span class="rems-badge rems-badge--rose">Vacant</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{% url 'unit-detail' unit.id %}" class="rems-btn rems-btn--ghost" style="padding:.3rem .6rem; font-size:.75rem;">Details</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-door-closed fa-3x text-muted mb-3"></i>
+                            <h5 class="fw-700">No Units Found</h5>
+                            <p class="text-muted mb-0">No units match your filters yet.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=page_obj %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

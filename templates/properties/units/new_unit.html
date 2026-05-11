@@ -1,81 +1,84 @@
-<div class="modal fade" id="newUnitModal{{property.id}}" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Unit</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{% url 'new-unit' %}">
-                    {% csrf_token %}
-                    <input type="number" name="property_id" id="property_id" value="{{property.id}}" readonly hidden>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label fw-bold">Unit Number</label>
-                            <input type="text" class="form-control" name="unit_number" id="unit_number" required>
-                        </div>
-                        <div class="col">
-                            <label class="form-label fw-bold">Unit Type</label>
-                            <select class="form-select" name="unit_type" id="unit_type" required>
-                                <option value="">Select type...</option>
-                                {% for unit_type in unit_types %}
-                                    <option value="{{unit_type}}">{{unit_type}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Floor</label>
-                                <input type="text" class="form-control" name="floor" id="floor" required>
-                            </div>
-                        </div>
-                        
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label fw-bold">Monthly Rent</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" name="rent" id="rent" required>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <label class="form-label fw-bold">Security Deposit</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" name="security_deposit" id="security_deposit" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label fw-bold">Water Price</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" name="water_price" id="water_price" value="200" required>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <label class="form-label fw-bold">Status</label>
-                            <select class="form-select" name="status" id="status" required>
-                                <option value="">Select status...</option>
-                                {% for status in unit_statuses %}
-                                    <option value="{{status}}">{{status}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="text-center mt-2 mb-3">
+{% extends "base.html" %}
+{% load static %}
 
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Unit</button>
-                    </div>
-                </form>
-            </div>
-            
-        </div>
+{% block title %}New Unit – REMS{% endblock %}
+{% block page_title %}New Unit{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'units' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Create New Unit</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Add a rental unit to a {{ property.name }}</p>
     </div>
 </div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <form method="POST" action="{% url 'new-unit' %}">
+            {% csrf_token %}
+            <div class="rems-card mb-4">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title">Unit Information</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Property Name <span class="text-danger">*</span></label>
+                            <input type="hidden" name="property_id" id="property_id" value="{{ request.GET.property_id }}">
+                            <input type="text" class="form-control" value="{{ property.name }}" disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Unit Number/Name <span class="text-danger">*</span></label>
+                            <input type="text" name="unit_number" id="unit_number" class="form-control" placeholder="e.g. A-01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Rent (KES) <span class="text-danger">*</span></label>
+                            <input type="number" name="rent" id="rent" step="0.01" min="0" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Floor</label>
+                            <input type="text" name="floor" id="floor" class="form-control" placeholder="e.g. Ground / 1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Unit Type</label>
+                            <select name="unit_type" id="unit_type" class="form-select">
+                                <option value="Single Room">Single Room</option>
+                                <option value="Bedsitter">Bedsitter</option>
+                                <option value="Studio">Studio</option>
+                                <option value="1 Bedroom">1 Bedroom</option>
+                                <option value="2 Bedroom">2 Bedroom</option>
+                                <option value="3 Bedroom">3 Bedroom</option>
+                                <option value="4 Bedroom">4 Bedroom</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Status</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="Vacant">Vacant</option>
+                                <option value="Occupied">Occupied</option>
+                                <option value="Under Maintenance">Under Maintenance</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Security Deposit (KES)</label>
+                            <input type="number" name="security_deposit" id="security_deposit" step="0.01" min="0" class="form-control" value="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Water Price / Unit (KES)</label>
+                            <input type="number" name="water_price" id="water_price" step="0.01" min="0" class="form-control" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'units' %}" class="rems-btn rems-btn--ghost">Cancel</a>
+                <button type="submit" class="rems-btn rems-btn--primary">
+                    <i class="fa-solid fa-floppy-disk me-2"></i> Save Unit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Generate Unit Bills List – REMS{% endblock %}
+{% block page_title %}Generate Bills{% endblock %}
+
+{% block content %}
+
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <form method="POST" action="{% url 'generate-temporary-month-bill' %}">
+            {% csrf_token %}
+
+            <div class="rems-card mb-4">
+                <div class="rems-card__header">
+                    <h5>Generate Unit Bills List</h5>
+                </div>
+
+                <div class="rems-card__body">
+                    <!-- HIDDEN SECTION -->
+                    <div id="dependent-fields">
+                        <!-- MONTH -->
+                        <div class="mb-3">
+                            <label class="form-label">Month *</label>
+                            <select name="month" class="form-select" required>
+                                <option value="">-- Select Month --</option>
+                                {% for m in months %}
+                                    <option value="{{ m }}">{{ m }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Generate Bills</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- jQuery (required for Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const propertySelect = document.getElementById("property");
+    const dependentFields = document.getElementById("dependent-fields");
+    // Fetch units via AJAX
+    fetch(`/payments/get-units/`)
+        .then(response => response.json())
+        .then(data => {
+            const unitSelect = $('#unit');
+
+            unitSelect.empty();
+
+            data.forEach(unit => {
+                unitSelect.append(
+                    new Option(unit.name, unit.id)
+                );
+            });
+
+            // Reinitialize Select2
+            unitSelect.select2({
+                placeholder: "Search unit...",
+                width: '100%'
+            });
+        });
+});
+</script>
+
+{% endblock %}

@@ -1,151 +1,195 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
 
+{% block title %}Unit Bill Details – REMS{% endblock %}
+{% block page_title %}Unit Bill Details{% endblock %}
 
 {% block content %}
-
-<div class="card shadow-sm">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h3 class="mb-0">Unit Bill Details</h3>
-        {% if unit_bill.balance > 0 and request.user.role != "Caretaker" %}
-        <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#collectUnitBillPaymentModal{{unit_bill.id}}">
-            <i class="fas fa-credit-card me-2"></i>Record Payment
-        </a>
-        {% endif %}
-
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+        <a href="{% if unit_bill.month %}{% url 'unit-bills' unit_bill.month.id %}{% else %}{% url 'monthly-unit-bills' %}{% endif %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <div>
+            <h1 class="fs-4 fw-bold mb-0">Unit Bill #{{ unit_bill.id }}</h1>
+            <p class="text-muted mb-0" style="font-size:.82rem;">
+                {% if unit_bill.month %}{{ unit_bill.month.name }}{% else %}—{% endif %} {% if unit_bill.year %}{{ unit_bill.year.name }}{% endif %}
+            </p>
+        </div>
     </div>
-    <div class="card-body">
-        <!-- Bill Information -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card h-100 border-0 bg-light">
-                    <div class="card-body">
-                        <h5 class="card-title mb-4"><i class="fas fa-file-invoice me-2"></i>Bill Information</h5>
-                        <table class="table table-borderless">
-                            <tr>
-                                <th class="text-muted">Bill Number:</th>
-                                <td class="fw-bold">#{{ unit_bill.id }}-{{ unit_bill.unit.name }}</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted">Tenant:</th>
+    <a href="{% url 'unit-bill-receipt' unit_bill.id %}" class="rems-btn rems-btn--ghost">
+        <i class="fa-solid fa-receipt me-2"></i> View Receipt
+    </a>
+</div>
 
-                                <td class="fw-bold">{{ unit_bill.tenant.user.first_name }} {{ unit_bill.tenant.user.last_name }}</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted">Unit:</th>
-                                <td>{{ unit_bill.unit.name }}</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted">Bill Date:</th>
-                                <td>{{ unit_bill.created_at|date:"F d, Y" }}</td>
-                            </tr>
-                        </table>
-                        {% if unit_bill.bill_disclaimer %}
-                        <p class="bg-danger text-white p-2 rounded">{{ unit_bill.bill_disclaimer }}</p>
-                        {% if unit_bill.bill_disclaimer  == "Rent bill is missing" %}
-                        <a href="{% url 'monthly-rent-bills' %}" class="btn btn-warning">Create Rent Bill</a>
-                        {% elif unit_bill.bill_disclaimer  == "Water bill is missing" %}
-                        <a href="{% url 'water-bills' %}" class="btn btn-warning">Create Water Bill</a>
-                        {% elif unit_bill.bill_disclaimer  == "Garbage bill is missing" %}
-                        <a href="{% url 'garbage-bills' %}" class="btn btn-warning">Create Garbage Bill</a>
-                        {% endif %}
-                        {% endif %}
-                    </div>
-
-                </div>
-
-            </div>
-            <div class="col-md-6">
-                <div class="card h-100 border-0 bg-light">
-                    <div class="card-body">
-                        <h5 class="card-title mb-4"><i class="fas fa-money-bill-wave me-2"></i>Payment Summary</h5>
-                        <!-- Add Bill Components Breakdown -->
-                        <div class="bill-components mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-muted"><i class="fas fa-home me-2"></i>Rent</span>
-                                <span>KES {{ unit_bill.rent_amount|floatformat:2 }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-muted"><i class="fas fa-tint me-2"></i>Water Bill</span>
-                                <span>KES {{ unit_bill.water_amount|floatformat:2 }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="text-muted"><i class="fas fa-trash me-2"></i>Garbage Collection</span>
-                                <span>KES {{ unit_bill.garbage_amount|floatformat:2 }}</span>
-                            </div>
-                            <hr class="my-3">
-                        </div>
-
-                        <!-- Total and Balance Information -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">Total Amount:</span>
-                            <span class="h5 mb-0">KES {{ unit_bill.amount_expected|floatformat:2 }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">Amount Paid:</span>
-                            <span class="text-success h5 mb-0">KES {{ unit_bill.amount_paid|floatformat:2 }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">Balance:</span>
-                            <span class="{% if unit_bill.balance > 0 %}text-danger{% else %}text-success{% endif %} h5 mb-0">
-                                KES {{ unit_bill.balance|floatformat:2 }}
-                            </span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted">Status:</span>
-                            <span class="badge {% if unit_bill.unit_bill_status == 'Fully Paid' %}bg-success{% elif unit_bill.unit_bill_status == 'Partially Paid' %}bg-warning{% else %}bg-danger{% endif %} px-3 py-2">
-                                {{ unit_bill.unit_bill_status }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="rems-card h-100">
+            <div class="rems-card__body">
+                <div class="text-muted mb-1" style="font-size:.78rem;">Expected</div>
+                <div class="fw-700 fs-5">Kes {{ unit_bill.amount_expected|floatformat:0 }}</div>
             </div>
         </div>
-
-        <!-- Payment History -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-0">
-                    <div class="card-body">
-                        <h5 class="card-title mb-4">
-                            <i class="fas fa-history me-2"></i>Bill Payments
-                        </h5>
-                        {% if payments %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Payment Date</th>
-                                        <th>Amount</th>
-                                        <th>Payment Method</th>
-                                        <th>Reason</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for payment in payments %}
-                                    <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <td>{{ payment.payment_date|date:"F d, Y" }}</td>
-                                        <td class="fw-bold">KES {{ payment.amount_paid|floatformat:2 }}</td>
-                                        <td><i class="fas fa-money-bill-wave me-2"></i>{{ payment.payment_method }}</td>
-                                        <td>{{ payment.payment_type }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        {% else %}
-                        <div class="text-center py-4 text-muted">
-                            <i class="fas fa-receipt fa-3x mb-3"></i>
-                            <p>No payments have been made yet.</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="rems-card h-100">
+            <div class="rems-card__body">
+                <div class="text-muted mb-1" style="font-size:.78rem;">Paid</div>
+                <div class="fw-700 fs-5 text-success">Kes {{ unit_bill.amount_paid|floatformat:0 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="rems-card h-100">
+            <div class="rems-card__body">
+                <div class="text-muted mb-1" style="font-size:.78rem;">Balance</div>
+                <div class="fw-700 fs-5 text-danger">Kes {{ unit_bill.balance|floatformat:0 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="rems-card h-100">
+            <div class="rems-card__body">
+                <div class="text-muted mb-1" style="font-size:.78rem;">Status</div>
+                {% if unit_bill.fully_paid %}
+                    <span class="rems-badge rems-badge--green">Fully Paid</span>
+                {% elif unit_bill.amount_paid > 0 %}
+                    <span class="rems-badge rems-badge--amber">Partially Paid</span>
+                {% else %}
+                    <span class="rems-badge rems-badge--red">Unpaid</span>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
-{% include 'unit_bills/collect_payment.html' %}
 
+<div class="row g-4">
+    <div class="col-12 col-xl-5">
+        <div class="rems-card">
+            <div class="rems-card__header">
+                <h5 class="rems-card__title">Bill Breakdown</h5>
+            </div>
+            <div class="rems-card__body">
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Tenant</span>
+                    <span class="fw-600">
+                        {% if unit_bill.tenant and unit_bill.tenant.user %}
+                            {{ unit_bill.tenant.user.first_name }} {{ unit_bill.tenant.user.last_name }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Unit</span>
+                    <span class="fw-600">{% if unit_bill.unit %}{{ unit_bill.unit.name }}{% else %}—{% endif %}</span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Rent</span>
+                    <span class="fw-600">Kes {{ unit_bill.rent_amount|floatformat:0 }}</span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Water</span>
+                    <span class="fw-600">Kes {{ unit_bill.water_amount|floatformat:0 }}</span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Garbage</span>
+                    <span class="fw-600">Kes {{ unit_bill.garbage_amount|floatformat:0 }}</span>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                    <span class="fw-700">Balance</span>
+                    <span class="fw-700 text-danger">Kes {{ unit_bill.balance|floatformat:0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if not unit_bill.fully_paid %}
+    <div class="col-12 col-xl-7">
+        <div class="rems-card">
+            <div class="rems-card__header">
+                <h5 class="rems-card__title">Collect Payment</h5>
+            </div>
+            <div class="rems-card__body">
+                <form method="POST" action="{% url 'collect-unit-bill-payment' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="unit_bill_id" value="{{ unit_bill.id }}">
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-600">Rent Amount</label>
+                            <input type="number" step="0.01" min="0" class="form-control" name="rent_amount" id="rent_amount" max="{{ unit_bill.rent_balance|floatformat:0 }}" value="{{ unit_bill.rent_balance|floatformat:0 }}">
+                            <small class="text-muted">Pending: Kes {{ unit_bill.rent_balance|floatformat:0 }}</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-600">Water Amount</label>
+                            <input type="number" step="0.01" min="0" class="form-control" name="water_amount" id="water_amount" max="{{ unit_bill.water_balance|floatformat:0 }}" value="{{ unit_bill.water_balance|floatformat:0 }}">
+                            <small class="text-muted">Pending: Kes {{ unit_bill.water_balance|floatformat:0 }}</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-600">Garbage Amount</label>
+                            <input type="number" step="0.01" min="0" class="form-control" name="garbage_amount" id="garbage_amount" max="{{ unit_bill.garbage_balance|floatformat:0 }}" value="{{ unit_bill.garbage_balance|floatformat:0 }}">
+                            <small class="text-muted">Pending: Kes {{ unit_bill.garbage_balance|floatformat:0 }}</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Payment Method</label>
+                            <select name="payment_method" class="form-select" required>
+                                <option value="">-- Select Method --</option>
+                                {% for method in payment_methods %}
+                                <option value="{{ method }}">{{ method }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Payment Date</label>
+                            <input type="date" name="payment_date" class="form-control" required>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="submit" class="rems-btn rems-btn--primary">
+                                <i class="fa-solid fa-money-bill-wave me-2"></i> Save Payment
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="rems-card mt-4">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Payment History</h5>
+        <p class="rems-card__subtitle">{{ payments|length }} payment(s)</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Method</th>
+                    <th>Amount</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td>{{ payment.payment_date|date:"d M Y" }}</td>
+                    <td>{{ payment.payment_method|default:"—" }}</td>
+                    <td class="fw-600 text-success">Kes {{ payment.amount_paid|floatformat:0 }}</td>
+                    <td>{{ payment.payment_type|default:"Unit Payment" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-wallet fa-3x text-muted mb-3"></i>
+                            <h5 class="fw-700">No Payment Records</h5>
+                            <p class="text-muted mb-0">No payments have been posted for this bill yet.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

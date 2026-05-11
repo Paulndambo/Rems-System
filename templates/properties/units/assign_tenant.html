@@ -1,34 +1,56 @@
-<div class="modal fade" id="assignTenantModal{{unit.id}}" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade" id="assignTenantModal{{ unit.id }}" tabindex="-1" aria-labelledby="assignTenantLabel{{ unit.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Assign Tenant</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="assignTenantLabel{{ unit.id }}">
+                    <i class="fa-solid fa-user-plus"></i> Assign Tenant
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form method="POST" action="{% url 'assign-tenant' %}">
+            <form id="assignTenantForm{{ unit.id }}" method="POST" action="{% url 'assign-tenant' %}">
+                <div class="modal-body">
                     {% csrf_token %}
-                    <input type="number" name="unit_id" id="unit_id" value="{{unit.id}}" readonly hidden>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label fw-bold">Tenant</label>
-                            <select class="form-select" name="tenant" id="tenant" required>
-                                <option value="">Select Tenant</option>
-                                {% for tenant in tenants %}
-                                    <option value="{{tenant.id}}">{{tenant.user.name}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                    <input type="hidden" name="unit_id" value="{{ unit.id }}">
+                    <div class="alert alert-warning">
+                        <i class="fa-solid fa-exclamation-triangle"></i> 
+                        <strong>Please confirm the following details:</strong>
                     </div>
                     
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-6 fw-bold">Unit:</div>
+                                <div class="col-6">{{ unit.property.name }} ({{ unit.name }})</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-center mt-2 mb-3">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Assign Tenant</button>
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                
+                            <select name="tenant_id" class="form-select" required>
+                                <option value="" disabled selected>Select Tenant</option>
+                                {% for tenant in tenants %}
+                                    <option value="{{ tenant.id }}">{{ tenant.user.first_name }} {{ tenant.user.last_name }}</option>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
-            
+
+                    <p class="text-muted mb-0">
+                        <small>Once confirmed, the tenant will be assigned to this unit.</small>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa-solid fa-check"></i> Yes, Confirm Removal
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

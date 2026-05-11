@@ -1,309 +1,168 @@
-{% extends 'base.html' %}
-{% block additional_styles %}
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-        }
-        .unit-image {
-            height: 300px;
-            object-fit: cover;
-            border-radius: 10px 10px 0 0;
-        }
-        .stats-card {
-            transition: transform 0.2s;
-            border-left: 4px solid;
-        }
-        .stats-card:hover {
-            transform: translateY(-5px);
-        }
-        .table th {
-            border-top: none;
-        }
-    </style>
-{% endblock additional_styles %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Unit Details – REMS{% endblock %}
+{% block page_title %}Unit Details{% endblock %}
+
 {% block content %}
-<!-- Unit Header -->
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-8">
-                        <h2>{{unit.name}}</h2>
-                        <p class="text-muted mb-2">{{unit.property}}, {{unit.property.address}}, {{unit.property.city}}-{{unit.property.country}}</p>
-                        <div class="row mt-4">
-                            <div class="col-md-6">
-                                <p><strong>Type:</strong> {{unit.unit_type}}</p>
-                                <p><strong>Floor:</strong> {{unit.floor}}</p>
-                                <p><strong>Size:</strong> {{unit.size}}</p>
-                                <p><strong>Current Tenant:</strong> {{unit.tenant.user.name}}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Tenant Contact:</strong> {{unit.tenant.user.phone}}</p>
-                                <p><strong>Lease Start:</strong> {{unit.tenant.move_in_date}}</p>
-                                <p><strong>Monthly Rent:</strong> {{unit.rent}}</p>
-                                <p><strong>Security Deposit:</strong> {{unit.security_deposit}}</p>
-                            </div>
-                        </div>
-                    </div>
-                    {% if request.user.role != "Caretaker" %}
-                    <div class="col-md-4 text-md-end">
-                        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#editUnitModal{{unit.id}}">
-                            <i class="fas fa-edit"></i> Edit Unit
-                        </button>
-                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUnitModal{{unit.id}}">
-                            <i class="fas fa-trash"></i> Delete Unit
-                        </button>
-                    </div>
-                    {% endif %}
-                </div>
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+        <a href="{% url 'units' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <div>
+            <h1 class="fs-4 fw-bold mb-0">Unit {{ unit.name }}</h1>
+            <p class="text-muted mb-0" style="font-size:.82rem;">{{ unit.property.name|default:"—" }}{% if unit.floor %} · Floor {{ unit.floor }}{% endif %}</p>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'edit-unit' %}?unit_id={{ unit.id }}" class="rems-btn rems-btn--ghost"><i class="fa-solid fa-pen me-2"></i>Edit</a>
+        {% if unit.is_occupied %}
+        <a data-bs-toggle="modal" data-bs-target="#removeTenantModal{{ unit.id }}" class="rems-btn rems-btn--danger"><i class="fa-solid fa-user-plus me-2"></i>Remove Tenant</a>
+        {% else %}
+        <a data-bs-toggle="modal" data-bs-target="#assignTenantModal{{ unit.id }}" class="rems-btn rems-btn--primary"><i class="fa-solid fa-user-plus me-2"></i>Assign Tenant</a>
+        {% endif %}
+    </div>
+</div>
+{% include "properties/units/remove_tenant.html" %}
+{% include "properties/units/set_tenant.html" %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--blue">
+            <div class="stat-card__body">
+                <p class="stat-card__label">Rent</p>
+                <h2 class="stat-card__value" style="font-size:1.2rem;">Kes {{ unit.rent|floatformat:0 }}</h2>
             </div>
         </div>
-        
-        <!-- Quick Stats -->
-        <div class="row mb-4">
-            <div class="col-md-4 mb-3">
-                <div class="card stats-card h-100" style="border-left-color: #17a2b8;">
-                    <div class="card-body">
-                        <h6 class="text-muted">Total Revenue</h6>
-                        <h3>{{total_rent}}</h3>
-                        <p class="mb-0 text-info">Year to date</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card stats-card h-100" style="border-left-color: #dc3545;">
-                    <div class="card-body">
-                        <h6 class="text-muted">Maintenance Costs</h6>
-                        <h3>{{maintenance_cost}}</h3>
-                        <p class="mb-0 text-danger">Year to date</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card stats-card h-100" style="border-left-color: #ffc107;">
-                    <div class="card-body">
-                        <h6 class="text-muted">Avg. Water Bill</h6>
-                        <h3>{{average_water_bill}}</h3>
-                        <p class="mb-0 text-warning">Monthly</p>
-                    </div>
-                </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--emerald">
+            <div class="stat-card__body">
+                <p class="stat-card__label">Water Avg</p>
+                <h2 class="stat-card__value" style="font-size:1.2rem;">Kes {{ average_water_bill|floatformat:0 }}</h2>
             </div>
         </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--amber">
+            <div class="stat-card__body">
+                <p class="stat-card__label">Maintenance Cost</p>
+                <h2 class="stat-card__value" style="font-size:1.2rem;">Kes {{ maintenance_cost|floatformat:0 }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--rose">
+            <div class="stat-card__body">
+                <p class="stat-card__label">Avg Rent Paid</p>
+                <h2 class="stat-card__value" style="font-size:1.2rem;">Kes {{ total_rent|floatformat:0 }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
 
-        <!-- Payment History -->
-        <div class="card">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Rent History</h5>
-                <!--
-                <button class="btn btn-sm btn-outline-primary">
-                    <i class="fas fa-download"></i> Export
-                </button>
-                -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-lg-4">
+        <div class="rems-card">
+            <div class="rems-card__header">
+                <h5 class="rems-card__title">Unit Profile</h5>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Date</th>
-                                <th>Payment Method</th>
-                                <th>Amount</th>
-                                <th>Paid On</th>
-                                <th>Payer</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for payment in payments %}
-                            <tr>
-                                <td>{{forloop.counter}}</td>
-                                <td>{{payment.payment_date}}</td>
-                                <td>{{payment.payment_method}}</td>
-                                <td>{{payment.amount_paid}}</td>
-                                <td>{{payment.created_at}}</td>
-                                <td>{{payment.rent_bill.tenant.user.name}}</td>
-                            </tr>
-                           {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% if payments.paginator.num_pages > 1 %}
-                <nav aria-label="Rent payments pagination" class="mt-3">
-                    <ul class="pagination justify-content-center">
-                        {% if payments.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?payments_page={{ payments.previous_page_number }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                        
-                        {% for num in payments.paginator.page_range %}
-                            {% if num == payments.number %}
-                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                            {% else %}
-                            <li class="page-item"><a class="page-link" href="?payments_page={{ num }}">{{ num }}</a></li>
-                            {% endif %}
+            <div class="rems-card__body">
+                <ul class="detail-list">
+                    <li><span class="dl-label">Property</span><span class="dl-val">{{ unit.property.name|default:"—" }}</span></li>
+                    <li><span class="dl-label">Unit Type</span><span class="dl-val">{{ unit.unit_type|default:"—" }}</span></li>
+                    <li><span class="dl-label">Status</span><span class="dl-val">{{ unit.status|default:"—" }}</span></li>
+                    <li><span class="dl-label">Occupied</span><span class="dl-val">{% if unit.is_occupied %}Yes{% else %}No{% endif %}</span></li>
+                    <li><span class="dl-label">Security Deposit</span><span class="dl-val">Kes {{ unit.security_deposit|floatformat:0 }}</span></li>
+                    <li><span class="dl-label">Water Price</span><span class="dl-val">Kes {{ unit.water_price|floatformat:0 }}</span></li>
+                    <li><span class="dl-label">Tenant</span><span class="dl-val">{% if unit.tenant and unit.tenant.user %}{{ unit.tenant.user.first_name }} {{ unit.tenant.user.last_name }}{% else %}—{% endif %}</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+        <div class="rems-card mb-4">
+            <div class="rems-card__header">
+                <h5 class="rems-card__title">Water Bills</h5>
+                <p class="rems-card__subtitle">{{ water_bills.paginator.count }} record(s)</p>
+            </div>
+            <div class="table-responsive">
+                <table class="rems-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Reading</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in water_bills %}
+                        <tr>
+                            <td>{% if bill.month %}{{ bill.month.name }}{% else %}—{% endif %} {% if bill.year %}{{ bill.year.name }}{% endif %}</td>
+                            <td>{{ bill.previous_reading }} → {{ bill.current_reading }}</td>
+                            <td class="fw-600">Kes {{ bill.amount|floatformat:0 }}</td>
+                            <td>
+                                {% if bill.fully_paid %}
+                                    <span class="rems-badge rems-badge--green">Paid</span>
+                                {% elif bill.amount_paid > 0 %}
+                                    <span class="rems-badge rems-badge--amber">Partial</span>
+                                {% else %}
+                                    <span class="rems-badge rems-badge--red">Unpaid</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-muted">No water bills found.</td></tr>
                         {% endfor %}
-
-                        {% if payments.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?payments_page={{ payments.next_page_number }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Maintenance History -->
-        <div class="card">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Maintenance History</h5>
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal{{unit.id}}">
-                    <i class="fas fa-plus"></i> New Request
-                </button>
-            </div>
-            {% include "properties/maintenance_requests/new_maintenance_request.html" %}
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Date</th>
-                                <th>Issue</th>
-                                <th>Priority</th>
-                                <th>Cost</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for rq in maintenance_requests %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td>{{rq.created_at.date}}</td>
-                                <td>{{rq.title}}</td>
-                                <td><span class="badge bg-warning">{{rq.priority}}</span></td>
-                                <td>{{rq.cost}}</td>
-                                <td><span class="badge bg-success">{{rq.status}}</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-info">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% if maintenance_requests.paginator.num_pages > 1 %}
-                <nav aria-label="Maintenance requests pagination" class="mt-3">
-                    <ul class="pagination justify-content-center">
-                        {% if maintenance_requests.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?maintenance_page={{ maintenance_requests.previous_page_number }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Monthly Bills</h5>
+        <p class="rems-card__subtitle">{{ monthly_bills.paginator.count }} bill(s)</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tenant</th>
+                    <th>Period</th>
+                    <th>Total (Rent + Water)</th>
+                    <th>Paid</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in monthly_bills %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{% if bill.tenant and bill.tenant.user %}{{ bill.tenant.user.first_name }} {{ bill.tenant.user.last_name }}{% else %}—{% endif %}</td>
+                    <td>{{ bill.month.name }} {{ bill.year.name }}</td>
+                    <td class="fw-600 text-success">Kes {{ bill.amount_expected|floatformat:0 }}</td>
+                    <td class="fw-600 text-success">Kes {{ bill.amount_paid|floatformat:0 }}</td>
+                    <td class="fw-600 text-danger">Kes {{ bill.balance|floatformat:0 }}</td>
+                    <td>
+                        {% if bill.fully_paid %}
+                            <span class="rems-badge rems-badge--green">Fully Paid</span>
+                        {% elif bill.amount_paid > 0 %}
+                            <span class="rems-badge rems-badge--amber">Partially Paid</span>
+                        {% else %}
+                            <span class="rems-badge rems-badge--red">Unpaid</span>
                         {% endif %}
-                        
-                        {% for num in maintenance_requests.paginator.page_range %}
-                            {% if num == maintenance_requests.number %}
-                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                            {% else %}
-                            <li class="page-item"><a class="page-link" href="?maintenance_page={{ num }}">{{ num }}</a></li>
-                            {% endif %}
-                        {% endfor %}
-
-                        {% if maintenance_requests.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?maintenance_page={{ maintenance_requests.next_page_number }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Water Bills History -->
-        <div class="card">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Water Bills History</h5>
-                
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Month</th>
-                                <th>Prev.</th>
-                                <th>Usage (units)</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for bill in water_bills %}
-                            <tr>
-                                <td>{{forloop.counter}}</td>
-                                <td>{{bill.month}}(<b>{{bill.year}}</b>)</td>
-                                <td>{{bill.previous_reading}}</td>
-                                <td>{{bill.current_reading}}</td>
-                                <td>{{bill.amount}}</td>
-                                <td><span class="badge bg-warning">{{bill.status}}</span></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% if water_bills.paginator.num_pages > 1 %}
-                <nav aria-label="Water bills pagination" class="mt-3">
-                    <ul class="pagination justify-content-center">
-                        {% if water_bills.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?water_bills_page={{ water_bills.previous_page_number }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                        
-                        {% for num in water_bills.paginator.page_range %}
-                            {% if num == water_bills.number %}
-                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                            {% else %}
-                            <li class="page-item"><a class="page-link" href="?water_bills_page={{ num }}">{{ num }}</a></li>
-                            {% endif %}
-                        {% endfor %}
-
-                        {% if water_bills.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?water_bills_page={{ water_bills.next_page_number }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
-            </div>
-        </div>
-
-        {% include "properties/units/edit_unit.html" %}
-        {% include "properties/units/edit_unit_copy.html" %}
-        {% include "properties/units/delete_unit.html" %}
-{% endblock content %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-muted">No monthly bills found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

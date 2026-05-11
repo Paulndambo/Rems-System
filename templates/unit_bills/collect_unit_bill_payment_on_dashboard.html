@@ -1,0 +1,173 @@
+<div class="modal fade" id="collectPendingUnitBillPaymentModal{{ row.pk }}" tabindex="-1" aria-labelledby="collectPaymentLabel{{ bill.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="collectPaymentLabel{{ row.pk }}">
+                    <i class="fa-solid fa-money-bill-wave"></i> Collect Payment
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="collectPaymentForm{{ row.pk }}" method="POST" action="{% url 'collect-unit-bill-payment-on-dashboard' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="hidden" name="unit_bill_id" value="{{ row.pk }}">
+                    
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 fw-bold">Bill Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-4 fw-bold">Unit:</div>
+                                <div class="col-8">{{ row.property_name }} ({{ row.unit_label }})</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 fw-bold">Tenant:</div>
+                                <div class="col-8">{{ row.tenant_name }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 fw-bold">Period:</div>
+                                <div class="col-8">{{ row.period }}</div>
+                            </div>
+                            <hr>
+                            <div class="row mb-2">
+                                <div class="col-4 fw-bold">Rent Due:</div>
+                                <div class="col-8">Kes {{ row.rent_balance }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 fw-bold">Garbage Due:</div>
+                                <div class="col-8">Kes {{ row.garbage_balance }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 fw-bold">Water Due:</div>
+                                <div class="col-8">Kes {{ row.water_balance }}</div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-4 fw-bold">Total Due:</div>
+                                <div class="col-8 fw-bold text-primary fs-5">Kes {{ row.balance }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Payment Collection</h6>
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="quickFillDashboardPayment{{ row.pk }}()">
+                            <i class="fa-solid fa-bolt"></i> Quick Fill (Full Amount)
+                        </button>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="rent_amount_{{ row.pk }}" class="form-label fw-bold">
+                                Rent Payment <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="rent_amount_{{ row.pk }}" 
+                                   name="rent_amount" 
+                                   min="0"
+                                   max="{{ row.rent_balance }}"
+                                   step="0.01"
+                                   value="0"
+                                   placeholder="0.00"
+                                   required>
+                            <div class="form-text">Max: Kes {{ row.rent_balance }}</div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="garbage_amount_{{ row.pk }}" class="form-label fw-bold">
+                                Garbage Payment <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="garbage_amount_{{ row.pk }}" 
+                                   name="garbage_amount" 
+                                   min="0"
+                                   max="{{ row.garbage_balance }}"
+                                   step="0.01"
+                                   value="0"
+                                   placeholder="0.00"
+                                   disabled
+                                   required>
+                            <div class="form-text">Max: Kes {{ row.garbage_balance }}</div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="water_amount_{{ row.pk }}" class="form-label fw-bold">
+                                Water Payment <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="water_amount_{{ row.pk }}" 
+                                   name="water_amount" 
+                                   min="0"
+                                   max="{{ row.water_balance }}"
+                                   step="0.01"
+                                   value="0"
+                                   placeholder="0.00"
+                                   required>
+                            <div class="form-text">Max: Kes {{ row.water_balance }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="payment_method_{{ row.pk }}" class="form-label fw-bold">
+                                Payment Method <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="payment_method_{{ row.pk }}" name="payment_method" required>
+                                <option value="M-Pesa">M-Pesa</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="payment_date_{{ row.pk }}" class="form-label fw-bold">
+                                Payment Date <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" 
+                                   class="form-control" 
+                                   id="payment_date_{{ row.pk }}" 
+                                   name="payment_date" 
+                                   value="{% now 'Y-m-d' %}"
+                                   required>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mb-3">
+                        <i class="fa-solid fa-info-circle"></i> 
+                        <small>You can collect partial payments. The bill status will update automatically based on the amount collected.</small>
+                    </div>
+                    
+                    <div class="alert alert-success payment-total-display mb-0" style="display: none;">
+                        <i class="fa-solid fa-calculator"></i> 
+                        <strong>Total Collecting:</strong> 
+                        <span class="fs-5 ms-2">Kes <span class="total-amount">0.00</span></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa-solid fa-check-circle"></i> Collect Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function quickFillDashboardPayment{{ row.pk }}() {
+    document.getElementById('rent_amount_{{ row.pk }}').value = {{ row.rent_balance }};
+    document.getElementById('water_amount_{{ row.pk }}').value = {{ row.water_balance }};
+    
+    // Trigger input event to update total calculator
+    const event = new Event('input', { bubbles: true });
+    document.getElementById('rent_amount_{{ row.pk }}').dispatchEvent(event);
+}
+</script>

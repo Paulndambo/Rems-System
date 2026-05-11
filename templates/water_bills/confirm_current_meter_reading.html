@@ -1,0 +1,64 @@
+<div class="modal fade" id="confirmCurrentMeterReadingModal{{ bill.id }}" tabindex="-1" aria-labelledby="confirmMeterReadingLabel{{ bill.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="confirmMeterReadingLabel{{ bill.id }}">
+                    <i class="fa-solid fa-check-circle"></i> Confirm Meter Reading
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="confirmMeterReadingForm{{ bill.id }}" method="POST" action="{% url 'confirm-current-meter-readings' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="hidden" name="bill_id" value="{{ bill.id }}">
+                    
+                    <div class="alert alert-warning">
+                        <i class="fa-solid fa-exclamation-triangle"></i> 
+                        <strong>Please confirm the following details:</strong>
+                    </div>
+                    
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-6 fw-bold">Unit:</div>
+                                <div class="col-6">{{ bill.unit.property.name }} ({{ bill.unit.name }})</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6 fw-bold">Period:</div>
+                                <div class="col-6">{{ bill.month.name }} {{ bill.year.name }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6 fw-bold">Previous Reading:</div>
+                                <div class="col-6">{{ bill.previous_reading }} Units</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6 fw-bold">Current Reading:</div>
+                                <div class="col-6 text-success fw-bold">{{ bill.current_reading }} Units</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6 fw-bold">Water Consumption:</div>
+                                <div class="col-6 text-primary fw-bold">{{ bill.consumption }} Units</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6 fw-bold">Water Bill:</div>
+                                <div class="col-6 fw-bold">Kes {{ bill.water_amount }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted mb-0">
+                        <small>Once confirmed, this bill will be finalized and ready for payment collection.</small>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa-solid fa-check"></i> Yes, Confirm Bill
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

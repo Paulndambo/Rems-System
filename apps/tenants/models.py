@@ -19,7 +19,7 @@ class Tenant(AbstractBaseModel):
         return self.user.username
 
     def unit(self):
-        return PropertyUnit.objects.filter(tenant=self).first()
+        return PropertyUnit.objects.get(tenant=self)
 
     def lease_end_date(self):
         if self.lease_date:

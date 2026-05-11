@@ -1,25 +1,36 @@
-from django.db.models import Sum, Count
-from django.db.models.functions import ExtractMonth, TruncMonth
 from datetime import datetime, timedelta
+from decimal import Decimal
+from typing import Dict, Any
+
+from django.db.models import Sum, F
+from django.db.models.functions import ExtractMonth, TruncMonth
 from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from apps.properties.models import Property, WaterBill, PropertyUnit
+from django.http import HttpRequest
+
+from apps.properties.models import Property, WaterBill, PropertyUnit, MaintenanceRequest
 from apps.tenants.models import Tenant
 
 # from apps.payments.models import WaterBill, TenantMonthlyBill
 from apps.core.models import WaterPrice, Year, Month
-from apps.payments.models import RentPayment, RentBill
-from apps.core.constants import MONTHS_LIST, UserRoles, MaintenanceStatuses
+from apps.payments.models import RentPayment, RentBill, UnitMonthBill, SecurityDeposit
+from apps.core.constants import MONTHS_LIST, UserRoles, MaintenanceStatuses, PriorityLevels
 import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
 
 # Create your views here.
+def landing_page(request: HttpRequest):
+    if request.user.is_authenticated:
+        return redirect("home")
+    return render(request, "landing.html")
+
+
 @login_required
-def home(request):
-    if request.user.role == UserRoles.CARETAKER.value:
+def home(request: HttpRequest):
+    if request.user.role == UserRoles.CARETAKER.value or request.user.role == UserRoles.HOUSE_MANAGER.value:
         return redirect("caretaker-dashboard")
 
     year = datetime.now().date().year
@@ -82,11 +93,17 @@ def home(request):
     )
 
     for payment in recent_payments:
+        if payment.tenant and payment.tenant.user:
+            tenant_label = payment.tenant.user.get_full_name() or payment.tenant.user.username
+        else:
+            tenant_label = "Tenant"
+        unit_label = payment.unit.name if payment.unit else "Unit"
+        month_label = payment.month.name if payment.month else ""
         recent_activities.append(
             {
                 "type": "payment",
                 "title": "New Payment Received",
-                "description": f"{payment.tenant.name} paid rent for {payment.unit.unit_number} ({payment.month.name})",
+                "description": f"{tenant_label} paid rent for {unit_label} ({month_label})",
                 "timestamp": payment.updated_at,
                 "icon_class": "fa-check",
                 "bg_class": "success",
@@ -101,10 +118,105 @@ def home(request):
     current_year = datetime.now().year
     available_years = list(range(current_year - 3, current_year + 1))
 
-    context = {
+    now = timezone.now()
+    cal_month_name = now.strftime("%B")
+    cal_year_name = str(now.date().year)
+    current_month_obj = (
+        Month.objects.filter(year__name=cal_year_name, name=cal_month_name)
+        .select_related("year")
+        .first()
+    )
+
+    unpaid_qs = UnitMonthBill.objects.filter(fully_paid=False)
+
+    outstanding_total = unpaid_qs.aggregate(
+        t=Sum(F("amount_expected") - F("amount_paid"))
+    )["t"] or Decimal("0")
+    tenants_unpaid_count = (
+        unpaid_qs.exclude(tenant__isnull=True)
+        .values("tenant_id")
+        .distinct()
+        .count()
+    )
+
+    collected_this_month = Decimal("0")
+    home_bill_rows = []
+    if current_month_obj:
+        collected_this_month = (
+            UnitMonthBill.objects.filter(month=current_month_obj, fully_paid=False).aggregate(
+                s=Sum("amount_paid")
+            )["s"]
+            or Decimal("0")
+        )
+        unit_badge_tones = ("mint", "peach", "rose", "teal", "sage")
+        for idx, ub in enumerate(
+            UnitMonthBill.objects.filter(month=current_month_obj, fully_paid=False)
+            .select_related("tenant__user", "unit")
+            .order_by("unit__name")[:12]
+        ):
+            bal = ub.balance()
+            if ub.tenant and ub.tenant.user:
+                tname = (ub.tenant.user.get_full_name() or "").strip() or ub.tenant.user.username
+            else:
+                tname = "—"
+            unit_label = ub.unit.name if ub.unit else "—"
+            if ub.fully_paid:
+                pay_status = "paid"
+            elif ub.amount_paid and ub.amount_paid > 0:
+                pay_status = "partial"
+            else:
+                pay_status = "unpaid"
+            home_bill_rows.append(
+                {
+                    "unit_label": unit_label,
+                    "property_name": ub.unit.property.name if ub.unit and ub.unit.property else "—",
+                    "tenant_name": tname,
+                    "period": f"{ub.month.name} {ub.month.year.name}" if ub.month and ub.month.year else "—",
+                    "rent": ub.rent_amount,
+                    "water": ub.water_amount,
+                    "rent_balance": ub.rent_balance(),
+                    "water_balance": ub.water_balance(),
+                    "garbage_balance": ub.garbage_balance(),
+                    "total": ub.amount_expected,
+                    "status": pay_status,
+                    "balance": bal,
+                    "pk": ub.pk,
+                    "unit_tone": unit_badge_tones[idx % len(unit_badge_tones)],
+                }
+            )
+
+    open_repairs_qs = MaintenanceRequest.objects.exclude(
+        status=MaintenanceStatuses.COMPLETED.value
+    )
+    open_repairs_count = open_repairs_qs.count()
+    high_priority_repairs = open_repairs_qs.filter(
+        priority=PriorityLevels.HIGH.value
+    ).count()
+
+    pending_deposits_qs = SecurityDeposit.objects.filter(fully_paid=False).select_related(
+        "tenant__user"
+    )
+    pending_deposits_count = pending_deposits_qs.count()
+    first_pending_deposit = pending_deposits_qs.first()
+
+    def _deposit_summary(dep):
+        if not dep:
+            return None
+        if dep.tenant and dep.tenant.user:
+            nm = (dep.tenant.user.get_full_name() or "").strip() or dep.tenant.user.username
+        else:
+            nm = "Tenant"
+        bal = dep.balance()
+        return {"name": nm, "amount": bal}
+
+    header_property = (
+        Property.objects.filter(is_active=True).order_by("name").first()
+    )
+
+    context: Dict[str, Any] = {
         "properties_count": properties_count,
         "tenants_count": tenants_count,
-        "total_revenue": f"${total_revenue:,.2f}",
+        "total_revenue": f"KES {total_revenue:,.2f}",
         # Chart data
         "chart_data": {
             "labels": json.dumps(labels),
@@ -115,40 +227,49 @@ def home(request):
         "occupancy_data": {
             "occupied": occupied_units,
             "vacant": vacant_units,
+            "total_units": total_units,
         },
         "recent_activities": recent_activities,
         "available_years": available_years,
         "current_year": current_year,
+        "dashboard_period": now.strftime("%B %Y"),
+        "dashboard_property_name": header_property.name if header_property else "All properties",
+        "tenants_unpaid_count": tenants_unpaid_count,
+        "outstanding_total": outstanding_total,
+        "collected_this_month": collected_this_month,
+        "open_repairs_count": open_repairs_count,
+        "high_priority_repairs": high_priority_repairs,
+        "pending_deposits_count": pending_deposits_count,
+        "first_pending_deposit": _deposit_summary(first_pending_deposit),
+        "home_bill_rows": home_bill_rows,
+        "has_current_month_bills": bool(current_month_obj),
     }
-
     return render(request, "home.html", context)
 
 
 @login_required
-def caretaker_dashboard(request):
+def caretaker_dashboard(request: HttpRequest):
     rent_bills = RentBill.objects.exclude(fully_paid=True).order_by("-created_at")
     water_bills = WaterBill.objects.exclude(
         status__in=[MaintenanceStatuses.COMPLETED.value, MaintenanceStatuses.PAID.value]
     ).order_by("-created_at")
 
-    total_rent = RentBill.objects.aggregate(total_amount=Sum("amount_expected"))[
-        "total_amount"
-    ]
-    total_water = WaterBill.objects.aggregate(total_amount=Sum("amount"))[
-        "total_amount"
-    ]
+    total_rent = RentBill.objects.aggregate(total_amount=Sum("amount_expected"))["total_amount"]
+    total_water = WaterBill.objects.aggregate(total_amount=Sum("amount"))["total_amount"]
 
-    total_rent_paid = RentBill.objects.aggregate(total_amount=Sum("amount_paid"))[
-        "total_amount"
-    ]
-    total_water_paid = WaterBill.objects.aggregate(total_amount=Sum("amount_paid"))[
-        "total_amount"
-    ]
+    total_rent_paid = RentBill.objects.aggregate(total_amount=Sum("amount_paid"))["total_amount"]
+    total_water_paid = WaterBill.objects.aggregate(total_amount=Sum("amount_paid"))["total_amount"]
 
-    total_rent_due = total_rent - total_rent_paid
-    total_water_due = total_water - total_water_paid
+    total_rent_due = 0
+    total_water_due = 0
 
-    context = {
+    if total_rent and total_rent_paid:
+        total_rent_due = total_rent - total_rent_paid
+
+    if total_water and total_water_paid:
+        total_water_due = total_water - total_water_paid
+
+    context: Dict[str, Any] = {
         "rent_bills": rent_bills[:5],
         "water_bills": water_bills[:5],
         "bill_months": MONTHS_LIST,
@@ -165,16 +286,19 @@ def caretaker_dashboard(request):
 
 
 @login_required
-def years(request):
+def years(request: HttpRequest):
     years = Year.objects.all().order_by("-created_at")
     context = {"years": years}
     return render(request, "settings/years.html", context)
 
 
 @login_required
-def new_year(request):
+def new_year(request: HttpRequest):
     if request.method == "POST":
         name = request.POST.get("name")
+
+        if Year.objects.filter(name=name).exists():
+            return redirect("years")
 
         year = Year.objects.create(name=name)
 
@@ -186,7 +310,7 @@ def new_year(request):
 
 
 @login_required
-def deactivate_year(request, id):
+def deactivate_year(request: HttpRequest, id: int):
     year = Year.objects.get(id=id)
     year.is_active = False
     year.months.update(is_active=False)
@@ -195,7 +319,7 @@ def deactivate_year(request, id):
 
 
 @login_required
-def activate_year(request, id):
+def activate_year(request: HttpRequest, id: int):
     year = Year.objects.get(id=id)
     year.is_active = True
     year.months.update(is_active=True)
@@ -204,21 +328,21 @@ def activate_year(request, id):
 
 
 @login_required
-def months(request):
+def months(request: HttpRequest):
     months = Month.objects.all().order_by("-created_at")
     context = {"months": months}
     return render(request, "settings/months.html", context)
 
 
 @login_required
-def water_prices(request):
+def water_prices(request: HttpRequest):
     water_prices = WaterPrice.objects.all().order_by("-created_at")
     context = {"water_prices": water_prices}
     return render(request, "settings/water_prices.html", context)
 
 
 @login_required
-def edit_water_price(request):
+def edit_water_price(request: HttpRequest):
     if request.method == "POST":
         water_price_id = request.POST.get("water_price_id")
         unit_price = request.POST.get("unit_price")
@@ -229,7 +353,7 @@ def edit_water_price(request):
 
 
 @require_GET
-def chart_data_api(request):
+def chart_data_api(request: HttpRequest):
     """API endpoint to get chart data for a specific year"""
     year = request.GET.get("year", datetime.now().year)
     try:

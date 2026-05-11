@@ -1,98 +1,111 @@
 {% extends "base.html" %}
-    {% block additional_styles %}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <style>
-     
-   
-        /* New styles for tenants table */
-        .tenant-status {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.875rem;
-        }
+{% load static %}
 
-        .status-active {
-            background-color: #d4edda;
-            color: #155724;
-        }
+{% block title %}Years – REMS{% endblock %}
+{% block page_title %}Years{% endblock %}
 
-        .status-inactive {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            #sidebar {
-                margin-left: calc(-1 * var(--sidebar-width));
-            }
-
-            #sidebar.collapsed {
-                margin-left: 0;
-            }
-
-            #content {
-                width: 100%;
-                margin-left: 0;
-            }
-
-            #content.expanded {
-                width: calc(100% - var(--sidebar-collapsed-width));
-                margin-left: var(--sidebar-collapsed-width);
-            }
-        }
-    </style>
-{% endblock additional_styles %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Years List</h5>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newYearModal">
-                <i class="fas fa-plus me-2"></i>Add New Year
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">System Years</h1>
+    </div>
+    <a href="{% url 'new-year' %}" class="rems-btn rems-btn--primary" id="btn-add-year">
+        <i class="fa-solid fa-user-plus me-2"></i> Add Year
+    </a>
+</div>
+
+<!-- Search -->
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" value="{{ request.GET.search }}"
+                       class="form-control search-input" id="userSearch"
+                       placeholder="Search by name or ID…">
+            </div>
+            <button type="submit" class="rems-btn rems-btn--primary">
+                <i class="fa-solid fa-search me-1"></i> Search
             </button>
+            {% if request.GET.search %}
+            <a href="{% url 'years' %}" class="rems-btn rems-btn--ghost">
+                <i class="fa-solid fa-xmark me-1"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="rems-card">
+    <div class="rems-card__header">
+        <div>
+            <h5 class="rems-card__title">All Years</h5>
+            <p class="rems-card__subtitle">{{ page_obj.paginator.count }} year(s) found</p>
         </div>
     </div>
-    <div class="card-body">
-        <table id="tenantsTable" class="table table-sm table-responsive" style="width:100%">
+    <div class="table-responsive">
+        <table class="rems-table" id="usersTable">
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Year</th>
+                    <th>Name</th>
                     <th>Status</th>
-                    <th>Added On</th>
-                    <th>Last Modified</th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 {% for year in years %}
                 <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td>{{year.name}}</td>
-                    <td>{% if year.is_active %}Active{% else %}Inactive{% endif %}</td>
-                    <td>{{year.created_at}}</td>
-                    <td>{{year.updated_at}}</td>
+                    <td class="text-muted" style="font-size:.8rem">{{ forloop.counter }}</td>
                     <td>
-                        {%  if year.is_active %}
-                        <a href="{% url 'deactivate-year' year.id %}" class="btn btn-sm btn-danger">Deactivate</a>
-                        {% else %}
-                        <a href="{% url 'activate-year' year.id %}" class="btn btn-sm btn-primary me-1">Activate</a>
-                        {% endif %}
+                        <div class="d-flex align-items-center gap-2">
+                    
+                        {{ year.name }}
                     </td>
-                   
+                
+                    <td>
+                        <span class="rems-badge {% if user.is_active %}rems-badge--green{% else %}rems-badge--red{% endif %}">
+                            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </td>
+                    
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-user-slash fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No users found.</p>
+                            <a href="{% url 'new-user' %}" class="rems-btn rems-btn--primary">
+                                <i class="fa-solid fa-user-plus me-2"></i> Add First User
+                            </a>
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span style="font-size:.8rem;color:var(--text-muted)">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        <nav>
+            <ul class="pagination pagination-sm mb-0 rems-pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"><i class="fa-solid fa-chevron-left"></i></a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if num == page_obj.number %}active{% endif %}"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"><i class="fa-solid fa-chevron-right"></i></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
 </div>
-{% endblock content %}
+{% endblock %}
 

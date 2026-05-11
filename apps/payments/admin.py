@@ -10,9 +10,24 @@ from .models import (
     GarbageBillPayment,
     SecurityDeposit,
     SecurityDepositPayment,
+    TemporaryMonthBill
 )
 
 # Register your models here.
+
+@admin.register(TemporaryMonthBill)
+class TemporaryMonthBillAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "unit",
+        "month",
+        "year",
+        "rent_amount",
+        "current_reading",
+        "previous_reading",
+        "status",
+    ]
+    list_filter = ("year", "month", "unit")
 
 
 @admin.register(UnitMonthBill)
@@ -114,7 +129,6 @@ class GarbageBillAdmin(admin.ModelAdmin):
         "status",
         "fully_paid",
     ]
-    list_filter = ("unit_bill__unit", "unit_bill__month", "unit_bill__year")
 
 
 @admin.register(GarbageBillPayment)
@@ -126,12 +140,7 @@ class GarbageBillPaymentAdmin(admin.ModelAdmin):
         "payment_date",
         "payment_method",
     ]
-    list_filter = (
-        "garbage_bill__unit_bill__unit",
-        "garbage_bill__unit_bill__month",
-        "garbage_bill__unit_bill__year",
-    )
-
+    
 
 @admin.register(SecurityDeposit)
 class SecurityDepositAdmin(admin.ModelAdmin):

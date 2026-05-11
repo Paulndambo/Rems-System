@@ -288,4 +288,4 @@ def water_payments_report(request):
         "expected_amounts": json.dumps(expected_amounts),
         "paid_amounts": json.dumps(paid_amounts),
     }
-    return render(request, "reports/water_payments_report.html", context)
+    return render(request, "reports/water_bills_report.html", context)

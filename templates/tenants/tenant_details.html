@@ -1,260 +1,160 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block additional_styles %}
-<style>
-    .tenant-photo {
-        width: 150px;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 50%;
-    }
-    .stats-card {
-        transition: transform 0.3s;
-    }
-    .stats-card:hover {
-        transform: translateY(-5px);
-    }
-    .table-container {
-        background: white;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-</style>
-{% endblock additional_styles %}
+{% block title %}Tenant Details – REMS{% endblock %}
+{% block page_title %}Tenant Details{% endblock %}
 
 {% block content %}
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <h2 class="mb-3 text-center">{{tenant.user.name}}</h2>
-                            <hr>
-                            <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <p><strong>Email:</strong> {{tenant.user.email}}</p>
-                                        <p><strong>Phone:</strong> {{tenant.user.phone}}</p>
-                                        <p><strong>Marital Status:</strong> {{tenant.user.marital_status}}</p>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <p><strong>Move-in Date:</strong> {{tenant.move_in_date}}</p>
-                                        <p><strong>Lease End Date:</strong> {{tenant.lease_end_date}}</p>
-                                        <p><strong>Status:</strong> <span class="badge bg-success">{{tenant.status}}</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Analytics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card stats-card bg-primary text-white">
-                    <div class="card-body">
-                        <h6 class="card-title">Total Rent Paid</h6>
-                        <h3 class="card-text">{{total_rent_paid}}</h3>
-                  
-                    </div>
-                </div>
-            </div>
-           
-            <div class="col-md-4">
-                <div class="card stats-card bg-info text-white">
-                    <div class="card-body">
-                        <h6 class="card-title">Total Water Bill Paid</h6>
-                        <h3 class="card-text">{{total_water_paid}}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card stats-card bg-danger text-white">
-                    <div class="card-body">
-                        <h6 class="card-title">Total Debt</h6>
-                        <h3 class="card-text">{{total_debt}}</h3>
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Rented Units Table -->
-        <div class="table-container">
-            <h4 class="mb-3">Rented Units</h4>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>#</th>
-                            <th>Property</th>
-                            <th>Unit No.</th>
-                            <th>Type</th>
-                            <th>Floor</th>
-                            <th>Monthly Rent</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for unit in units %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{unit.property.name}}</td>
-                            <td>{{unit.name}}</td>
-                            <td>{{unit.unit_type}}</td>
-                            <td>{{unit.floor}}</td>
-                            <td>{{unit.rent}}</td>
-                            
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% if units.has_other_pages %}
-                <nav aria-label="Units pagination" class="mt-3">
-                    <ul class="pagination justify-content-center">
-                        {% if units.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?units_page={{ units.previous_page_number }}&water_page={{ water_bills.number }}&payments_page={{ payments.number }}">Previous</a>
-                            </li>
-                        {% endif %}
-                        
-                        {% for num in units.paginator.page_range %}
-                            <li class="page-item {% if units.number == num %}active{% endif %}">
-                                <a class="page-link" href="?units_page={{ num }}&water_page={{ water_bills.number }}&payments_page={{ payments.number }}">{{ num }}</a>
-                            </li>
-                        {% endfor %}
-                        
-                        {% if units.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?units_page={{ units.next_page_number }}&water_page={{ water_bills.number }}&payments_page={{ payments.number }}">Next</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
+<!-- Back + Actions -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+        <a href="{% url 'tenants' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <div>
+            <h1 class="fs-4 fw-bold mb-0">{{ tenant.user.first_name }} {{ tenant.user.last_name }}</h1>
+            <p class="text-muted mb-0" style="font-size:.82rem">Tenant profile & payment history</p>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'edit-tenant' %}?id={{ tenant.pk }}" class="rems-btn rems-btn--ghost">
+            <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+        </a>
+    </div>
+</div>
+
+<!-- Top Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--blue">
+            <div class="stat-card__icon"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Expected Rent</p>
+                <h2 class="stat-card__value" style="font-size:1.3rem">Kes {{ total_expected_rent|floatformat:0 }}</h2>
             </div>
         </div>
-
-        <!-- Water Bills Table -->
-        <div class="table-container">
-            <h4 class="mb-3">Water Bills</h4>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>#</th>
-                            <th>Unit</th>
-                            <th>Month</th>
-                            <th>Units</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for bill in water_bills %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{bill.unit.name}}</td>
-                            <td>{{ bill.month }}(<b>{{bill.year}}</b>)</td>
-                            <td>{{bill.current_reading}}</td>
-                            <td>{{bill.amount}}</td>
-                            
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% if water_bills.has_other_pages %}
-                <nav aria-label="Water bills pagination" class="mt-3">
-                    <ul class="pagination justify-content-center">
-                        {% if water_bills.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?units_page={{ units.number }}&water_page={{ water_bills.previous_page_number }}&payments_page={{ payments.number }}">Previous</a>
-                            </li>
-                        {% endif %}
-                        
-                        {% for num in water_bills.paginator.page_range %}
-                            <li class="page-item {% if water_bills.number == num %}active{% endif %}">
-                                <a class="page-link" href="?units_page={{ units.number }}&water_page={{ num }}&payments_page={{ payments.number }}">{{ num }}</a>
-                            </li>
-                        {% endfor %}
-                        
-                        {% if water_bills.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?units_page={{ units.number }}&water_page={{ water_bills.next_page_number }}&payments_page={{ payments.number }}">Next</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--emerald">
+            <div class="stat-card__icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Rent Paid</p>
+                <h2 class="stat-card__value" style="font-size:1.3rem">Kes {{ total_rent_paid|floatformat:0 }}</h2>
             </div>
         </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--amber">
+            <div class="stat-card__icon"><i class="fa-solid fa-droplet"></i></div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Water Paid</p>
+                <h2 class="stat-card__value" style="font-size:1.3rem">Kes {{ total_water_paid|floatformat:0 }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-card--violet">
+            <div class="stat-card__icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="stat-card__body">
+                <p class="stat-card__label">Total Debt</p>
+                <h2 class="stat-card__value" style="font-size:1.3rem">Kes {{ total_debt|floatformat:0 }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
 
-        <!-- Payments Table -->
-        <div class="table-container">
-            <h4 class="mb-3">Payment History</h4>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>#</th>
-                            <th>Date Paid</th>
-                            <th>Payment For</th>
-                            <th>Amount Paid</th>
-                            <th>Month</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for payment in payments %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ payment.created_at.date }}</td>
-                            <td>{{ payment.payment_type }}</td>
-                            <td>{{ payment.amount_paid }}</td>
-                            <td>{{ payment.month.name }}(<b>{{payment.year.name}}</b>)</td>
-                        </tr>
-                       {% endfor %}
-                    </tbody>
-                </table>
-                {% if payments.has_other_pages %}
-                <nav aria-label="Payments pagination" class="mt-3">
-                    <ul class="pagination justify-content-center">
-                        {% if payments.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?units_page={{ units.number }}&water_page={{ water_bills.number }}&payments_page={{ payments.previous_page_number }}">Previous</a>
-                            </li>
-                        {% endif %}
-                        
-                        {% for num in payments.paginator.page_range %}
-                            <li class="page-item {% if payments.number == num %}active{% endif %}">
-                                <a class="page-link" href="?units_page={{ units.number }}&water_page={{ water_bills.number }}&payments_page={{ num }}">{{ num }}</a>
-                            </li>
-                        {% endfor %}
-                        
-                        {% if payments.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?units_page={{ units.number }}&water_page={{ water_bills.number }}&payments_page={{ payments.next_page_number }}">Next</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
+<div class="row g-4">
+    <!-- Profile -->
+    <div class="col-12 col-lg-6">
+        <div class="rems-card mb-4">
+            <div class="rems-card__body text-center">
+                <div class="tenant-avatar-lg mx-auto mb-3">
+                    {{ tenant.user.first_name|first|upper }}{{ tenant.user.last_name|first|upper }}
+                </div>
+                <h5 class="fw-700 mb-0">{{ tenant.user.first_name }} {{ tenant.user.last_name }}</h5>
+                <p class="text-muted mb-2" style="font-size:.8rem">{{ tenant.user.email|default:"No email" }}</p>
+                <span class="rems-badge {% if tenant.status == 'Active' %}rems-badge--green{% else %}rems-badge--red{% endif %}">
+                    {{ tenant.status }}
+                </span>
+            </div>
+            <div class="rems-card__body border-top pt-3">
+                <ul class="detail-list">
+                    <li><span class="dl-label"><i class="fa-solid fa-phone"></i> Phone</span><span class="dl-val">{{ tenant.user.phone|default:"—" }}</span></li>
+                    <li><span class="dl-label"><i class="fa-solid fa-id-card"></i> ID Number</span><span class="dl-val">{{ tenant.user.id_number|default:"—" }}</span></li>
+                    <li><span class="dl-label"><i class="fa-solid fa-venus-mars"></i> Gender</span><span class="dl-val">{{ tenant.user.gender|default:"—" }}</span></li>
+                    <li><span class="dl-label"><i class="fa-solid fa-heart"></i> Marital</span><span class="dl-val">{{ tenant.user.marital_status|default:"—" }}</span></li>
+                    <li><span class="dl-label"><i class="fa-solid fa-briefcase"></i> Occupation</span><span class="dl-val">{{ tenant.occupation|default:"—" }}</span></li>
+                </ul>
             </div>
         </div>
     </div>
 
-{% endblock content %}
-{% block additional_scripts %} 
-    
-    <script>
-        // Add any interactive functionality here
-        document.addEventListener('DOMContentLoaded', function() {
-            // Example: Add tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-        });
-    </script>
-{% endblock additional_scripts %}
+        <!-- Lease Info -->
+    <div class="col-12 col-lg-6">
+        <div class="rems-card">
+            <div class="rems-card__header">
+                <h5 class="rems-card__title"><i class="fa-regular fa-file-lines me-2"></i>Lease Info</h5>
+            </div>
+            <div class="rems-card__body">
+                <ul class="detail-list">
+                    <li><span class="dl-label">Unit</span><span class="dl-val">{{ tenant.tenantunit.property.name|default:"—" }} ({{ tenant.tenantunit.name|default:"—" }})</span></li>
+                    <li><span class="dl-label">Move-in Date</span><span class="dl-val">{{ tenant.move_in_date|date:"d M Y"|default:"—" }}</span></li>
+                    <li><span class="dl-label">Lease Date</span><span class="dl-val">{{ tenant.lease_date|date:"d M Y"|default:"—" }}</span></li>
+                    <li><span class="dl-label">Lease End</span><span class="dl-val">{{ tenant.lease_end_date|date:"d M Y"|default:"—" }}</span></li>
+                    <li><span class="dl-label">Duration</span><span class="dl-val">{{ tenant.lease_duration|default:"—" }}</span></li>
+                    <li><span class="dl-label">Renews Every</span><span class="dl-val">{{ tenant.renews_every|default:"—" }}</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right column: units, payments -->
+    <div class="col-12 col-lg-12">
+        <!-- Payments -->
+        <div class="rems-card">
+            <div class="rems-card__header">
+                <h5 class="rems-card__title"><i class="fa-solid fa-receipt me-2"></i>Billing History</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="rems-table">
+                    <thead>
+                        <th>#</th>
+                        <th>Period</th>
+                        <th>Rent</th>
+                        <th>Water</th>
+                        <th>Total</th>
+                        <th>Paid</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                    </thead>
+                    <tbody>
+                        {% for bill in monthly_bills %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ bill.month.name }} {{ bill.year.name }}</td>
+                            <td class="fw-600 text-success">Kes {{ bill.rent_amount|floatformat:0 }}</td>
+                            <td class="fw-600 text-success">Kes {{ bill.water_amount|floatformat:0 }}</td>
+                            <td class="fw-600 text-success">Kes {{ bill.amount_expected|floatformat:0 }}</td>
+                            <td class="fw-600 text-success">Kes {{ bill.amount_paid|floatformat:0 }}</td>
+                            <td class="fw-600 text-danger">Kes {{ bill.balance|floatformat:0 }}</td>
+                            <td>
+                                {% if bill.fully_paid %}
+                                    <span class="rems-badge rems-badge--green">Fully Paid</span>
+                                {% elif bill.amount_paid > 0 %}
+                                    <span class="rems-badge rems-badge--amber">Partially Paid</span>
+                                {% else %}
+                                    <span class="rems-badge rems-badge--red">Unpaid</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">No bills recorded.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

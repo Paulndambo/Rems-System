@@ -1,38 +1,91 @@
-<!-- Add this modal HTML after the table in your template -->
-<div class="modal fade" id="newRequestModal{{unit.id}}" tabindex="-1" aria-labelledby="tenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="tenantModalLabel">Add New Maintenance Request</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="tenantForm" method="POST" action="{% url 'new-maintenance-request' %}">
-                <div class="modal-body">
-                    {% csrf_token %}
-                    <input type="number" name="unit" id="unit" value="{{unit.id}}" readonly hidden>
-                    <div class="mb-3">
-                        <label for="name" class="form-label fw-bold">Request Title</label>
-                        <input type="text" class="form-control" id="title" name="title" required>
-                    </div>    
-                    <div class="mb-2">
-                        <label for="description" class="form-label fw-bold">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="2" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="move_in_date" class="form-label fw-bold">Priority</label>
-                        <select class="form-select" id="priority" name="priority" required>
-                            <option value="" disabled selected>Select Priority</option>
-                            <option value="Low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">High</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="text-center mb-3">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Request</button>
-                </div>
-            </form>
-        </div>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}New Maintenance Request – REMS{% endblock %}
+{% block page_title %}New Maintenance Request{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'maintenance-requests' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Create Maintenance Request</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Log a new issue for a unit</p>
     </div>
 </div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <form method="POST" action="{% url 'new-maintenance-request' %}">
+            {% csrf_token %}
+            <div class="rems-card mb-4">
+                <div class="rems-card__header">
+                    <h5 class="rems-card__title">Request Details</h5>
+                </div>
+                <div class="rems-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Related Property (Optional)</label>
+                            <select name="property" id="property" class="form-select">
+                                <option value="">None / General Expense</option>
+                                {% for p in properties %}
+                                <option value="{{ p.id }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Related Unit (Optional)</label>
+                            <select name="unit" id="unit" class="form-select">
+                                <option value="">None / Property Wide</option>
+                                {% for u in units %}
+                                <option value="{{ u.id }}">{{ u.property.name }} - {{ u.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label fw-600">Title <span class="text-danger">*</span></label>
+                            <input type="text" name="title" id="title" class="form-control" placeholder="e.g. Leaking sink in kitchen" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Priority <span class="text-danger">*</span></label>
+                            <select name="priority" id="priority" class="form-select" required>
+                                {% for level in priority_levels %}
+                                <option value="{{ level }}">{{ level }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Cost (KES) <span class="text-danger">*</span></label>
+                            <input type="number" name="cost" id="cost" step="0.01" min="0" class="form-control" placeholder="e.g. 5000" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-600">Description <span class="text-danger">*</span></label>
+                            <textarea name="description" id="description" rows="4" class="form-control" placeholder="Describe the maintenance issue..." required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-600">Status <span class="text-danger">*</span></label>
+                            <select name="status" id="status" class="form-select" required>
+                                {% for status in maintenance_statuses %}
+                                    {% if status == "Pending" %}
+                                        <option value="{{ status }}" selected>{{ status }}</option>
+                                    {% else %}
+                                        <option value="{{ status }}">{{ status }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'maintenance-requests' %}" class="rems-btn rems-btn--ghost">Cancel</a>
+                <button type="submit" class="rems-btn rems-btn--primary">
+                    <i class="fa-solid fa-floppy-disk me-2"></i>Create Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -14,20 +14,13 @@ class Property(AbstractBaseModel):
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True)
-    address = models.CharField(max_length=255)
+    address = models.CharField(max_length=255, null=True)
     city = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
     units = models.PositiveIntegerField()
-    house_manager = models.ForeignKey(
-        "users.User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="managedproperties",
-    )
-    garbage_charge = models.DecimalField(
-        max_digits=10, decimal_places=2, default=130.00
-    )
+    house_manager = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="managedproperties")
+    garbage_charge = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("130.00"))
+    water_charge = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("250.00"))
 
     def __str__(self):
         return self.name
@@ -66,98 +59,58 @@ class Property(AbstractBaseModel):
 
 
 class PropertyUnit(AbstractBaseModel):
-    property = models.ForeignKey(
-        Property, on_delete=models.CASCADE, related_name="propertyunits"
-    )
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="propertyunits")
     name = models.CharField(max_length=255)
-    rent = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    rent = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     is_occupied = models.BooleanField(default=False)
-    floor = models.CharField(
-        max_length=255, null=True, blank=True, default="1"
-    )  # models.PositiveIntegerField(default=1)
+    floor = models.CharField(max_length=255, null=True, blank=True, default="1")  # models.PositiveIntegerField(default=1)
     unit_type = models.CharField(max_length=255, null=True, blank=True)
-    tenant = models.ForeignKey(
-        "tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True
-    )
+    tenant = models.OneToOneField("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantunit")
     status = models.CharField(max_length=255, null=True, blank=True)
-    # size = models.FloatField(default=0)
-    security_deposit = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00
-    )
+    security_deposit = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     water_meter_number = models.CharField(max_length=255, null=True, blank=True)
     electricity_meter_number = models.CharField(max_length=255, null=True, blank=True)
-    water_price = models.DecimalField(max_digits=10, decimal_places=2, default=200.00)
+    water_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("200.00"))
 
     def __str__(self):
         return self.name
+    
     
 
 
 class MaintenanceRequest(AbstractBaseModel):
     title = models.CharField(max_length=255)
-    property = models.ForeignKey(Property, on_delete=models.CASCADE)
-    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE)
-    priority = models.CharField(
-        max_length=255,
-        choices=PriorityLevels.choices(),
-        default=PriorityLevels.MEDIUM.value,
-    )
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="maintenancerequests", null=True, blank=True)
+    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE, related_name="maintenancerequests", null=True, blank=True)
+    priority = models.CharField(max_length=255, choices=PriorityLevels.choices(), default=PriorityLevels.MEDIUM.value)
     description = models.TextField()
-    status = models.CharField(
-        max_length=255,
-        default=MaintenanceStatuses.PENDING.value,
-        choices=MaintenanceStatuses.choices(),
-    )
-    image = models.ImageField(upload_to="maintenance/", blank=True, null=True)
-    cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
+    image = models.FileField(upload_to="maintenance/", blank=True, null=True)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
 
     def __str__(self):
-        return self.name
+        return self.title
 
 
 class WaterBill(AbstractBaseModel):
-    unit_bill = models.ForeignKey(
-        "payments.UnitMonthBill", on_delete=models.CASCADE, null=True, blank=True
-    )
+    unit_bill = models.ForeignKey("payments.UnitMonthBill", on_delete=models.CASCADE, null=True, blank=True, related_name="unitwaterbills")
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
-    unit = models.ForeignKey(
-        PropertyUnit, on_delete=models.SET_NULL, null=True, related_name="unitwaterbills"
-    )
-    tenant = models.ForeignKey(
-        "tenants.Tenant",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="tenantwaterbills",
-    )
+    unit = models.ForeignKey(PropertyUnit, on_delete=models.SET_NULL, null=True, related_name="unitwaterbills")
+    tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantwaterbills")
     reading_date = models.DateField(null=True, blank=True)
-    month = models.ForeignKey(
-        "core.Month", on_delete=models.SET_NULL, null=True, blank=True
-    )
-    year = models.ForeignKey(
-        "core.Year", on_delete=models.SET_NULL, null=True, blank=True
-    )
+    month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
+    year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
     meter_number = models.CharField(max_length=255, null=True, blank=True)
-    previous_balance = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00
-    )
-    previous_reading = models.DecimalField(
-        max_digits=10, decimal_places=4, default=0.00
-    )
-    current_reading = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
-    units_consumed = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
-    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=4, default=0.00)
-    status = models.CharField(
-        max_length=255,
-        default=MaintenanceStatuses.PENDING.value,
-        choices=MaintenanceStatuses.choices(),
-    )
+    previous_balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    previous_reading = models.DecimalField(max_digits=10, decimal_places=4, default=Decimal("0.00"))
+    current_reading = models.DecimalField(max_digits=10, decimal_places=4, default=Decimal("0.00"))
+    units_consumed = models.DecimalField(max_digits=10, decimal_places=4, default=Decimal("0.00"))
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=4, default=Decimal("0.00"))
+    status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
     due_date = models.DateField(null=True, blank=True)
     fully_paid = models.BooleanField(default=False)
 
-    #def __init__(self):
-    #    return self.unit.name if self.unit else "N/A"
 
     def total_amount(self):
         water_price = self.unit.water_price
@@ -211,29 +164,13 @@ class WaterBill(AbstractBaseModel):
 
 class GarbageBill(AbstractBaseModel):
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
-    unit = models.ForeignKey(
-        PropertyUnit, on_delete=models.CASCADE, related_name="unitgarbagebills"
-    )
-    tenant = models.ForeignKey(
-        "tenants.Tenant",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="tenantgarbagebills",
-    )
-    month = models.ForeignKey(
-        "core.Month", on_delete=models.SET_NULL, null=True, blank=True
-    )
-    year = models.ForeignKey(
-        "core.Year", on_delete=models.SET_NULL, null=True, blank=True
-    )
-    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    status = models.CharField(
-        max_length=255,
-        default=MaintenanceStatuses.PENDING.value,
-        choices=MaintenanceStatuses.choices(),
-    )
+    unit = models.ForeignKey(PropertyUnit, on_delete=models.CASCADE, related_name="unitgarbagebills")
+    tenant = models.ForeignKey("tenants.Tenant", on_delete=models.SET_NULL, null=True, blank=True, related_name="tenantgarbagebills")
+    month = models.ForeignKey("core.Month", on_delete=models.SET_NULL, null=True, blank=True)
+    year = models.ForeignKey("core.Year", on_delete=models.SET_NULL, null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    status = models.CharField(max_length=255, default=MaintenanceStatuses.PENDING.value, choices=MaintenanceStatuses.choices())
 
     def __str__(self):
         return self.unit.name

@@ -5,14 +5,14 @@ from django.db.models import Avg
 from datetime import datetime
 from decimal import Decimal
 from django.views.generic import ListView
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.db.models import Q
 from django.db import transaction
 from django.core.paginator import Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from apps.properties.models import Property, PropertyUnit, MaintenanceRequest, WaterBill
-from apps.core.models import Month, Year
+from apps.core.models import Month, Year, UserAction
 from apps.tenants.models import Tenant
 from apps.payments.models import RentPayment, RentBill
 from apps.users.models import User
@@ -63,12 +63,18 @@ MONTHS = [
 @login_required
 def property_detail(request, id):
     property = get_object_or_404(Property, id=id)
-    units = PropertyUnit.objects.filter(property=property)
+    all_units = PropertyUnit.objects.filter(property=property).order_by('name')
+    
+    # Paginate units (7 per page)
+    paginator = Paginator(all_units, 7)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
     maintenance_requests = MaintenanceRequest.objects.filter(
         unit__property=property, status="Pending"
     ).count()
 
-    unit_numbers = [unit.name for unit in units]
+    unit_numbers = [unit.name for unit in page_obj.object_list]
 
     rent_data = {unit: {month: "Unpaid" for month in MONTHS} for unit in unit_numbers}
 
@@ -77,7 +83,7 @@ def property_detail(request, id):
     )
     for bill in bills:
         month_name = bill.month.name
-        if month_name in MONTHS:
+        if month_name in MONTHS and bill.unit.name in rent_data:
             status = (
                 "Fully Paid"
                 if bill.fully_paid
@@ -85,13 +91,13 @@ def property_detail(request, id):
             )
             rent_data[bill.unit.name][month_name] = status
 
-    # Generate rows for the table
+    # Generate rows for the table using only the units on this page
     rows = []
     for unit in unit_numbers:
         row = [unit] + [rent_data[unit][month] for month in MONTHS]
         rows.append(row)
 
-    occupied_units = units.filter(is_occupied=True).count()
+    occupied_units = all_units.filter(is_occupied=True).count()
     tenants = Tenant.objects.all()
     house_managers = User.objects.filter(
         role__in=["House Manager", "Landlord", "Caretaker"]
@@ -99,7 +105,8 @@ def property_detail(request, id):
 
     context = {
         "property": property,
-        "units": units,
+        "units": page_obj,
+        "page_obj": page_obj,
         "unit_numbers": unit_numbers,
         "months": MONTHS,
         "rows": rows,
@@ -115,6 +122,9 @@ def property_detail(request, id):
 
 @login_required
 def new_property(request):
+    house_managers = User.objects.filter(
+        role__in=["Landlord", "House Manager", "Caretaker"]
+    )
     if request.method == "POST":
         owner = request.user
         name = request.POST.get("name")
@@ -124,13 +134,16 @@ def new_property(request):
         country = request.POST.get("country")
         units = request.POST.get("units")
         house_manager = request.POST.get("house_manager")
+        
         user = User.objects.get(id=house_manager)
 
         garbage_charge = request.POST.get("garbage_charge")
+        water_charge = request.POST.get("water_charge")
         Property.objects.create(
             owner=owner,
             name=name,
             garbage_charge=garbage_charge,
+            water_charge=water_charge,
             address=address,
             city=city,
             country=country,
@@ -138,41 +151,20 @@ def new_property(request):
             is_active=True,
             house_manager=user,
         )
-        return redirect("properties")
-    return render(request, "properties/new_property.html")
-
-
-@login_required
-def new_property(request):
-    if request.method == "POST":
-        owner = request.user
-        name = request.POST.get("name")
-        address = request.POST.get("address")
-        city = request.POST.get("city")
-
-        country = request.POST.get("country")
-        units = request.POST.get("units")
-        house_manager = request.POST.get("house_manager")
-        user = User.objects.get(id=house_manager)
-
-        garbage_charge = request.POST.get("garbage_charge")
-        Property.objects.create(
-            owner=owner,
-            name=name,
-            garbage_charge=garbage_charge,
-            address=address,
-            city=city,
-            country=country,
-            units=units,
-            is_active=True,
-            house_manager=user,
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Created property '{name}'",
+            action_type="Create",
+            description=f"Created property '{name}'",
         )
         return redirect("properties")
-    return render(request, "properties/new_property.html")
+    return render(request, "properties/new_property.html", {"house_managers": house_managers})
+
 
 
 @login_required
 def edit_property(request):
+    current_property = Property.objects.filter(id=request.GET.get("id")).first()
     if request.method == "POST":
         property_id = request.POST.get("property_id")
         name = request.POST.get("name")
@@ -181,6 +173,7 @@ def edit_property(request):
         country = request.POST.get("country")
         units = request.POST.get("units")
         garbage_charge = request.POST.get("garbage_charge")
+        water_charge = request.POST.get("water_charge")
 
         house_manager = request.POST.get("house_manager")
         user = User.objects.get(id=house_manager)
@@ -189,21 +182,35 @@ def edit_property(request):
 
         property.name = name
         property.garbage_charge = garbage_charge
+        property.water_charge = water_charge
         property.address = address
         property.city = city
         property.country = country
         property.units = units
         property.house_manager = user
         property.save()
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Edited property '{name}'",
+            action_type="Update",
+            description=f"Edited property '{name}'",
+        )
         return redirect(f"/properties/{property_id}")
-    return render(request, "properties/edit_property.html")
+    return render(request, "properties/edit_property.html", {"property": current_property, "house_managers": User.objects.filter(role__in=["Landlord", "House Manager", "Caretaker"])})
 
 
 @login_required
 def delete_property(request):
     if request.method == "POST":
         property_id = request.POST.get("property_id")
-        Property.objects.get(id=property_id).delete()
+        property = Property.objects.get(id=property_id)
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Deleted property '{property.name}'",
+            action_type="Delete",
+            description=f"Deleted property '{property.name}'",
+        )
+        property.delete()
         return redirect("properties")
     return render(request, "properties/delete_property.html")
 
@@ -235,7 +242,7 @@ class PropertyUnitListView(LoginRequiredMixin, ListView):
 
 
 @login_required
-def property_unit_detail(request, id):
+def property_unit_detail(request: HttpRequest, id: int):
     unit = PropertyUnit.objects.get(id=id)
 
     # Get all data
@@ -271,6 +278,11 @@ def property_unit_detail(request, id):
     )
     total_rent = all_payments.aggregate(total_amount=Avg("amount_paid"))["total_amount"]
 
+    monthly_bills = unit.unitmonthbills.all().order_by("-created_at")
+
+    free_tenants = Tenant.objects.filter(tenantunit__isnull=True)
+    print(f"Free Tenants: {free_tenants}")
+
     context = {
         "unit": unit,
         "maintenance_requests": maintenance_requests,
@@ -280,16 +292,17 @@ def property_unit_detail(request, id):
         "maintenance_cost": round(maintenance_cost, 2) if maintenance_cost else 0,
         "unit_statuses": UNIT_STATUSES,
         "total_rent": round(total_rent, 2) if total_rent else 0,
+        "monthly_bills": monthly_bills,
+        "free_tenants": free_tenants,
     }
     return render(request, "properties/units/unit_details.html", context)
 
 
 @login_required
-def new_property_unit(request):
+def new_property_unit(request: HttpRequest):
+    property = Property.objects.filter(id=request.GET.get("property_id")).first()
     if request.method == "POST":
         property_id = request.POST.get("property_id")
-
-        property = Property.objects.get(id=property_id)
         name = request.POST.get("unit_number")
         rent = request.POST.get("rent")
         unit_type = request.POST.get("unit_type")
@@ -298,8 +311,8 @@ def new_property_unit(request):
         security_deposit = request.POST.get("security_deposit")
         water_price = request.POST.get("water_price")
 
-        PropertyUnit.objects.create(
-            property=property,
+        unit = PropertyUnit.objects.create(
+            property_id=property_id,
             name=name,
             water_price=water_price,
             rent=rent,
@@ -309,14 +322,23 @@ def new_property_unit(request):
             floor=floor,
             security_deposit=security_deposit,
         )
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Created unit '{unit.name}'",
+            action_type="Created",
+            description=f"Created unit '{unit.name}' in property '{unit.property.name}'"
+        )
+
         return redirect("property-detail", id=property_id)
-    return render(request, "properties/units/new_unit.html")
+    return render(request, "properties/units/new_unit.html", {"property": property})
 
 
 @login_required
-def edit_property_unit(request):
+def edit_property_unit(request: HttpRequest):
+    unit = PropertyUnit.objects.filter(id=request.GET.get("unit_id")).first()
     if request.method == "POST":
-        unit_id = request.POST.get("unit_id")
+        
+        unit_id = request.GET.get("unit_id")
         name = request.POST.get("unit_number")
         rent = request.POST.get("rent")
         unit_type = request.POST.get("unit_type")
@@ -324,6 +346,8 @@ def edit_property_unit(request):
         floor = request.POST.get("floor")
         security_deposit = request.POST.get("security_deposit")
         water_price = request.POST.get("water_price")
+
+        print(f"Unit ID: {request.GET.get("unit_id")}")
 
         unit = PropertyUnit.objects.get(id=unit_id)
         unit.name = name
@@ -336,36 +360,74 @@ def edit_property_unit(request):
         unit.security_deposit = security_deposit
         unit.save()
 
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Edited unit '{name}'",
+            action_type="Updated",
+            description=f"Edited unit '{name}' in property '{unit.property.name}'"
+        )
+
         return redirect("unit-detail", id=unit.id)
-    return render(request, "properties/units/edit_unit.html")
+    return render(request, "properties/units/edit_unit.html", {"unit": unit, "unit_types": UNIT_TYPES, "statuses": UNIT_STATUSES})
 
 
 @login_required
-def delete_property_unit(request):
+def delete_property_unit(request: HttpRequest):
     if request.method == "POST":
         unit_id = request.POST.get("unit_id")
         unit = PropertyUnit.objects.get(id=unit_id)
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Deleted unit '{unit.name}'",
+            action_type="Deleted",
+            description=f"Deleted unit '{unit.name}' from property '{unit.property.name}'"
+        )
         unit.delete()
         return redirect("units")
     return render(request, "properties/units/delete_unit.html")
 
 
 @login_required
-def assign_tenant(request):
+def assign_tenant(request: HttpRequest):
     if request.method == "POST":
         unit_id = request.POST.get("unit_id")
-        tenant_id = request.POST.get("tenant")
+        tenant_id = request.POST.get("tenant_id")
         unit = PropertyUnit.objects.get(id=unit_id)
         tenant = Tenant.objects.get(id=tenant_id)
         unit.tenant = tenant
         unit.is_occupied = True
         unit.status = "Occupied"
         unit.save()
-        return redirect("property-detail", id=unit.property.id)
-    return render(request, "properties/units/assign_tenant.html")
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Assigned tenant",
+            action_type="Update",
+            description=f"Assigned tenant '{tenant.user.first_name} {tenant.user.last_name}' to unit '{unit.name}' in property '{unit.property.name}'"
+        )
+        return redirect("unit-detail", id=unit_id)
+    return render(request, "properties/units/set_tenant.html")
 
 
-def get_units_by_property(request):
+@login_required
+def remove_tenant(request: HttpRequest):
+    if request.method == "POST":
+        unit_id = request.POST.get("unit_id")
+        unit = PropertyUnit.objects.get(id=unit_id)
+        unit.tenant = None
+        unit.is_occupied = False
+        unit.status = "Vacant"
+        unit.save()
+        UserAction.objects.create(
+            user=request.user,
+            action=f"Removed tenant",
+            action_type="Create",
+            description=f"Tenant Removed from unit '{unit.name}' in property '{unit.property.name}'"
+        )
+        return redirect("unit-detail", id=unit_id)
+    return render(request, "properties/units/remove_tenant.html")
+
+
+def get_units_by_property(request: HttpRequest):
     property_id = request.GET.get("property_id")
     if property_id:
         units = PropertyUnit.objects.filter(property_id=property_id)

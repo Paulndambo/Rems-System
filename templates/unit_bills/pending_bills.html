@@ -1,128 +1,100 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pending Bills – REMS{% endblock %}
+{% block page_title %}Pending Bills{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header bg-white py-3">
-        <div class="row g-3 align-items-center">
-            <div class="col-12 col-md-8">
-                <h5 class="mb-0 text-primary">
-                    <i class="fas fa-tint me-2"></i>Pending Bills
-                </h5>
-
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0">
-                        <i class="fas fa-search text-muted"></i>
-                    </span>
-                    <input type="text" class="form-control border-start-0" 
-                        placeholder="Search bills..." 
-                        id="searchInput" 
-                        value="{{ search_query }}">
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="card-body">
-        <div class="loader" id="loader"></div>
-        <div class="table-responsive">
-            <table id="tenantsTable" class="table table-hover align-middle display">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Unit</th>
-                        <th>Tenant</th>
-                        <th>Pending Bill</th>
-                     
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    {% for bill in pending_bills %}
-
-                    <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{bill.unit_name}}</td>
-                        <td>{{bill.tenant}}</td>
-                        <td>{{bill.total_unpaid}}</td>
-                        <!--
-                        <td>
-                                <button class="btn btn-sm btn-primary" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#sendWhatsAppModal{{bill.id}}"
-
-                                        title="Message">
-                                        <i class="bi bi-envelope"></i>
-
-                                </button>
-                        </td>
--->
-
-                        {% include 'notifications/send_unit_bill_notification.html' %}
-                    </tr>
-                
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        {% if not pending_bills %}
-        <div class="text-center py-5">
-            <div class="mb-3">
-                <i class="fas fa-water fa-3x text-muted"></i>
-            </div>
-            <h6 class="text-muted">No water bills found</h6>
-            <p class="text-muted small">Add a new water bill to get started</p>
-        </div>
-        {% endif %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="fs-4 fw-bold mb-0">Pending Bills</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem">Track and collect outstanding rent, water and garbage bills</p>
     </div>
 </div>
-{% endblock content %}
 
-{% block additional_scripts %}
-<!-- Add DataTables CSS and JS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize DataTable
-    let table = $('#tenantsTable').DataTable({
-        "pageLength": 10,
-        "ordering": true,
-        "searching": true,
-        "paging": true,
-        "language": {
-            "search": "",
-            "searchPlaceholder": "Search bills..."
-        },
-        "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
-        "columnDefs": [
-            { "orderable": false, "targets": [6] }
-        ]
-    });
-
-    // Use DataTables search instead of custom search
-    $('#searchInput').on('keyup', function() {
-        table.search(this.value).draw();
-    });
-
-    // Integrate the existing search box with DataTables
-    $('.dataTables_filter').hide();
-    
-    // Print functionality
-    function printWaterBill(billId) {
-        const printContent = document.getElementById('printArea' + billId);
-        const originalContent = document.body.innerHTML;
-        
-        document.body.innerHTML = printContent.innerHTML;
-        window.print();
-        document.body.innerHTML = originalContent;
-        
-        // Reload the page after printing
-        window.location.href = "{% url 'water-bills' %}";
-    }
-});
-</script>
-{% endblock additional_scripts %}
+<div class="rems-card mb-4">
+    <div class="rems-card__body py-3">
+        <form method="GET" class="d-flex gap-2 flex-wrap" role="search">
+            <div class="search-wrap flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" value="{{ search_query }}" class="form-control search-input" placeholder="Tenant, unit, property, billing period, status…" autocomplete="off">
+            </div>
+            <button type="submit" class="rems-btn rems-btn--primary">Search</button>
+            {% if search_query %}
+            <a href="{% url 'pending-bills' %}" class="rems-btn rems-btn--ghost align-self-stretch">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+<div class="rems-card">
+    <div class="rems-card__header">
+        <h5 class="rems-card__title">Pending Bills</h5>
+        <p class="rems-card__subtitle">{{ page_obj.paginator.count }} bill(s) found{% if search_query %} · search: {{ search_query }}{% endif %}</p>
+    </div>
+    <div class="table-responsive">
+        <table class="rems-table">
+            <thead>
+                <tr>
+                    <th>Unit</th>
+                    <th>Period</th>
+                    <th>Total Due</th>
+                    <th>Amount Paid</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in pending_bills %}
+                <tr>
+                    <td>
+                        {{ bill.unit.property.name }}
+                        <span class="rems-badge rems-badge--blue">{{ bill.unit.name }}</span>
+                    </td>
+                    <td class="fw-600">{{ bill.month.name }} {{ bill.year.name }}</td>
+                    <td class="fw-700 text-primary">Kes {{ bill.amount_expected }}</td>
+                    <td class="fw-600 text-success">Kes {{ bill.amount_paid }}</td>
+                    <td class="fw-700 text-danger">Kes {{ bill.balance }}</td>
+                    <td>
+                        {% if bill.status == "Pending" %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                        {% elif bill.status == "Partially Paid" %}
+                        <span class="badge bg-info">Partially Paid</span>
+                        {% elif bill.status == "Paid" %}
+                        <span class="badge bg-success">Paid</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ bill.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if bill.status == "Pending" or bill.status == "Partially Paid" %}
+                        <div class="btn-group" role="group">
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#collectPendingBillPaymentModal{{ bill.id }}" class="btn btn-sm btn-primary">
+                                <i class="fa-solid fa-money-bill-wave"></i> Collect
+                            </button>
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% include "unit_bills/collect_pending_bill.html" %}
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5 class="fw-700">No Pending Bills</h5>
+                            <p class="text-muted">All bills have been paid!</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div class="rems-card__body border-top">
+        {% include "partials/pagination.html" with page_obj=page_obj %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

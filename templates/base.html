@@ -4,301 +4,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yunukee</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js" integrity="sha512-L0Shl7nXXzIlBSUUPpxrokqq4ojqgZFQczTYlGjzONGTDAcLremjwaWv5A+EDLnxhQzY5xUZPWLOLqYRkY0Cbw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-   <style>
-        :root {
-            --sidebar-width: 250px;
-            --sidebar-collapsed-width: 70px;
-            --topbar-height: 60px;
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-        }
+    <meta name="description" content="REMS – Real Estate Management System: manage properties, tenants, bills, and reports from one place.">
+    <title>{% block title %}REMS – Real Estate Management{% endblock %}</title>
 
-        .wrapper {
-            display: flex;
-            width: 100%;
-            min-height: 100vh;
-        }
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-        #sidebar {
-            width: var(--sidebar-width);
-            background: var(--primary-color);
-            color: #fff;
-            transition: all 0.3s;
-            position: fixed;
-            height: 100vh;
-            z-index: 1000;
-        }
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 
-        #sidebar.collapsed {
-            width: var(--sidebar-collapsed-width);
-        }
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-        #sidebar .sidebar-header {
-            padding: 20px;
-            background: var(--secondary-color);
-            height: var(--topbar-height);
-        }
+    <!-- Custom CSS: main first so :root tokens exist before sidebar -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
 
-        #sidebar ul.components {
-            padding: 20px 0;
-            border-bottom: 1px solid #47748b;
-        }
-
-        #sidebar ul li a {
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            color: #fff;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-
-        #sidebar ul li a:hover {
-            background: #34495e;
-        }
-
-        #sidebar ul li a i {
-            margin-right: 10px;
-            width: 30px;
-            text-align: center;
-        }
-
-        #sidebar.collapsed .nav-label,
-        #sidebar.collapsed .submenu {
-            display: none;
-        }
-
-        #sidebar .submenu {
-            padding-left: 50px;
-            background: var(--secondary-color);
-        }
-
-        #content {
-            width: calc(100% - var(--sidebar-width));
-            margin-left: var(--sidebar-width);
-            transition: all 0.3s;
-        }
-
-        #content.expanded {
-            width: calc(100% - var(--sidebar-collapsed-width));
-            margin-left: var(--sidebar-collapsed-width);
-        }
-
-        .topbar {
-            height: var(--topbar-height);
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-        }
-
-        .card-stats {
-            transition: transform 0.3s;
-        }
-
-        .card-stats:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-icon {
-            font-size: 2rem;
-            opacity: 0.8;
-        }
-
-        @media (max-width: 768px) {
-            #sidebar {
-                margin-left: calc(-1 * var(--sidebar-width));
-            }
-
-            #sidebar.collapsed {
-                margin-left: 0;
-            }
-
-            #content {
-                width: 100%;
-                margin-left: 0;
-            }
-
-            #content.expanded {
-                width: calc(100% - var(--sidebar-collapsed-width));
-                margin-left: var(--sidebar-collapsed-width);
-            }
-        }
-        .loader {
-        width: 100%;
-        height: 3px;
-        background-color: #f8f9fc;
-        overflow: hidden;
-        display: none;
-    }
-
-    .loader.active {
-        display: block;
-    }
-
-    .loader::after {
-        content: '';
-        display: block;
-        width: 40%;
-        height: 100%;
-        background-color: #4e73df;
-        animation: loading 1s infinite ease-in-out;
-    }
-
-    @keyframes loading {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(250%); }
-    }
-    </style>
-
-    {% block additional_styles %} {% endblock additional_styles %}
+    {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <div class="wrapper">
-        <!-- Sidebar -->
+<body class="{% block body_class %}{% endblock %}">
 
-        {% if request.user.role == "Caretaker" %}
+{% if user.is_authenticated %}
+<!-- ===== FULL LAYOUT WRAPPER ===== -->
+<div class="rems-wrapper" id="remsWrapper">
+
+    <!-- Sidebar -->
+    {% if request.user.role == "Caretaker" or request.user.role == "House Manager" %}
         {% include "includes/caretaker_sidebar.html" %}
-        {% else %}
-            {% include "includes/sidebar.html" %}
-        {% endif %}
-       
-        <!-- Page Content -->
-        <div id="content">
-            <div class="topbar">
-                <button type="button" id="sidebarCollapse" class="btn">
-                    <i class="fas fa-bars"></i>
+    {% else %}
+        {% include "includes/sidebar.html" %}
+    {% endif %}
+
+    <!-- Overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content Area -->
+    <div class="rems-main" id="remsMain">
+
+        <!-- Top Navbar -->
+        <header class="rems-topbar">
+            <div class="topbar-left">
+                <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Sidebar">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
-                <div class="ms-auto d-flex align-items-center">
-                    <div class="dropdown">
-                        <button class="btn dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                        </ul>
-                    </div>
+                <div class="topbar-brand-mobile d-lg-none">
+                    <span class="topbar-brand-mobile__name">REMS</span>
+                </div>
+                <div class="breadcrumb-area d-none d-lg-flex">
+                    <span class="page-title">{% block page_title %}Dashboard{% endblock %}</span>
                 </div>
             </div>
-
-            <div class="container-fluid p-4">
-                {% include "properties/new_property.html" %}
-                {% include "tenants/new_tenant.html" %}
-                {% include "water_bills/new_water_bill.html" %}
-                {% include "properties/maintenance_requests/new_maintenance_request.html" %}
-                {% include "settings/new_year.html" %}
-                {% include "expenses/add_expense.html" %}
-                {% include "rent_bills/generate_rent_bill.html" %}
-                {% include "garbage_bills/new_garbage_bill.html" %}
-                {% include "users/new_user.html" %}
-                {% block content %}
-                {% endblock %}
+            <div class="topbar-right">
+                <div class="topbar-meta d-lg-none">
+                    {% block topbar_meta_mobile %}
+                    <span class="topbar-meta__line1">{% now "F Y" %}</span>
+                    {% endblock %}
+                </div>
+                <!-- Notifications -->
+                <button class="topbar-icon-btn d-none d-md-flex" title="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="badge-dot"></span>
+                </button>
+                <!-- User Menu -->
+                <div class="topbar-user dropdown">
+                    <button class="user-avatar-btn dropdown-toggle" data-bs-toggle="dropdown" id="userDropdown" title="Account">
+                        <div class="user-avatar user-avatar--mobile">
+                            <i class="fa-solid fa-user d-none d-md-inline"></i>
+                            <span class="user-avatar__initials d-md-none">{% filter upper %}{% block mobile_user_initials %}{% if user.first_name and user.last_name %}{{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}{% else %}{{ user.username|slice:":2" }}{% endif %}{% endblock %}{% endfilter %}</span>
+                        </div>
+                        <div class="user-info d-none d-md-block">
+                            <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                            <span class="user-role">{{ user.role|default:"Administrator" }}</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down ms-1 d-none d-md-inline"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end rems-dropdown">
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fa-regular fa-user me-2"></i> My Profile
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </div>
+        </header>
 
-    {% block additional_scripts %} {% endblock additional_scripts %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-   
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('sidebar');
-            const content = document.getElementById('content');
-            const sidebarCollapse = document.getElementById('sidebarCollapse');
+        <!-- Page Content -->
+        <main class="rems-content">
+            <!-- Django Messages -->
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="alert rems-alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' or message.tags == 'danger' %}fa-circle-xmark{% elif message.tags == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
-            sidebarCollapse.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
-                content.classList.toggle('expanded');
-            });
+            {% block content %}{% endblock %}
+        </main>
 
-            // Handle submenu toggles
-            const submenuToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
-            submenuToggles.forEach(toggle => {
-                toggle.addEventListener('click', function(e) {
-                    if (sidebar.classList.contains('collapsed')) {
-                        e.preventDefault();
-                        sidebar.classList.remove('collapsed');
-                        content.classList.remove('expanded');
-                    }
-                });
-            });
+        <!-- Footer -->
+        <footer class="rems-footer">
+            <span>&copy; {% now "Y" %} REMS &mdash; Real Estate Management System. All rights reserved.</span>
+        </footer>
 
-            // Collapse sidebar on mobile by default
-            function checkWidth() {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.add('collapsed');
-                    content.classList.add('expanded');
-                } else {
-                    sidebar.classList.remove('collapsed');
-                    content.classList.remove('expanded');
-                }
-            }
+        {% include "includes/bottom_nav.html" %}
 
-            window.addEventListener('resize', checkWidth);
-            checkWidth();
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const loader = document.getElementById('loader');
-            let searchTimeout;
-    
-            // Search functionality
-            searchInput.addEventListener('keyup', function() {
-                clearTimeout(searchTimeout);
-                loader.classList.add('active');
-    
-                searchTimeout = setTimeout(() => {
-                    const searchQuery = this.value;
-                    window.location.href = `?search=${encodeURIComponent(searchQuery)}`;
-                }, 500);
-            });
-    
-            // Sort functionality
-            document.querySelectorAll('th[data-sort]').forEach(header => {
-                header.addEventListener('click', function() {
-                    const sortField = this.dataset.sort;
-                    const currentIcon = this.querySelector('i');
-                    let direction = 'asc';
-    
-                    if (currentIcon.classList.contains('fa-sort-up')) {
-                        direction = 'desc';
-                    }
-    
-                    window.location.href = `?sort=${sortField}&direction=${direction}`;
-                });
-            });
-    
-            
-            // Utility function to get CSRF token
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-        });
-    </script>
+    </div><!-- /.rems-main -->
+
+</div><!-- /.rems-wrapper -->
+
+{% else %}
+<!-- Unauthenticated page (login, etc.) -->
+<div class="auth-layout">
+    {% block auth_content %}{% endblock %}
+</div>
+{% endif %}
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JS -->
+<script src="{% static 'js/app.js' %}"></script>
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>
-
