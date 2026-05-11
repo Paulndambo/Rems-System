@@ -10,3 +10,4 @@ drf-yasg
 requests
 pillow
 Pillow
+coverage
