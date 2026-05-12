@@ -30,6 +30,12 @@ class DueDateNormalizerTests(TestCase):
         with self.assertRaises(ValueError):
             get_due_date("not-a-month", 2026)
 
+    def test_uses_current_year_when_year_is_not_provided(self):
+        due_date = get_due_date("January")
+
+        self.assertEqual(due_date.month, 1)
+        self.assertEqual(due_date.day, 5)
+
 
 class ConstantsTests(TestCase):
     def test_enum_choices_use_value_as_database_value(self):

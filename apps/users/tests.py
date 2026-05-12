@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from apps.users.models import HouseManager
+
 
 class UserModelTests(TestCase):
     def test_save_normalizes_phone_number(self):
@@ -21,6 +23,11 @@ class UserModelTests(TestCase):
 
         self.assertEqual(user.name(), "Grace Hopper")
 
+    def test_string_representation_uses_username(self):
+        user = get_user_model().objects.create(username="owner")
+
+        self.assertEqual(str(user), "owner")
+
     def test_status_reflects_active_flag(self):
         active_user = get_user_model().objects.create(username="active", is_active=True)
         inactive_user = get_user_model().objects.create(
@@ -29,6 +36,13 @@ class UserModelTests(TestCase):
 
         self.assertEqual(active_user.status(), "Active")
         self.assertEqual(inactive_user.status(), "Inactive")
+
+
+class HouseManagerModelTests(TestCase):
+    def test_string_representation_uses_name(self):
+        manager = HouseManager.objects.create(name="Care Manager")
+
+        self.assertEqual(str(manager), "Care Manager")
 
 
 @override_settings(

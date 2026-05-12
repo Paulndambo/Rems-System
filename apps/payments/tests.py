@@ -11,6 +11,7 @@ from apps.payments.models import (
     GarbageBill,
     RentBill,
     SecurityDeposit,
+    SecurityDepositPayment,
     TemporaryMonthBill,
     TenantPayment,
     UnitMonthBill,
@@ -148,6 +149,31 @@ class OtherPaymentModelTests(BillingTestCase):
         self.assertEqual(garbage_bill.balance(), Decimal("100.00"))
         self.assertEqual(deposit.balance(), Decimal("7500.00"))
         self.assertEqual(str(deposit), "Test Tenant")
+
+    def test_expense_and_security_deposit_payment_strings(self):
+        from apps.payments.models import Expense
+
+        expense = Expense.objects.create(
+            property=self.property,
+            unit=self.unit,
+            title="Paint",
+            amount=Decimal("1500.00"),
+            spend_on=date(2026, 5, 12),
+        )
+        deposit = SecurityDeposit.objects.create(
+            unit=self.unit,
+            tenant=self.tenant,
+            amount_expected=Decimal("10000.00"),
+        )
+        deposit_payment = SecurityDepositPayment.objects.create(
+            security_deposit=deposit,
+            amount_paid=Decimal("1000.00"),
+            payment_date=date(2026, 5, 12),
+            payment_method="Cash",
+        )
+
+        self.assertEqual(str(expense), "Sunrise Apartments")
+        self.assertEqual(str(deposit_payment), "Test Tenant")
 
     def test_temporary_month_bill_calculates_water_and_total(self):
         temporary_bill = TemporaryMonthBill.objects.create(
