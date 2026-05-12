@@ -10,6 +10,6 @@ whitenoise
 drf-yasg
 requests
 pillow
-Pillow
-coverage
 firebase-admin
+gunicorn
+coverage

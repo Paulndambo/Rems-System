@@ -176,7 +176,7 @@ class SecurityDepositPayment(AbstractBaseModel):
     reference_number = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.security_deposit.tenant.user.name}"
+        return self.security_deposit.tenant.user.name()
     
 
 class TemporaryMonthBill(AbstractBaseModel):

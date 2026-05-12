@@ -16,6 +16,7 @@ from apps.properties.models import (
     PropertyUnit,
     WaterBill,
 )
+from apps.properties.water_bills.billing_mixin import TenantBillingMixin
 from apps.tenants.models import Tenant
 
 
@@ -169,6 +170,66 @@ class UtilityBillModelTests(PropertyTestCase):
         self.assertEqual(str(garbage_bill), "A1")
         self.assertEqual(str(electricity_bill), "A1")
         self.assertEqual(electricity_bill.balance(), Decimal("650.00"))
+
+
+class TenantBillingMixinTests(PropertyTestCase):
+    def setUp(self):
+        super().setUp()
+        tenant_user = get_user_model().objects.create(username="billing-tenant")
+        self.tenant = Tenant.objects.create(user=tenant_user)
+        self.unit = PropertyUnit.objects.create(
+            property=self.property,
+            name="B1",
+            rent=Decimal("12000.00"),
+            water_price=Decimal("250.00"),
+            water_meter_number="WM-001",
+            tenant=self.tenant,
+        )
+        self.year = Year.objects.create(name="2026")
+        self.month = Month.objects.create(name="May", year=self.year)
+
+    def test_generate_bill_creates_unit_water_and_rent_bills(self):
+        result = TenantBillingMixin(
+            year=self.year,
+            month=self.month,
+            previous_reading=10,
+            current_reading=14.5,
+            unit=self.unit,
+        ).generate_bill()
+
+        unit_bill = UnitMonthBill.objects.get(unit=self.unit)
+        water_bill = WaterBill.objects.get(unit=self.unit)
+
+        self.assertTrue(result)
+        self.assertEqual(unit_bill.tenant, self.tenant)
+        self.assertEqual(unit_bill.rent_amount, Decimal("12000.00"))
+        self.assertEqual(unit_bill.water_amount, Decimal("1125.00"))
+        self.assertEqual(unit_bill.amount_expected, Decimal("13125.00"))
+        self.assertEqual(water_bill.meter_number, "WM-001")
+        self.assertEqual(water_bill.units_consumed, Decimal("4.5000"))
+
+    def test_generate_bill_updates_existing_unit_bill(self):
+        existing_bill = UnitMonthBill.objects.create(
+            unit=self.unit,
+            tenant=self.tenant,
+            month=self.month,
+            year=self.year,
+            rent_amount=Decimal("1.00"),
+            water_amount=Decimal("1.00"),
+        )
+
+        TenantBillingMixin(
+            year=self.year,
+            month=self.month,
+            previous_reading=20,
+            current_reading=22,
+            unit=self.unit,
+        ).generate_bill()
+
+        existing_bill.refresh_from_db()
+        self.assertEqual(existing_bill.rent_amount, Decimal("12000.00"))
+        self.assertEqual(existing_bill.water_amount, Decimal("500.00"))
+        self.assertEqual(existing_bill.amount_expected, Decimal("12500.00"))
 
 
 class PropertyViewTests(TestCase):

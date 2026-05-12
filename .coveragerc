@@ -1,0 +1,21 @@
+[run]
+source = apps
+omit =
+    */migrations/*
+    */tests.py
+    */admin.py
+    */apps.py
+    */urls.py
+    */views.py
+    */load_*.py
+    */make_payments.py
+    */cloudinary_handler.py
+    */firebase_files_handler.py
+    */firebase_user.py
+    */firebase_auth.py
+    */whatsapp.py
+
+[report]
+show_missing = True
+skip_covered = False
+fail_under = 95
