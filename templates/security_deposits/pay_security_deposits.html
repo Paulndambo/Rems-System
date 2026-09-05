@@ -24,26 +24,29 @@
                 <div class="rems-card__body">
                     <div class="row g-4">
                         <div class="col-md-12">
-                            <label class="form-label fw-600">Deposit Reference ID <span class="text-danger">*</span></label>
-                            <input type="number" name="security_deposit_id" class="form-control" placeholder="e.g. 15 (Check table for ID)" required>
+                            <label class="form-label fw-600">Security Deposit Target <span class="text-danger">*</span></label>
+                            {% if security_deposit %}
+                            <input type="hidden" name="security_deposit_id" value="{{ security_deposit.id }}">
+                            <input type="text" class="form-control" value="{{ security_deposit.tenant.user.name }} · {{ security_deposit.unit.name }} · Balance: KES {{ security_deposit.balance|floatformat:0 }}" readonly>
+                            {% else %}
+                            <input type="text" class="form-control" value="Select a security deposit from the deposits list" readonly>
+                            {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Amount Paid (KES) <span class="text-danger">*</span></label>
-                            <input type="number" name="amount_paid" class="form-control" step="0.01" placeholder="Amount" required>
+                            <input type="number" name="amount_paid" class="form-control" step="0.01" value="{{ security_deposit.balance|default:'' }}" placeholder="Amount" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Payment Date <span class="text-danger">*</span></label>
-                            <input type="date" name="payment_date" class="form-control" required>
+                            <input type="date" name="payment_date" class="form-control" value="{% now 'Y-m-d' %}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-600">Payment Method <span class="text-danger">*</span></label>
                             <select name="payment_method" class="form-select" required>
                                 <option value="">-- Select Method --</option>
-                                <option value="Cash">Cash</option>
-                                <option value="M-Pesa">M-Pesa</option>
-                                <option value="Bank Transfer">Bank Transfer</option>
-                                <option value="Bank Deposit">Bank Deposit</option>
-                                <option value="Cheque">Cheque</option>
+                                {% for value, label in payment_methods %}
+                                <option value="{{ value }}"{% if value == "M-Pesa" %} selected{% endif %}>{{ value }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-6">

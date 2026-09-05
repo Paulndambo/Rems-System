@@ -2,8 +2,9 @@ from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.core.constants import PaymentStatuses
 from apps.core.models import Month, Year
@@ -344,3 +345,82 @@ class PaymentViewTests(TestCase):
                 response = self.client.get(route)
                 self.assertEqual(response.status_code, 302)
                 self.assertIn("/users/login/", response["Location"])
+
+
+@override_settings(
+    STORAGES={
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        },
+    }
+)
+class SecurityDepositPaymentViewTests(BillingTestCase):
+    def setUp(self):
+        super().setUp()
+        self.client.force_login(self.owner)
+        self.deposit = SecurityDeposit.objects.create(
+            unit=self.unit,
+            tenant=self.tenant,
+            amount_expected=Decimal("10000.00"),
+            amount_paid=Decimal("2500.00"),
+        )
+
+    def test_deposit_list_links_to_prefilled_record_payment_form(self):
+        response = self.client.get(reverse("security-deposits"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            f'{reverse("pay-security-deposit")}?security_deposit_id={self.deposit.id}',
+        )
+
+    def test_record_payment_form_prefills_deposit_reference(self):
+        response = self.client.get(
+            f'{reverse("pay-security-deposit")}?security_deposit_id={self.deposit.id}'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "security_deposits/pay_security_deposits.html")
+        self.assertContains(
+            response,
+            f'<input type="hidden" name="security_deposit_id" value="{self.deposit.id}">',
+            html=True,
+        )
+        self.assertNotContains(response, 'type="number" name="security_deposit_id"')
+        self.assertContains(response, "Test Tenant")
+        self.assertContains(response, "A1")
+        self.assertContains(response, "Balance: KES 7500")
+        self.assertContains(
+            response,
+            '<input type="number" name="amount_paid" class="form-control" step="0.01" value="7500.00" placeholder="Amount" required>',
+            html=True,
+        )
+        self.assertContains(
+            response,
+            f'<input type="date" name="payment_date" class="form-control" value="{timezone.localdate():%Y-%m-%d}" required>',
+            html=True,
+        )
+        self.assertContains(response, '<option value="M-Pesa" selected>M-Pesa</option>', html=True)
+
+    def test_record_security_deposit_payment_updates_ledgers_and_status(self):
+        response = self.client.post(
+            reverse("pay-security-deposit"),
+            {
+                "security_deposit_id": self.deposit.id,
+                "amount_paid": "7500.00",
+                "payment_method": "Cash",
+                "payment_date": "2026-05-12",
+                "reference_number": "DEP-001",
+            },
+        )
+
+        self.assertRedirects(response, reverse("security-deposits"))
+        self.deposit.refresh_from_db()
+        self.assertEqual(self.deposit.amount_paid, Decimal("10000.00"))
+        self.assertEqual(self.deposit.status, PaymentStatuses.PAID.value)
+        self.assertTrue(self.deposit.fully_paid)
+        self.assertEqual(SecurityDepositPayment.objects.count(), 1)
+        tenant_payment = TenantPayment.objects.get()
+        self.assertEqual(tenant_payment.payment_type, "Security Deposit")
+        self.assertEqual(tenant_payment.reference, "DEP-001")

@@ -570,7 +570,7 @@ def pay_security_deposit(request: HttpRequest):
         security_deposit.amount_paid += amount_paid
         security_deposit.save()
 
-        if security_deposit.amount_paid == security_deposit.amount_expected:
+        if security_deposit.amount_paid >= security_deposit.amount_expected:
             security_deposit.status = PaymentStatuses.PAID.value
             security_deposit.fully_paid = True
             security_deposit.save()
@@ -590,17 +590,27 @@ def pay_security_deposit(request: HttpRequest):
         )
 
         TenantPayment.objects.create(
+            reference=reference_number,
             tenant=security_deposit.tenant,
             unit=security_deposit.unit,
             amount_paid=amount_paid,
             payment_date=payment_date,
-            security_deposit_payment=security_deposit_payment,
             payment_type="Security Deposit",
             payment_method=payment_method,
         )
 
         return redirect("security-deposits")
-    return render(request, "payments/pay_security_deposit.html")
+
+    security_deposit = None
+    security_deposit_id = request.GET.get("security_deposit_id")
+    if security_deposit_id:
+        security_deposit = SecurityDeposit.objects.filter(id=security_deposit_id).first()
+
+    context = {
+        "security_deposit": security_deposit,
+        "payment_methods": PaymentMethods.choices(),
+    }
+    return render(request, "security_deposits/pay_security_deposits.html", context)
 
 
 def temporary_month_bills_view(request: HttpRequest):
